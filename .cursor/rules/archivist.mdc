@@ -1,0 +1,112 @@
+---
+description: Archivist project rules — architectural invariants, coding standards, and AI decision policy for all development work
+alwaysApply: true
+---
+
+# Archivist — Cursor Project Rules
+
+The canonical reference for this project is `AGENTS.md` at the repository root.
+Read it completely before proposing or implementing any change.
+
+The rules below are the most critical invariants distilled for quick reference.
+They do not replace AGENTS.md — they complement it.
+
+---
+
+## Architectural North Star
+
+Archivist provides stable, domain-driven access to knowledge while allowing retrieval strategies to evolve independently.
+
+- **The domain retrieves** — capabilities define *what* is retrieved
+- **The consuming agent reasons** — synthesis, interpretation, and answers belong to the consumer
+- **The transport adapts** — MCP, REST, CLI are interchangeable adapters
+- **The infrastructure serves the domain** — infrastructure implements interfaces defined by the domain
+
+---
+
+## Non-Negotiable Invariants
+
+**Before writing any code, verify all of these hold.**
+
+1. **Clean Architecture** — the domain must be executable without Spring Boot, Spring AI, or the MCP SDK
+2. **Domain before implementation** — capabilities expose domain concepts, never retrieval technology (`findDecisions`, not `bm25Search`)
+3. **Retrieval, never reasoning** — return `List<Evidence>`, never summaries, interpretations, or answers
+4. **Retrieval strategies are replaceable** — retrieval implementations are private; they implement `port.out` interfaces
+5. **MCP is an adapter** — the domain must be invocable from CLI, REST, and tests without a running MCP server
+6. **Frameworks are plugins** — `org.springframework.*`, `io.modelcontextprotocol.*` belong only in `infrastructure` and `transport`
+7. **Evidence must remain traceable** — every `Evidence` instance must carry a `Provenance` with source and location
+8. **Stable public contract** — `port.in` interfaces must not change when retrieval strategies change
+
+**If a request would violate any invariant, stop and explain the conflict. Do not implement the violation.**
+
+---
+
+## Layer Dependency Rules
+
+| Layer | May import | Must never import |
+|---|---|---|
+| `domain` | Nothing outside `domain` | `spring.*`, `mcp.*`, `infrastructure.*`, `transport.*` |
+| `application` | `domain` only | `spring.*`, `mcp.*`, `infrastructure.*`, `transport.*` |
+| `infrastructure` | `domain`, `application`, `spring.*`, external libs | `transport.*` |
+| `transport` | `domain.model`, `application`, `spring.*`, `mcp.*` | `infrastructure.*` directly |
+
+---
+
+## Package Locations
+
+```
+io.archivist.domain.model          → Evidence, Source, Provenance, Query
+io.archivist.domain.port.in        → Public capability interfaces
+io.archivist.domain.port.out       → Retrieval gateway interfaces
+io.archivist.application.usecase   → Use case interactors
+io.archivist.infrastructure        → Retrieval strategies, Second Brain adapters
+io.archivist.transport.mcp         → MCP adapter
+```
+
+---
+
+## Java Coding Standards
+
+- Java 21+; use records for immutable domain value objects
+- Constructor injection always; never `@Autowired` on fields
+- No star imports; always use qualified imports
+- Spring annotations (`@Component`, `@Service`, `@Bean`) belong only in `infrastructure` and `transport`
+- Domain and application classes carry no Spring annotations
+- Gradle with Kotlin DSL exclusively; never Maven
+
+---
+
+## AI Decision Policy (Priority Order)
+
+1. Preserve Architectural Invariants
+2. Preserve Clean Architecture
+3. Prefer domain-driven design over infrastructure-driven design
+4. Prefer explicit code over clever code
+5. Prefer simple solutions before introducing abstractions
+6. Avoid unnecessary dependencies
+7. Never violate architectural boundaries to make implementation easier
+
+---
+
+## Specification Workflow
+
+Every significant capability requires a specification before implementation.
+
+```
+Issue → Specification (docs/specs/) → Review → Approve → Implement → Verify → Merge
+```
+
+Use `docs/specs/SPEC_TEMPLATE.md` for the specification format.
+
+**Implementation must not begin before specification approval.**
+
+---
+
+## What Archivist Will Never Do
+
+- Summarise, interpret, or answer — that is the consuming agent's responsibility
+- Expose `grep`, `readFile`, `vectorSearch`, or `bm25Search` as public capabilities
+- Couple to a specific Second Brain storage format
+- Import Spring Boot into domain or application layers
+- Change the public contract when switching retrieval strategies
+- Skip the specification step to ship faster
