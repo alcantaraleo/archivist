@@ -87,6 +87,18 @@ Scopes that signal domain work: `capability`, `retrieval`, `domain`, `transport`
 
 **Release**: Automated via Release Please from conventional commits. `feat` and `fix` prefixes trigger version bumps.
 
+**Issue structure**: Every spec produces exactly one GitHub epic issue. Below the epic, create one sub-issue per phase/user story (as defined in `tasks.md`). Tasks (`T001`, `T002`, …) are `- [ ] TNNN: description` checkboxes inside their phase/story sub-issue body — they MUST NOT become standalone issues. The implementation PR links to the epic issue. When running `/speckit-taskstoissues`, always follow this hierarchy:
+
+```
+Epic issue (one per spec)
+  └── Sub-issue: Phase 1 — Setup            (tasks as checkboxes)
+  └── Sub-issue: Phase 2 — Foundational     (tasks as checkboxes)
+  └── Sub-issue: US1 — <story title> (P1)   (tasks as checkboxes)
+  └── Sub-issue: US2 — <story title> (P2)   (tasks as checkboxes)
+  └── ...
+  └── Sub-issue: Polish & Verification       (tasks as checkboxes)
+```
+
 ## Governance
 
 This constitution supersedes all other practices. When conflicts arise, this document is authoritative.
@@ -103,4 +115,4 @@ The extended reference for AI-assisted development is `AGENTS.md` at the reposit
 
 If a request conflicts with an Architectural Invariant (Principles I, II, or III), stop and surface the conflict — do not implement the violation.
 
-**Version**: 1.0.0 | **Ratified**: 2026-07-12 | **Last Amended**: 2026-07-12
+**Version**: 1.1.0 | **Ratified**: 2026-07-12 | **Last Amended**: 2026-07-12

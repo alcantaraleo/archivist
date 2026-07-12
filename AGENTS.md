@@ -517,6 +517,21 @@ Issue → Specification → Review → Approve → Implement → Verify → Merg
 
 If the implementation diverges from the specification, update the specification first and have it re-approved.
 
+### GitHub Issue Structure
+
+Every spec produces exactly one epic issue. Phases and user stories from `tasks.md` become sub-issues of the epic. Individual tasks (`T001`, `T002`, …) are checklist items inside their phase/story sub-issue — they must never become standalone issues.
+
+```
+Epic issue              ← one per spec; PR links here
+  ├── Phase 1 sub-issue      ← tasks T001–T00N as checkboxes
+  ├── Phase 2 sub-issue      ← tasks as checkboxes
+  ├── US1 sub-issue (P1)     ← tasks as checkboxes
+  ├── US2 sub-issue (P2)     ← tasks as checkboxes
+  └── Polish sub-issue       ← tasks as checkboxes
+```
+
+This structure keeps the issue tracker readable. Individual checkboxes can be promoted to GitHub sub-issues from the UI if a single task needs independent tracking.
+
 ---
 
 ## 14. AI Decision Policy
