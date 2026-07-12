@@ -4,11 +4,11 @@ Version change: (none) → 1.0.0  (initial ratification)
 Added sections: Core Principles (I–V), Technology Constraints, Development Workflow, Governance
 Removed sections: N/A (first version)
 Templates requiring updates:
-  ✅ .specify/templates/plan-template.md — Constitution Check gates filled
+  ✅ .specify/templates/plan-template.md — Constitution Check gates filled; Technical Context pre-filled
+  ✅ .specify/templates/spec-template.md — replaced user-story format with Archivist domain-capability
+      format (Motivation, Responsibilities, Public Contract, Acceptance Criteria, Domain Model Impact,
+      Architectural Impact, Out of Scope, Open Questions, Approval)
   ✅ .specify/memory/constitution.md — this file
-  ⚠ .specify/templates/spec-template.md — user-story format retained; Archivist prefers
-      domain-capability spec format (see docs/specs/SPEC_TEMPLATE.md). Spec kit skills
-      may adapt output; reviewers should cross-check against docs/specs/SPEC_TEMPLATE.md.
 Follow-up TODOs: none
 -->
 
@@ -68,6 +68,7 @@ Archivist MUST NOT couple to Obsidian internals: folder paths, wikilink syntax, 
 **Value objects**: Use Java records for immutable domain entities (`Evidence`, `Provenance`, `Query`, etc.)
 
 **Layer import rules** (violations are build failures):
+
 - `domain.*` → imports nothing outside `domain.*`
 - `application.*` → imports `domain.*` only
 - `infrastructure.*` → imports `domain.*`, `application.*`, `spring.*`, external libs; never `transport.*`
@@ -92,6 +93,7 @@ This constitution supersedes all other practices. When conflicts arise, this doc
 The extended reference for AI-assisted development is `AGENTS.md` at the repository root — read it completely before proposing or implementing any change.
 
 **Amendment procedure**:
+
 - Amendments MUST be documented with rationale
 - Amendments MUST be approved before implementation
 - AGENTS.md MUST be updated if principles change
