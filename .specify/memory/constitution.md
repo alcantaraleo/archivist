@@ -1,50 +1,104 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+SYNC IMPACT REPORT
+Version change: (none) → 1.0.0  (initial ratification)
+Added sections: Core Principles (I–V), Technology Constraints, Development Workflow, Governance
+Removed sections: N/A (first version)
+Templates requiring updates:
+  ✅ .specify/templates/plan-template.md — Constitution Check gates filled
+  ✅ .specify/memory/constitution.md — this file
+  ⚠ .specify/templates/spec-template.md — user-story format retained; Archivist prefers
+      domain-capability spec format (see docs/specs/SPEC_TEMPLATE.md). Spec kit skills
+      may adapt output; reviewers should cross-check against docs/specs/SPEC_TEMPLATE.md.
+Follow-up TODOs: none
+-->
+
+# Archivist Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Clean Architecture (NON-NEGOTIABLE)
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+The domain layer MUST be executable and testable without Spring Boot, Spring AI, or the MCP SDK.
+Dependencies MUST always point inward: transport → application → domain. Outward dependencies are never permitted.
+Frameworks (Spring Boot, Spring AI, MCP SDK, vector stores, embedding providers) MUST be treated as plugins — they implement interfaces defined by the domain, never the reverse.
+Any class in `domain.*` or `application.*` that imports `org.springframework.*` or `io.modelcontextprotocol.*` is an architectural violation and MUST be rejected in review.
+Domain and application layers MUST carry no Spring annotations (`@Component`, `@Service`, `@Bean`, `@Autowired`, etc.).
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### II. Domain-Driven Public Contract (NON-NEGOTIABLE)
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+Public capabilities MUST express domain concepts, never retrieval technology.
+MUST: `retrieveContext`, `findDecisions`, `findProjects`, `findPeople`, `findConcepts`, `findRelatedKnowledge`, `findReadings`, `findDebriefs`
+MUST NOT: `vectorSearch`, `bm25Search`, `graphSearch`, `readFile`, `grep`, `getEmbedding`
+The public MCP contract (port.in interfaces) MUST remain stable as retrieval strategies evolve.
+Adding capabilities is permitted. Removing or renaming requires a deprecation period and specification approval.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### III. Retrieval, Never Reasoning (NON-NEGOTIABLE)
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+Archivist MUST only retrieve evidence. It MUST never reason, summarise, interpret, or generate responses.
+All public capabilities MUST return `List<Evidence>`. Returning strings, summaries, or primitive types is a contract violation.
+Every `Evidence` instance MUST include a `Provenance` with: `sourceId`, `title`, `KnowledgeType`, `KnowledgeZone`, `tags`, `sources` (chain to raw material), `created`, `updated`.
+Reasoning, synthesis, and interpretation are the sole responsibility of the consuming agent.
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+### IV. Specification-Driven Development
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+Every significant capability MUST begin with a specification before any implementation.
+Workflow: Issue → Specification (`docs/specs/` or `specs/`) → Review → Approved → Implement → Verify → Merge.
+Implementation MUST NOT begin before specification approval.
+Code MUST NOT become the source of architectural truth. Specifications are the primary design artifact.
+Specifications MUST define: motivation, responsibilities, public contract (capability signature + return shape), acceptance criteria, architectural impact.
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+### V. Replaceable Infrastructure & Evidence Provenance
+
+Retrieval strategies MUST be private implementation details behind `domain.port.out` interfaces.
+Concrete retrieval classes (lexical, BM25, hybrid, graph) MUST live in `infrastructure.retrieval` and MUST NOT be referenced from `application` or `domain` layers.
+Switching retrieval strategies MUST require zero changes to `domain.port.in` interfaces.
+Evidence provenance MUST never be omitted. Every retrieved `Evidence` MUST be traceable to its origin in Second Brain.
+Archivist MUST NOT couple to Obsidian internals: folder paths, wikilink syntax, YAML frontmatter, or file naming conventions.
+
+## Technology Constraints
+
+**Language**: Java 21+
+**Framework**: Spring Boot 3.x (infrastructure and transport layers only)
+**AI / Retrieval integration**: Spring AI (infrastructure layer only)
+**Build**: Gradle with Kotlin DSL exclusively — Maven is never permitted
+**MCP transport**: Spring AI MCP Server (transport layer only)
+**Testing**: JUnit 5, Mockito; domain and application layer tests MUST NOT use Spring test runner
+**Injection**: Constructor injection everywhere; field injection (`@Autowired` on fields) is never permitted
+**Imports**: No star imports; always qualified imports
+**Value objects**: Use Java records for immutable domain entities (`Evidence`, `Provenance`, `Query`, etc.)
+
+**Layer import rules** (violations are build failures):
+- `domain.*` → imports nothing outside `domain.*`
+- `application.*` → imports `domain.*` only
+- `infrastructure.*` → imports `domain.*`, `application.*`, `spring.*`, external libs; never `transport.*`
+- `transport.*` → imports `domain.model.*`, `application.*`, `spring.*`, `mcp.*`; never `infrastructure.*` directly
+
+## Development Workflow
+
+**Lifecycle labels**: `spec: draft` → `spec: review` → `spec: approved` → implementation → `under-review` → `pending-release` → `released`
+
+**PR titles**: MUST follow Conventional Commits — `type(scope): description`
+Scopes that signal domain work: `capability`, `retrieval`, `domain`, `transport`, `infra`
+
+**Spec location**: `docs/specs/SPEC-NNNN-capability-name.md` for domain capability specs; `specs/NNN-feature/` for spec kit feature specs
+
+**Tests**: Domain tests MUST be plain JUnit (no Spring context). Infrastructure tests MAY use `@SpringBootTest`. All tests MUST describe behavior in names, not implementation.
+
+**Release**: Automated via Release Please from conventional commits. `feat` and `fix` prefixes trigger version bumps.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+This constitution supersedes all other practices. When conflicts arise, this document is authoritative.
+The extended reference for AI-assisted development is `AGENTS.md` at the repository root — read it completely before proposing or implementing any change.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Amendment procedure**:
+- Amendments MUST be documented with rationale
+- Amendments MUST be approved before implementation
+- AGENTS.md MUST be updated if principles change
+- Constitution version MUST be incremented: MAJOR for principle removal/redefinition, MINOR for new principle/section, PATCH for clarifications
+
+**Compliance**: All PRs MUST be verified against the Constitution Check in the implementation plan before merge. Complexity violations MUST be justified in the plan's Complexity Tracking table.
+
+If a request conflicts with an Architectural Invariant (Principles I, II, or III), stop and surface the conflict — do not implement the violation.
+
+**Version**: 1.0.0 | **Ratified**: 2026-07-12 | **Last Amended**: 2026-07-12

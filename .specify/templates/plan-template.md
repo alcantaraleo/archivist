@@ -18,29 +18,41 @@
   the iteration process.
 -->
 
-**Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]
+**Language/Version**: Java 21+
 
-**Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]
+**Primary Dependencies**: Spring Boot 3.x, Spring AI, Spring AI MCP Server
 
-**Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]
+**Build**: Gradle (Kotlin DSL) — never Maven
 
-**Testing**: [e.g., pytest, XCTest, cargo test or NEEDS CLARIFICATION]
+**Storage**: Determined per retrieval strategy (implementation detail; hidden behind `domain.port.out`)
 
-**Target Platform**: [e.g., Linux server, iOS 15+, WASM or NEEDS CLARIFICATION]
+**Testing**: JUnit 5 + Mockito; domain/application tests plain JUnit (no Spring context); infrastructure tests may use `@SpringBootTest`
 
-**Project Type**: [e.g., library/cli/web-service/mobile-app/compiler/desktop-app or NEEDS CLARIFICATION]
+**Target Platform**: JVM / Linux server
 
-**Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec, 60 fps or NEEDS CLARIFICATION]
+**Project Type**: MCP server (domain-driven retrieval service)
 
-**Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]
+**Performance Goals**: [NEEDS CLARIFICATION per capability — define per spec]
 
-**Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
+**Constraints**: Domain layer MUST be testable without running server; retrieval strategies MUST be swappable without contract changes
+
+**Scale/Scope**: Personal knowledge system (Second Brain); single-user; optimise for retrieval quality over throughput
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+| Gate | Principle | Check |
+|---|---|---|
+| Domain independence | I. Clean Architecture | Does any `domain.*` or `application.*` class import `org.springframework.*` or `io.modelcontextprotocol.*`? → MUST be NO |
+| Contract language | II. Domain-Driven Public Contract | Do all public capability names use domain terms (not `vectorSearch`, `bm25`, `readFile`)? → MUST be YES |
+| No reasoning in output | III. Retrieval, Never Reasoning | Do all capabilities return `List<Evidence>` (not strings, summaries, or primitives)? → MUST be YES |
+| Provenance completeness | III. Retrieval, Never Reasoning | Does every `Evidence` include a `Provenance` with `sourceId`, `type`, `zone`, `sources`? → MUST be YES |
+| Spec approved | IV. Specification-Driven Development | Is there an approved specification before implementation begins? → MUST be YES |
+| Strategy hidden | V. Replaceable Infrastructure | Are all retrieval implementations behind `domain.port.out` interfaces? → MUST be YES |
+| No Obsidian coupling | V. Replaceable Infrastructure | Does any code reference Obsidian folder paths, wikilink syntax, or YAML frontmatter? → MUST be NO |
+| Build tool | Technology Constraints | Is Gradle (Kotlin DSL) used exclusively? No Maven? → MUST be YES |
+| Injection style | Technology Constraints | Is constructor injection used everywhere? No `@Autowired` on fields? → MUST be YES |
 
 ## Project Structure
 
