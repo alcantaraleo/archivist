@@ -2,9 +2,7 @@
   "packages": {
     ".": {
       "release-type": "java",
-      "extra-files": [
-        "gradle.properties"
-      ]
+      "extra-files": ["gradle.properties"]
     }
   }
 }
