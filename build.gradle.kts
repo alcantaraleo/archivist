@@ -2,11 +2,13 @@ plugins {
     java
 }
 
+version = property("version") as String
+
 subprojects {
     apply(plugin = "java-library")
 
     group = "io.archivist"
-    version = "0.1.0-SNAPSHOT"
+    version = rootProject.version
 
     repositories {
         mavenCentral()
