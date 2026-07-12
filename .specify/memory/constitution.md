@@ -1,14 +1,9 @@
 <!--
 SYNC IMPACT REPORT
-Version change: (none) → 1.0.0  (initial ratification)
-Added sections: Core Principles (I–V), Technology Constraints, Development Workflow, Governance
-Removed sections: N/A (first version)
+Version change: 1.1.0 → 1.1.1  (PATCH — correct Spring Boot version to match scaffold research)
+Changed sections: Technology Constraints — Spring Boot 3.x → 4.x (aligned with specs/001-project-scaffolding/research.md)
 Templates requiring updates:
-  ✅ .specify/templates/plan-template.md — Constitution Check gates filled; Technical Context pre-filled
-  ✅ .specify/templates/spec-template.md — replaced user-story format with Archivist domain-capability
-      format (Motivation, Responsibilities, Public Contract, Acceptance Criteria, Domain Model Impact,
-      Architectural Impact, Out of Scope, Open Questions, Approval)
-  ✅ .specify/memory/constitution.md — this file
+  ✅ .specify/templates/plan-template.md — update Primary Dependencies to Spring Boot 4.x
 Follow-up TODOs: none
 -->
 
@@ -58,7 +53,7 @@ Archivist MUST NOT couple to Obsidian internals: folder paths, wikilink syntax, 
 ## Technology Constraints
 
 **Language**: Java 21+
-**Framework**: Spring Boot 3.x (infrastructure and transport layers only)
+**Framework**: Spring Boot 4.x (infrastructure and transport layers only; pin version in `gradle/libs.versions.toml` — currently 4.1.0 per specs/001-project-scaffolding/research.md)
 **AI / Retrieval integration**: Spring AI (infrastructure layer only)
 **Build**: Gradle with Kotlin DSL exclusively — Maven is never permitted
 **MCP transport**: Spring AI MCP Server (transport layer only)
@@ -119,4 +114,4 @@ The extended reference for AI-assisted development is `AGENTS.md` at the reposit
 
 If a request conflicts with an Architectural Invariant (Principles I, II, or III), stop and surface the conflict — do not implement the violation.
 
-**Version**: 1.1.0 | **Ratified**: 2026-07-12 | **Last Amended**: 2026-07-12
+**Version**: 1.1.1 | **Ratified**: 2026-07-12 | **Last Amended**: 2026-07-12

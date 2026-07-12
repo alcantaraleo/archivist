@@ -1,0 +1,116 @@
+{
+  "tools": [
+    {
+      "name": "retrieveContext",
+      "description": "General contextual retrieval across the full knowledge base",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "The retrieval query"
+          }
+        },
+        "required": ["query"]
+      }
+    },
+    {
+      "name": "findDecisions",
+      "description": "Retrieve architecture and product decisions (ADRs)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "topic": {
+            "type": "string",
+            "description": "The topic or context to search decisions for"
+          }
+        },
+        "required": ["topic"]
+      }
+    },
+    {
+      "name": "findProjects",
+      "description": "Retrieve active or past projects and initiatives",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "criteria": {
+            "type": "string",
+            "description": "Search criteria for projects"
+          }
+        },
+        "required": ["criteria"]
+      }
+    },
+    {
+      "name": "findPeople",
+      "description": "Retrieve known individuals with professional context",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name or identifier of the person"
+          }
+        },
+        "required": ["name"]
+      }
+    },
+    {
+      "name": "findConcepts",
+      "description": "Retrieve technical and professional concepts and cross-cutting insights",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "topic": {
+            "type": "string",
+            "description": "The concept or topic to retrieve"
+          }
+        },
+        "required": ["topic"]
+      }
+    },
+    {
+      "name": "findRelatedKnowledge",
+      "description": "Graph-traversal retrieval of semantically connected knowledge",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Starting point for knowledge graph traversal"
+          }
+        },
+        "required": ["query"]
+      }
+    },
+    {
+      "name": "findReadings",
+      "description": "Retrieve source materials: articles, transcripts, book notes",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "topic": {
+            "type": "string",
+            "description": "Topic to search readings for"
+          }
+        },
+        "required": ["topic"]
+      }
+    },
+    {
+      "name": "findDebriefs",
+      "description": "Retrieve incident retrospectives and learning reviews",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "topic": {
+            "type": "string",
+            "description": "Topic or incident context"
+          }
+        },
+        "required": ["topic"]
+      }
+    }
+  ]
+}

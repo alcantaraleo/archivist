@@ -20,7 +20,7 @@
 
 **Language/Version**: Java 21+
 
-**Primary Dependencies**: Spring Boot 3.x, Spring AI, Spring AI MCP Server
+**Primary Dependencies**: Spring Boot 4.x, Spring AI 2.x, Spring AI MCP Server
 
 **Build**: Gradle (Kotlin DSL) — never Maven
 
