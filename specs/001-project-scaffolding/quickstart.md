@@ -3,14 +3,14 @@
 **Feature**: 001-project-scaffolding
 **Date**: 2026-07-11
 
-This guide describes how to verify that the scaffold is correctly in place. All checks can be run from the repository root without any configuration.
+This guide describes how to verify that the scaffold is correctly in place. All checks can be run from the repository root.
 
 ---
 
 ## Prerequisites
 
 - Java 21 installed and on `PATH`
-- No additional configuration required — all dependencies are resolved by Gradle
+- `ARCHIVIST_SECOND_BRAIN_PATH` set to an **existing directory** (e.g. `export ARCHIVIST_SECOND_BRAIN_PATH=/tmp`)
 
 ---
 
@@ -22,7 +22,7 @@ This guide describes how to verify that the scaffold is correctly in place. All 
 ./gradlew build
 ```
 
-**Expected outcome**: `BUILD SUCCESSFUL` with no compilation errors or test failures across all four modules.
+**Expected outcome**: `BUILD SUCCESSFUL` with no compilation errors across all four modules. Validates compile integrity and Spring Boot 4.1.0 + Spring AI 2.0.0 compatibility (AC-1, AC-9). Test execution is not required at scaffold stage.
 
 ### 2. Module presence
 
@@ -48,7 +48,16 @@ Root project 'archivist'
 
 **Expected outcome**: The dependency tree for `:domain` contains **no** `org.springframework` or `io.modelcontextprotocol` entries.
 
-### 4. Application module depends only on domain
+### 4. Domain tests run without Spring
+
+```bash
+./gradlew :domain:test
+./gradlew :domain:dependencies --configuration testCompileClasspath
+```
+
+**Expected outcome**: `BUILD SUCCESSFUL`. Test compile classpath contains **no** `org.springframework` or `io.modelcontextprotocol` entries (AC-16).
+
+### 5. Application module depends only on domain
 
 ```bash
 ./gradlew :application:dependencies --configuration compileClasspath
@@ -56,21 +65,13 @@ Root project 'archivist'
 
 **Expected outcome**: The dependency tree for `:application` contains `:domain` and **no** `org.springframework` or `io.modelcontextprotocol` entries.
 
-### 5. Transport boots
+### 6. Transport boots (logs on stderr)
 
 ```bash
-./gradlew :transport:bootRun
+ARCHIVIST_SECOND_BRAIN_PATH=/tmp ./gradlew :transport:bootRun 2>boot.log
 ```
 
-**Expected outcome**: Spring Boot starts, logs `Started ArchivistApplication`, and the process remains running (STDIO MCP server is ready). Terminate with `Ctrl+C`.
-
-### 6. Test suite passes
-
-```bash
-./gradlew test
-```
-
-**Expected outcome**: `BUILD SUCCESSFUL`. Zero test failures. (Placeholder tests or zero tests are both acceptable at scaffold stage.)
+**Expected outcome**: Spring Boot starts; startup confirmation appears in `boot.log` (stderr), not on stdout. Process remains running (STDIO MCP server ready). Terminate with `Ctrl+C`. Stdout must remain reserved for the MCP protocol (AC-8).
 
 ### 7. No star imports
 
@@ -91,38 +92,44 @@ grep -r "@Autowired" --include="*.java" .
 ### 9. No hardcoded configuration values
 
 ```bash
-grep -r "ARCHIVIST_SECOND_BRAIN_PATH\|/home/\|/Users/\|localhost\|127\.0\.0\.1" --include="*.java" --include="*.properties" --include="*.yml" .
+grep -rnE '/home/|/Users/|/var/|localhost|127\.0\.0\.1|0\.0\.0\.0|jdbc:|mongodb://|redis://|postgres://|mysql://|:5432|:3306|:6379|:8080' --include="*.java" --include="*.properties" .
 ```
 
-**Expected outcome**: No matches in Java source files. `application.properties` may contain `${ENV_VAR}` placeholder references but never literal paths or addresses.
+**Expected outcome**: No matches in Java source files. `application.properties` may contain `${ENV_VAR}` placeholder references but never literal paths, hosts, or connection strings.
 
 ### 10. Missing required env var fails fast
 
 ```bash
-# Unset any configured path and attempt to start
-ARCHIVIST_SECOND_BRAIN_PATH="" ./gradlew :transport:bootRun
+ARCHIVIST_SECOND_BRAIN_PATH="" ./gradlew :transport:bootRun 2>&1 | head -20
 ```
 
-**Expected outcome**: Application fails at startup with a clear `BindValidationException` or equivalent Spring Boot validation error, not a NullPointerException at call time.
+**Expected outcome**: Application fails at startup with a descriptive validation error on stderr that includes the property path (`archivist.second-brain.path`), the environment variable name (`ARCHIVIST_SECOND_BRAIN_PATH`), and the failure reason (AC-14).
 
-> Note: `ARCHIVIST_SECOND_BRAIN_PATH` is not yet required to start the scaffold (no retrieval adapter exists yet). This check validates the wiring is in place for when the first adapter is added.
+### 11. Non-existent path fails fast
+
+```bash
+ARCHIVIST_SECOND_BRAIN_PATH=/nonexistent/path ./gradlew :transport:bootRun 2>&1 | head -20
+```
+
+**Expected outcome**: Application fails at startup with a descriptive error indicating the path does not exist or is not a directory (AC-15).
 
 ---
 
 ## Scaffold Acceptance Summary
 
-| Check                      | Command                               | Pass Condition                                 |
-| -------------------------- | ------------------------------------- | ---------------------------------------------- |
-| Build succeeds             | `./gradlew build`                     | `BUILD SUCCESSFUL`                             |
-| Four modules present       | `./gradlew projects`                  | domain, application, infrastructure, transport |
-| Domain is Spring-free      | `./gradlew :domain:dependencies`      | No spring.\* in compileClasspath               |
-| Application is Spring-free | `./gradlew :application:dependencies` | No spring.\* in compileClasspath               |
-| Application boots          | `./gradlew :transport:bootRun`        | `Started ArchivistApplication`                 |
-| Tests pass                 | `./gradlew test`                      | `BUILD SUCCESSFUL`                             |
-| No star imports            | `grep -r "import .*\*;"`              | No matches                                     |
-| No field injection         | `grep -r "@Autowired"`                | No matches                                     |
-| No hardcoded config        | `grep -r` paths/hosts in sources      | No matches in .java files                      |
-| Env var fail-fast          | start with empty required var         | Clear startup validation error                 |
+| Check                       | Command                               | Pass Condition                                      |
+| --------------------------- | ------------------------------------- | --------------------------------------------------- |
+| Build succeeds              | `./gradlew build`                     | `BUILD SUCCESSFUL`; version compatibility validated |
+| Four modules present        | `./gradlew projects`                  | domain, application, infrastructure, transport      |
+| Domain is Spring-free       | `./gradlew :domain:dependencies`      | No spring.\* in compileClasspath                    |
+| Domain tests without Spring | `./gradlew :domain:test`              | `BUILD SUCCESSFUL`; no spring.\* on test classpath  |
+| Application is Spring-free  | `./gradlew :application:dependencies` | No spring.\* in compileClasspath                    |
+| Application boots on stderr | `./gradlew :transport:bootRun`        | Startup confirmation on stderr; stdout clean        |
+| No star imports             | `grep -r "import .*\*;"`              | No matches                                          |
+| No field injection          | `grep -r "@Autowired"`                | No matches                                          |
+| No hardcoded config         | `grep -rnE` paths/hosts/URLs          | No matches in .java files                           |
+| Env var fail-fast           | start with empty required var         | Descriptive error with property + env var name      |
+| Path existence              | start with non-existent path          | Descriptive error; service does not start           |
 
 ---
 

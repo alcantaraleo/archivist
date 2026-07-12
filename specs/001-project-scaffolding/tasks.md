@@ -6,16 +6,16 @@
 
 **Stack**: Java 21 · Spring Boot 4.1.0 · Spring AI 2.0.0 · Gradle (Kotlin DSL) · `libs.versions.toml`
 
-**Tests**: Not requested in this spec — placeholder sources only. Acceptance is verified via `./gradlew` commands and static analysis per `quickstart.md`.
+**Tests**: Domain module only — one plain JUnit 5 smoke test (AC-16). No tests in other modules. Acceptance verified via `./gradlew build` and static analysis per `quickstart.md`.
 
 **User story mapping** (acceptance criteria → deliverable phases):
 
-| Story | Deliverable                                                  | Acceptance Criteria    |
-| ----- | ------------------------------------------------------------ | ---------------------- |
-| US1   | Gradle multi-module project compiles                         | AC 1, 2, 3             |
-| US2   | Domain layer skeleton — all placeholder types and interfaces | AC 3, 4, 10, 11        |
-| US3   | Infrastructure layer skeleton                                | AC 6                   |
-| US4   | Transport layer boots as STDIO MCP server + config contract  | AC 7, 8, 9, 12, 13, 14 |
+| Story | Deliverable                                                  | Acceptance Criteria     |
+| ----- | ------------------------------------------------------------ | ----------------------- |
+| US1   | Gradle multi-module project compiles                         | AC 1, 2, 3, 16          |
+| US2   | Domain layer skeleton — all placeholder types and interfaces | AC 3, 4, 10, 11, 16     |
+| US3   | Infrastructure layer skeleton                                | AC 6                    |
+| US4   | Transport layer boots as STDIO MCP server + config contract  | AC 7, 8, 12, 13, 14, 15 |
 
 ---
 
@@ -23,7 +23,7 @@
 
 **Purpose**: Initialize the Gradle project — wrapper, version catalogue, root settings, root build file. No Java source yet.
 
-- [ ] T001 Initialize Gradle wrapper at repo root: `gradle wrapper --gradle-version latest` (creates `gradlew`, `gradlew.bat`, `gradle/wrapper/`)
+- [ ] T001 Initialize Gradle wrapper at repo root: `gradle wrapper --gradle-version latest` — pins the Gradle version in `gradle-wrapper.properties` at generation time; wrapper task generates `distributionSha256Sum` checksum automatically
 - [ ] T002 [P] Create `gradle/libs.versions.toml` — declare `spring-boot = "4.1.0"`, `spring-ai = "2.0.0"`, `junit-jupiter` (via BOM), `mockito-core` (via BOM) version aliases
 - [ ] T003 Create `settings.gradle.kts` — set `rootProject.name = "archivist"` and include all four modules: `domain`, `application`, `infrastructure`, `transport`
 - [ ] T004 Create root `build.gradle.kts` — configure `java` toolchain to Java 21 for all subprojects via `subprojects {}` block; register Spring Boot and Spring AI BOMs in `dependencyManagement`; apply `java-library` plugin baseline
@@ -43,7 +43,7 @@
 - [ ] T007 [P] [US3] Create `infrastructure/build.gradle.kts` — apply `java-library`; declare `api(project(":domain"))`, `api(project(":application"))`; import Spring Boot BOM; add `spring-boot-starter`, `spring-ai-starter` compile dependencies; **no** `:transport` dependency
 - [ ] T008 [P] [US4] Create `transport/build.gradle.kts` — apply `org.springframework.boot` plugin (for `bootJar`/`bootRun`); declare `implementation(project(":application"))`; add `spring-boot-starter`, `spring-ai-starter-mcp-server` (STDIO); **no** `:infrastructure` compile dependency
 
-**Checkpoint**: `./gradlew :domain:dependencies --configuration compileClasspath` shows no Spring entries.
+**Checkpoint**: `./gradlew :domain:dependencies --configuration compileClasspath` shows no Spring entries. `./gradlew :transport:dependencies --configuration compileClasspath` shows no `:infrastructure` entries (AC-7).
 
 ---
 
@@ -69,8 +69,9 @@
 - [ ] T020 [P] [US1] Create `domain/src/main/java/io/archivist/domain/port/in/FindReadings.java` — interface: `List<Evidence> findReadings(String topic)`
 - [ ] T021 [P] [US1] Create `domain/src/main/java/io/archivist/domain/port/in/FindDebriefs.java` — interface: `List<Evidence> findDebriefs(String topic)`
 - [ ] T022 [US1] Create `domain/src/main/java/io/archivist/domain/port/out/KnowledgeGateway.java` — interface: `List<Evidence> retrieve(Query query)` (depends on T013)
+- [ ] T023 [US1] Create `domain/src/test/java/io/archivist/domain/DomainModuleIsolationTest.java` — JUnit 5 smoke test (e.g. assert `KnowledgeType` enum values); zero Spring or MCP imports; `./gradlew :domain:test` must succeed with no `org.springframework` on test compile classpath (AC-16)
 
-**Checkpoint**: `./gradlew :domain:build` succeeds. Domain module has all model types, all 8 port.in interfaces, and the port.out gateway. Zero Spring imports.
+**Checkpoint**: `./gradlew :domain:build` and `./gradlew :domain:test` succeed. Domain module has all model types, all 8 port.in interfaces, the port.out gateway, and a plain JUnit test. Zero Spring imports.
 
 ---
 
@@ -82,7 +83,7 @@
 
 ### Implementation
 
-- [ ] T023 [US2] Create `application/src/main/java/io/archivist/application/usecase/package-info.java` — package declaration only; establishes the package path where use case interactors will live in future specs
+- [ ] T024 [US2] Create `application/src/main/java/io/archivist/application/usecase/package-info.java` — package declaration only; establishes the package path where use case interactors will live in future specs
 
 **Checkpoint**: `./gradlew :application:build` succeeds. Application module compiles with `:domain` as its sole dependency.
 
@@ -96,8 +97,8 @@
 
 ### Implementation
 
-- [ ] T024 [P] [US3] Create `infrastructure/src/main/java/io/archivist/infrastructure/retrieval/package-info.java` — package declaration only; reserves package for future retrieval strategy implementations
-- [ ] T025 [P] [US3] Create `infrastructure/src/main/java/io/archivist/infrastructure/secondbrain/package-info.java` — package declaration only; reserves package for future Second Brain adapter
+- [ ] T025 [P] [US3] Create `infrastructure/src/main/java/io/archivist/infrastructure/retrieval/package-info.java` — package declaration only; reserves package for future retrieval strategy implementations
+- [ ] T026 [P] [US3] Create `infrastructure/src/main/java/io/archivist/infrastructure/secondbrain/package-info.java` — package declaration only; reserves package for future Second Brain adapter
 
 **Checkpoint**: `./gradlew :infrastructure:build` succeeds. Infrastructure module compiles cleanly with no transport dependency.
 
@@ -105,18 +106,19 @@
 
 ## Phase 6: User Story 4 — Transport Layer Boots as STDIO MCP Server (Priority: P4)
 
-**Goal**: The `transport` module starts a Spring Boot application with the STDIO MCP server configured and the external configuration contract enforced. `ArchivistProperties` lives in `transport.config` — configuration binding is a Spring Boot wiring concern, not infrastructure logic. The service starts when all required environment variables are present and fails fast with a clear error when they are absent.
+**Goal**: The `transport` module starts a Spring Boot application with the STDIO MCP server configured and the external configuration contract enforced. `ArchivistProperties` lives in `transport.config` — configuration binding is a Spring Boot wiring concern, not infrastructure logic. The service starts when all required environment variables are present and valid, fails fast with descriptive errors when they are absent, and routes all logging to stderr.
 
-**Independent Test**: `ARCHIVIST_SECOND_BRAIN_PATH=/tmp ./gradlew :transport:bootRun` logs `Started ArchivistApplication` and remains running. Starting without `ARCHIVIST_SECOND_BRAIN_PATH` produces a startup `BindValidationException`, not a running service.
+**Independent Test**: `ARCHIVIST_SECOND_BRAIN_PATH=/tmp ./gradlew :transport:bootRun` prints startup confirmation on stderr and remains running. Starting without `ARCHIVIST_SECOND_BRAIN_PATH` or with a non-existent path produces a startup validation error on stderr, not a running service.
 
 ### Implementation
 
-- [ ] T026 [US4] Create `transport/src/main/java/io/archivist/transport/ArchivistApplication.java` — `@SpringBootApplication`; `@ConfigurationPropertiesScan` or `@EnableConfigurationProperties(ArchivistProperties.class)`; standard `main(String[] args)` entry point; no field injection
-- [ ] T027 [P] [US4] Create `transport/src/main/java/io/archivist/transport/config/ArchivistProperties.java` — `@ConfigurationProperties(prefix = "archivist")` and `@Validated`; nested `SecondBrain` record with `@NotBlank String path` bound to `archivist.second-brain.path` (env: `ARCHIVIST_SECOND_BRAIN_PATH`); lives in `transport` — infrastructure adapters will receive plain values, never this class directly
-- [ ] T028 [P] [US4] Create `transport/src/main/java/io/archivist/transport/mcp/package-info.java` — package declaration only; reserves package for future `@McpTool`-annotated tool registrations
-- [ ] T029 [US4] Create `transport/src/main/resources/application.properties` — set `spring.application.name=archivist`; `spring.ai.mcp.server.name=archivist`; `spring.ai.mcp.server.version=0.1.0`; `spring.ai.mcp.server.stdio=true`; `archivist.second-brain.path=${ARCHIVIST_SECOND_BRAIN_PATH}` (no default — absence must trigger startup failure)
+- [ ] T027 [US4] Create `transport/src/main/java/io/archivist/transport/ArchivistApplication.java` — `@SpringBootApplication`; `@ConfigurationPropertiesScan` or `@EnableConfigurationProperties(ArchivistProperties.class)`; standard `main(String[] args)` entry point; no field injection
+- [ ] T028 [P] [US4] Create `transport/src/main/java/io/archivist/transport/config/ArchivistProperties.java` — `@ConfigurationProperties(prefix = "archivist")` and `@Validated`; nested `SecondBrain` record with `@NotBlank(message = "...")` on `path` (include property path and env var name in message); `@AssertTrue` method validating `Files.isDirectory(Paths.get(path))` with descriptive message on failure (AC-14, AC-15); bound to `archivist.second-brain.path` (env: `ARCHIVIST_SECOND_BRAIN_PATH`)
+- [ ] T029 [P] [US4] Create `transport/src/main/java/io/archivist/transport/mcp/package-info.java` — package declaration only; reserves package for future `@McpTool`-annotated tool registrations
+- [ ] T030 [US4] Create `transport/src/main/resources/application.properties` — set `spring.application.name=archivist`; `spring.ai.mcp.server.name=archivist`; `spring.ai.mcp.server.version=0.1.0`; `spring.ai.mcp.server.stdio=true`; `archivist.second-brain.path=${ARCHIVIST_SECOND_BRAIN_PATH}` (no default — absence must trigger startup failure)
+- [ ] T031 [P] [US4] Create `transport/src/main/resources/logback-spring.xml` — ConsoleAppender with `<target>System.err</target>`; all application logging to stderr; stdout reserved for MCP STDIO protocol (AC-8)
 
-**Checkpoint**: `ARCHIVIST_SECOND_BRAIN_PATH=/tmp ./gradlew :transport:bootRun` logs `Started ArchivistApplication`. Starting with the variable absent or empty produces a startup failure with a descriptive message.
+**Checkpoint**: `ARCHIVIST_SECOND_BRAIN_PATH=/tmp ./gradlew :transport:bootRun` prints startup confirmation on stderr. Absent, empty, whitespace-only, or non-existent path values produce descriptive startup failures on stderr.
 
 ---
 
@@ -124,12 +126,12 @@
 
 **Purpose**: Code quality enforcement, documentation, and full end-to-end quickstart validation.
 
-- [ ] T031 [P] Create `README.md` at repo root — document all required environment variables in a table: variable name, description, example value, required/optional; include minimum `./gradlew build` and run instructions
-- [ ] T032 [P] Verify no star imports across all Java source: `grep -r "^import .*\*;" --include="*.java" .` must produce no output
-- [ ] T033 [P] Verify no field injection across all Java source: `grep -r "@Autowired" --include="*.java" .` must produce no output
-- [ ] T034 [P] Verify no hardcoded paths or addresses in source or properties: `grep -rn "/home/\|/Users/\|localhost\|127\.0\.0\.1" --include="*.java" --include="*.properties" .` must produce no matches in Java files
-- [ ] T035 Run full build: `./gradlew build` from repo root — `BUILD SUCCESSFUL` required
-- [ ] T036 Run full quickstart verification: execute all checks in `specs/001-project-scaffolding/quickstart.md` in order; confirm each passes
+- [ ] T032 [P] Create `README.md` at repo root — document all required environment variables in a table: variable name, description, example value, required/optional; include minimum `./gradlew build` and run instructions
+- [ ] T033 [P] Verify no star imports across all Java source: `grep -r "^import .*\*;" --include="*.java" .` must produce no output
+- [ ] T034 [P] Verify no field injection across all Java source: `grep -r "@Autowired" --include="*.java" .` must produce no output
+- [ ] T035 [P] Verify no hardcoded paths or addresses in source or properties: `grep -rnE '/home/|/Users/|/var/|localhost|127\.0\.0\.1|0\.0\.0\.0|jdbc:|mongodb://|redis://|postgres://|mysql://|:5432|:3306|:6379|:8080' --include="*.java" --include="*.properties" .` must produce no matches in Java files (Windows paths excluded)
+- [ ] T036 Run full build: `./gradlew build` from repo root — `BUILD SUCCESSFUL` required (validates compile integrity and dependency version compatibility — AC-1, AC-9)
+- [ ] T037 Run full quickstart verification: execute all checks in `specs/001-project-scaffolding/quickstart.md` in order; confirm each passes
 
 ---
 
@@ -158,7 +160,7 @@
 - T013 depends on T012 (Evidence depends on Provenance)
 - T014–T021 depend on T013 (port.in interfaces return `List<Evidence>`; Evidence must compile first)
 - T022 depends on T013 (KnowledgeGateway references Evidence)
-- T026 depends on T027 (`ArchivistApplication` registers `ArchivistProperties`; properties class must exist first)
+- T027 depends on T028 (`ArchivistApplication` registers `ArchivistProperties`; properties class must exist first)
 
 ---
 
@@ -186,10 +188,10 @@ Task: "Create transport/build.gradle.kts"         [T008]
 ### Phases 4, 5, 6 — all can run in parallel after Phase 2 + US1 complete
 
 ```
-Task: "US2 — Application skeleton"               [T023]
-Task: "US3 — Infrastructure package stubs"       [T024, T025]
-Task: "US4 — Transport (ArchivistApplication,    [T026, T027, T028, T029]
-       ArchivistProperties, application.properties)"
+Task: "US2 — Application skeleton"               [T024]
+Task: "US3 — Infrastructure package stubs"       [T025, T026]
+Task: "US4 — Transport (ArchivistApplication,    [T027, T028, T029, T030, T031]
+       ArchivistProperties, application.properties, logback-spring.xml)"
 ```
 
 ---
@@ -208,7 +210,7 @@ Task: "US4 — Transport (ArchivistApplication,    [T026, T027, T028, T029]
 
 1. Phase 1 → Phase 2 → Phase 3 (US1) → validate
 2. Phase 4 (US2) + Phase 5 (US3) in parallel → validate each independently
-3. Phase 6 (US4) after US3 complete → validate STDIO boot
+3. Phase 6 (US4) after Phase 2 + US1 complete → validate STDIO boot on stderr
 4. Phase 7: Polish + full quickstart verification
 
 ---

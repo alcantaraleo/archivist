@@ -10,12 +10,21 @@
 
 Establish the Gradle multi-module project structure for Archivist: four modules (`domain`, `application`, `infrastructure`, `transport`) wired with the correct Clean Architecture dependency rules, a Gradle version catalogue for centralised dependency management, placeholder source files confirming each module's package hierarchy compiles, and a runnable Spring Boot STDIO MCP server entry point in the `transport` module. No domain capabilities are implemented; this is the structural foundation all future specs depend on.
 
-**Technology stack** (see [research.md](research.md) for full rationale):
+**Technology stack** (pinned versions — rationale in [research.md](research.md)):
 
-- Spring Boot 4.1.0 + Spring Framework 7.0.8
-- Spring AI 2.0.0 (MCP Java SDK 2.0.0, MCP spec 2025-11-25)
-- Java 21, Gradle (Kotlin DSL), `gradle/libs.versions.toml` version catalogue
+| Dependency       | Pinned Version                | Source                                     |
+| ---------------- | ----------------------------- | ------------------------------------------ |
+| Spring Boot      | **4.1.0**                     | `gradle/libs.versions.toml`                |
+| Spring Framework | 7.0.8 (via BOM)               | Spring Boot BOM                            |
+| Spring AI        | **2.0.0**                     | `gradle/libs.versions.toml`                |
+| MCP Java SDK     | 2.0.0 (via Spring AI BOM)     | Spring AI BOM                              |
+| Java             | 21                            | root `build.gradle.kts` toolchain          |
+| Gradle           | latest stable at wrapper init | `gradle/wrapper/gradle-wrapper.properties` |
+
+Compatibility of Spring Boot 4.1.0 + Spring AI 2.0.0 is validated by a successful `./gradlew build` across all four modules (AC-1). A version conflict surfaces as a build failure, not a silent runtime defect.
+
 - STDIO MCP transport (Streamable HTTP addable without architectural changes)
+- All application logging routed to **stderr**; stdout reserved for MCP STDIO protocol (AC-8)
 
 ---
 
@@ -29,7 +38,7 @@ Establish the Gradle multi-module project structure for Archivist: four modules 
 
 **Storage**: Not applicable to this scaffold
 
-**Testing**: JUnit 5 (via Spring Boot BOM); domain and application tests plain JUnit — no Spring context; infrastructure tests may use `@SpringBootTest`
+**Testing**: JUnit 5 on domain module only (plain JUnit smoke test — no Spring context); no tests required in other modules at scaffold stage; acceptance verified via `./gradlew build` (AC-9)
 
 **Target Platform**: JVM / local process (STDIO MCP server)
 
@@ -47,6 +56,9 @@ Establish the Gradle multi-module project structure for Archivist: four modules 
 - A single `ArchivistProperties` `@ConfigurationProperties` class in `transport.config` is the sole entry point for all injected configuration; configuration binding is a Spring Boot wiring concern that belongs in `transport`, not `infrastructure`
 - Infrastructure adapters receive plain values (`String`, `Path`) via constructor injection — they never import `ArchivistProperties` or read env vars directly
 - Missing required environment variables MUST cause a clear startup failure (fail-fast via `@Validated`)
+- Configuration validation errors MUST include property path, environment variable name, and failure reason (AC-14)
+- `ARCHIVIST_SECOND_BRAIN_PATH` MUST point to an existing directory — validated at startup (AC-15)
+- Domain module MUST run `./gradlew :domain:test` with zero Spring or MCP on the test classpath (AC-16)
 
 **Scale/Scope**: Personal knowledge system (Second Brain); single-user
 
@@ -62,7 +74,7 @@ _GATE: Evaluated before implementation begins. Re-check after implementation bef
 | Contract language       | II. Domain-Driven Public Contract    | All public capability names use domain terms                                                          | ✅ PASS — scaffold introduces no capabilities                               |
 | No reasoning in output  | III. Retrieval, Never Reasoning      | All capabilities return `List<Evidence>`                                                              | ✅ PASS — scaffold introduces no capabilities                               |
 | Provenance completeness | III. Retrieval, Never Reasoning      | Every `Evidence` includes full `Provenance`                                                           | ✅ PASS — scaffold introduces no capabilities; types noted in data-model.md |
-| Spec approved           | IV. Specification-Driven Development | Approved specification exists before implementation                                                   | ⚠️ PENDING — spec requires approval before implementation starts            |
+| Spec approved           | IV. Specification-Driven Development | Approved specification exists before implementation                                                   | ✅ PASS — spec §9 approved; pre-implementation gate complete                |
 | Strategy hidden         | V. Replaceable Infrastructure        | All retrieval implementations behind `domain.port.out`                                                | ✅ PASS — scaffold introduces no retrieval                                  |
 | No Obsidian coupling    | V. Replaceable Infrastructure        | No code references Obsidian paths, wikilinks, or frontmatter                                          | ✅ PASS — scaffold introduces no Second Brain coupling                      |
 | Build tool              | Technology Constraints               | Gradle (Kotlin DSL) exclusively; no Maven                                                             | ✅ PASS — Maven files must not exist                                        |

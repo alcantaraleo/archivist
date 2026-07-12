@@ -194,11 +194,11 @@ Lives in `io.archivist.transport.config`. Configuration binding is a Spring Boot
 
 Infrastructure adapters receive plain values (`String`, `java.nio.file.Path`) via constructor injection. They never import `ArchivistProperties` or call `System.getenv()` directly.
 
-| Property path                 | Environment variable          | Type     | Required     | Description                        |
-| ----------------------------- | ----------------------------- | -------- | ------------ | ---------------------------------- |
-| `archivist.second-brain.path` | `ARCHIVIST_SECOND_BRAIN_PATH` | `String` | Yes (future) | Absolute path to Second Brain root |
+| Property path                 | Environment variable          | Type     | Required | Description                                                  |
+| ----------------------------- | ----------------------------- | -------- | -------- | ------------------------------------------------------------ |
+| `archivist.second-brain.path` | `ARCHIVIST_SECOND_BRAIN_PATH` | `String` | Yes      | Absolute path to an **existing** Second Brain root directory |
 
-Additional properties are added to this class as each capability spec introduces new external dependencies. The class is annotated `@Validated` with `@NotBlank`/`@NotNull` on every required field. Missing or empty values must prevent the service from starting — a service that starts with incomplete configuration is a misconfiguration, not a degraded state.
+Additional properties are added to this class as each capability spec introduces new external dependencies. The class is annotated `@Validated` with `@NotBlank`/`@NotNull` on every required field. Validation error messages MUST include the property path, environment variable name, and failure reason (AC-14). Path values MUST be validated for existence via `@AssertTrue` (AC-15). Missing, empty, whitespace-only, or non-existent paths must prevent the service from starting.
 
 ---
 
