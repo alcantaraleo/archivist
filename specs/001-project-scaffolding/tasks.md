@@ -39,9 +39,9 @@
 ⚠️ **CRITICAL**: No Java source can compile in any module until this phase is complete.
 
 - [ ] T005 Create `domain/build.gradle.kts` — apply `java-library`; declare **zero** compile-time dependencies on Spring, Spring AI, MCP SDK, or any sibling module
-- [ ] T006 [P] Create `application/build.gradle.kts` — apply `java-library`; declare single compile dependency: `api(project(":domain"))`; no Spring, MCP SDK
-- [ ] T007 [P] Create `infrastructure/build.gradle.kts` — apply `java-library`; declare `api(project(":domain"))`, `api(project(":application"))`; import Spring Boot BOM; add `spring-boot-starter`, `spring-ai-starter` compile dependencies; **no** `:transport` dependency
-- [ ] T008 [P] Create `transport/build.gradle.kts` — apply `org.springframework.boot` plugin (for `bootJar`/`bootRun`); declare `implementation(project(":application"))`; add `spring-boot-starter`, `spring-ai-starter-mcp-server` (STDIO); **no** `:infrastructure` compile dependency
+- [ ] T006 [P] [US2] Create `application/build.gradle.kts` — apply `java-library`; declare single compile dependency: `api(project(":domain"))`; no Spring, MCP SDK
+- [ ] T007 [P] [US3] Create `infrastructure/build.gradle.kts` — apply `java-library`; declare `api(project(":domain"))`, `api(project(":application"))`; import Spring Boot BOM; add `spring-boot-starter`, `spring-ai-starter` compile dependencies; **no** `:transport` dependency
+- [ ] T008 [P] [US4] Create `transport/build.gradle.kts` — apply `org.springframework.boot` plugin (for `bootJar`/`bootRun`); declare `implementation(project(":application"))`; add `spring-boot-starter`, `spring-ai-starter-mcp-server` (STDIO); **no** `:infrastructure` compile dependency
 
 **Checkpoint**: `./gradlew :domain:dependencies --configuration compileClasspath` shows no Spring entries.
 

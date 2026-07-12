@@ -35,7 +35,7 @@ Archivist exists to provide stable, domain-driven access to a personal knowledge
 
 It is a retrieval layer — nothing more.
 
-The distinction between *retrieval* and *reasoning* is the foundational design principle of this project. Archivist retrieves evidence. External agents reason about it. This boundary is absolute and must never be blurred.
+The distinction between _retrieval_ and _reasoning_ is the foundational design principle of this project. Archivist retrieves evidence. External agents reason about it. This boundary is absolute and must never be blurred.
 
 The public contract is the only thing consumers depend on. The retrieval implementation is entirely private. It must be free to evolve — from simple lexical search today to hybrid retrieval, knowledge graphs, and learned query planning in the future — without any change to the public interface.
 
@@ -57,7 +57,7 @@ Architecture should evolve incrementally. Do not introduce complexity before it 
 
 Every architectural decision should reinforce this separation:
 
-- **The domain retrieves** — domain capabilities define *what* can be retrieved
+- **The domain retrieves** — domain capabilities define _what_ can be retrieved
 - **The consuming agent reasons** — interpretation, synthesis, and answers belong to the consumer
 - **The transport adapts** — MCP, REST, CLI are interchangeable adapters
 - **The infrastructure serves the domain** — infrastructure implements interfaces defined by the domain
@@ -146,12 +146,14 @@ Archivist uses the following Clean Architecture layers:
 The innermost layer. No external dependencies whatsoever.
 
 Contains:
+
 - **Entities** — core domain objects (`Evidence`, `Source`, `Provenance`, `Query`, `Capability`)
 - **Input ports** — interfaces representing public domain capabilities (`port.in`)
 - **Output ports** — interfaces representing retrieval gateway contracts (`port.out`)
 - **Domain services** — pure business logic that operates only on domain entities
 
 Rules:
+
 - Zero imports from `org.springframework`, `io.modelcontextprotocol`, or any infrastructure package
 - No annotations from Spring (`@Component`, `@Service`, `@Repository`) in this layer
 - Testable with plain JUnit, no Spring test runner
@@ -161,10 +163,12 @@ Rules:
 The use case layer. Implements input ports defined by the domain.
 
 Contains:
+
 - **Use case interactors** — concrete implementations of `port.in` interfaces
 - **Orchestration logic** — coordinates domain entities and output ports
 
 Rules:
+
 - May import domain layer only
 - Must not import Spring Boot, MCP SDK, or infrastructure
 - Depends on domain output ports (`port.out`), never on concrete infrastructure classes
@@ -175,11 +179,13 @@ Rules:
 Implements domain output ports using real technologies.
 
 Contains:
+
 - **Retrieval strategy implementations** — lexical search, BM25, embeddings, etc.
 - **Second Brain adapters** — reads from the actual Second Brain
 - **Gateway implementations** — concrete adapters for all `port.out` interfaces
 
 Rules:
+
 - May import Spring Boot, Spring AI, MCP SDK, external libraries
 - Must implement `port.out` interfaces defined in the domain layer
 - Must not be depended on by domain or application layers (dependency inversion)
@@ -190,11 +196,13 @@ Rules:
 Exposes domain capabilities over external protocols.
 
 Contains:
+
 - **MCP adapter** — Spring AI MCP server that invokes application use cases
 - **REST adapter** (future) — REST controllers
 - **CLI adapter** (future) — command-line interface
 
 Rules:
+
 - May import Spring Boot, MCP SDK, and application layer
 - Must not contain business logic
 - Must not import domain directly, except to reference domain model types for responses
@@ -282,13 +290,13 @@ For the complete domain context — including knowledge zones, types, provenance
 
 ### Core Types
 
-| Type | Description |
-|---|---|
-| `Evidence` | A single retrieved piece of knowledge with content and full provenance |
-| `Provenance` | Full traceability metadata: source identifier, title, type, zone, tags, sources chain, timestamps |
-| `Query` | A domain-level query expressing retrieval intent (not a raw search string) |
-| `KnowledgeType` | The semantic type of a knowledge entry (see below) |
-| `KnowledgeZone` | The epistemic zone a knowledge entry belongs to (see below) |
+| Type            | Description                                                                                       |
+| --------------- | ------------------------------------------------------------------------------------------------- |
+| `Evidence`      | A single retrieved piece of knowledge with content and full provenance                            |
+| `Provenance`    | Full traceability metadata: source identifier, title, type, zone, tags, sources chain, timestamps |
+| `Query`         | A domain-level query expressing retrieval intent (not a raw search string)                        |
+| `KnowledgeType` | The semantic type of a knowledge entry (see below)                                                |
+| `KnowledgeZone` | The epistemic zone a knowledge entry belongs to (see below)                                       |
 
 These types live exclusively in `domain.model`. They must not carry Spring or persistence annotations.
 
@@ -296,29 +304,29 @@ These types live exclusively in `domain.model`. They must not carry Spring or pe
 
 Archivist recognises the following knowledge types. These map to the types used in Second Brain's knowledge layer, expressed as domain constants rather than implementation strings.
 
-| Constant | Meaning |
-|---|---|
-| `CONCEPT` | A synthesised understanding of a technical or professional topic |
-| `ENTITY` | A named thing: organisation, technology, tool, framework |
-| `PERSON` | A named individual with professional context |
-| `PROJECT` | An active or past project or initiative |
-| `DECISION` | An architecture or product decision (ADR) |
-| `DEBRIEF` | An incident retrospective or learning review |
-| `SYNTHESIS` | A cross-cutting insight connecting multiple concepts |
-| `READING` | Source material: article, transcript, book note |
+| Constant    | Meaning                                                          |
+| ----------- | ---------------------------------------------------------------- |
+| `CONCEPT`   | A synthesised understanding of a technical or professional topic |
+| `ENTITY`    | A named thing: organisation, technology, tool, framework         |
+| `PERSON`    | A named individual with professional context                     |
+| `PROJECT`   | An active or past project or initiative                          |
+| `DECISION`  | An architecture or product decision (ADR)                        |
+| `DEBRIEF`   | An incident retrospective or learning review                     |
+| `SYNTHESIS` | A cross-cutting insight connecting multiple concepts             |
+| `READING`   | Source material: article, transcript, book note                  |
 
 ### KnowledgeZone
 
 Archivist recognises the following epistemic zones. These are stable conceptual labels, not folder names or storage paths.
 
-| Constant | Epistemic Role |
-|---|---|
-| `SOURCE` | Immutable source material — highest fidelity to original |
-| `SYNTHESIZED` | LLM-maintained concepts and entities — highest semantic density |
-| `TECHNICAL` | Architecture decisions, debriefs, technical project docs |
-| `IDENTITY` | Personal principles, professional thesis, editorial constitution |
-| `COMPILED` | Pre-assembled operational context snapshot |
-| `SIGNAL` | Weekly signal extraction artifacts |
+| Constant      | Epistemic Role                                                   |
+| ------------- | ---------------------------------------------------------------- |
+| `SOURCE`      | Immutable source material — highest fidelity to original         |
+| `SYNTHESIZED` | LLM-maintained concepts and entities — highest semantic density  |
+| `TECHNICAL`   | Architecture decisions, debriefs, technical project docs         |
+| `IDENTITY`    | Personal principles, professional thesis, editorial constitution |
+| `COMPILED`    | Pre-assembled operational context snapshot                       |
+| `SIGNAL`      | Weekly signal extraction artifacts                               |
 
 ### Provenance
 
@@ -345,16 +353,16 @@ The following are the stable public domain capabilities. These form the contract
 
 Every capability returns `List<Evidence>`. Evidence is neutral — it is content plus provenance. The consuming agent decides what to do with it.
 
-| Capability | Signature | Primary Types | Description |
-|---|---|---|---|
-| `retrieveContext` | `(query: String) → List<Evidence>` | All | General contextual retrieval across the full knowledge base |
-| `findDecisions` | `(topic: String) → List<Evidence>` | `DECISION` | Architecture and product decisions (ADRs) |
-| `findProjects` | `(criteria: String) → List<Evidence>` | `PROJECT` | Active or past projects and initiatives |
-| `findPeople` | `(name: String) → List<Evidence>` | `PERSON` | Known individuals with professional context |
-| `findConcepts` | `(topic: String) → List<Evidence>` | `CONCEPT`, `SYNTHESIS` | Technical and professional concepts and cross-cutting insights |
-| `findRelatedKnowledge` | `(query: String) → List<Evidence>` | All | Graph-traversal retrieval of semantically connected knowledge |
-| `findReadings` | `(topic: String) → List<Evidence>` | `READING` | Source materials: articles, transcripts, book notes |
-| `findDebriefs` | `(topic: String) → List<Evidence>` | `DEBRIEF` | Incident retrospectives and learning reviews |
+| Capability             | Signature                             | Primary Types          | Description                                                    |
+| ---------------------- | ------------------------------------- | ---------------------- | -------------------------------------------------------------- |
+| `retrieveContext`      | `(query: String) → List<Evidence>`    | All                    | General contextual retrieval across the full knowledge base    |
+| `findDecisions`        | `(topic: String) → List<Evidence>`    | `DECISION`             | Architecture and product decisions (ADRs)                      |
+| `findProjects`         | `(criteria: String) → List<Evidence>` | `PROJECT`              | Active or past projects and initiatives                        |
+| `findPeople`           | `(name: String) → List<Evidence>`     | `PERSON`               | Known individuals with professional context                    |
+| `findConcepts`         | `(topic: String) → List<Evidence>`    | `CONCEPT`, `SYNTHESIS` | Technical and professional concepts and cross-cutting insights |
+| `findRelatedKnowledge` | `(query: String) → List<Evidence>`    | All                    | Graph-traversal retrieval of semantically connected knowledge  |
+| `findReadings`         | `(topic: String) → List<Evidence>`    | `READING`              | Source materials: articles, transcripts, book notes            |
+| `findDebriefs`         | `(topic: String) → List<Evidence>`    | `DEBRIEF`              | Incident retrospectives and learning reviews                   |
 
 ### Contract Rules
 
@@ -368,12 +376,12 @@ Every capability returns `List<Evidence>`. Evidence is neutral — it is content
 
 Capability names must follow domain terminology, not Second Brain implementation terminology:
 
-| Use | Do not use |
-|---|---|
-| `findDecisions` | `searchADRs`, `getADRs` |
-| `findPeople` | `searchEntities` (for people queries) |
-| `findDebriefs` | `searchIncidents`, `getRawDebriefs` |
-| `findReadings` | `searchClippings`, `getRawNotes` |
+| Use             | Do not use                            |
+| --------------- | ------------------------------------- |
+| `findDecisions` | `searchADRs`, `getADRs`               |
+| `findPeople`    | `searchEntities` (for people queries) |
+| `findDebriefs`  | `searchIncidents`, `getRawDebriefs`   |
+| `findReadings`  | `searchClippings`, `getRawNotes`      |
 
 ---
 
@@ -390,15 +398,15 @@ Archivist retrieves from a personal knowledge system called Second Brain. The fu
 
 ### What Archivist must never couple to
 
-| Implementation Detail | Why |
-|---|---|
-| Obsidian as the storage engine | Second Brain may be migrated |
+| Implementation Detail                  | Why                                                 |
+| -------------------------------------- | --------------------------------------------------- |
+| Obsidian as the storage engine         | Second Brain may be migrated                        |
 | Folder paths (`raw/`, `Wiki/`, `dev/`) | Folders are an organisational implementation choice |
-| Wikilink syntax (`[[...]]`) | Obsidian-specific format |
-| YAML frontmatter | Storage metadata convention |
-| Markdown as the file format | Files may be stored differently |
-| Obsidian Base files | These are Obsidian-specific query views |
-| File naming conventions | Implementation detail |
+| Wikilink syntax (`[[...]]`)            | Obsidian-specific format                            |
+| YAML frontmatter                       | Storage metadata convention                         |
+| Markdown as the file format            | Files may be stored differently                     |
+| Obsidian Base files                    | These are Obsidian-specific query views             |
+| File naming conventions                | Implementation detail                               |
 
 The domain model must remain valid if Second Brain's entire storage backend is replaced.
 
@@ -406,14 +414,14 @@ The domain model must remain valid if Second Brain's entire storage backend is r
 
 When writing code, specifications, or documentation, use domain terminology consistently:
 
-| Use | Avoid |
-|---|---|
-| `KnowledgeZone` | vault zone, Obsidian folder |
-| `KnowledgeType` | note type, page type, frontmatter type |
-| `Evidence` | document, note, file, page |
-| `Provenance` | metadata, frontmatter |
-| `sourceId` | file path, vault path, note path |
-| `sources` (provenance chain) | backlinks, wikilinks |
+| Use                          | Avoid                                  |
+| ---------------------------- | -------------------------------------- |
+| `KnowledgeZone`              | vault zone, Obsidian folder            |
+| `KnowledgeType`              | note type, page type, frontmatter type |
+| `Evidence`                   | document, note, file, page             |
+| `Provenance`                 | metadata, frontmatter                  |
+| `sourceId`                   | file path, vault path, note path       |
+| `sources` (provenance chain) | backlinks, wikilinks                   |
 
 ---
 
@@ -454,12 +462,12 @@ When writing code, specifications, or documentation, use domain terminology cons
 
 The following import rules are absolute. Violations must be treated as build failures.
 
-| Layer | May import | Must never import |
-|---|---|---|
-| `domain` | Nothing outside `domain` | `spring.*`, `mcp.*`, `infrastructure.*`, `transport.*` |
-| `application` | `domain` only | `spring.*`, `mcp.*`, `infrastructure.*`, `transport.*` |
-| `infrastructure` | `domain`, `application`, `spring.*`, external libs | `transport.*` |
-| `transport` | `domain.model`, `application`, `spring.*`, `mcp.*` | `infrastructure.*` directly |
+| Layer            | May import                                         | Must never import                                      |
+| ---------------- | -------------------------------------------------- | ------------------------------------------------------ |
+| `domain`         | Nothing outside `domain`                           | `spring.*`, `mcp.*`, `infrastructure.*`, `transport.*` |
+| `application`    | `domain` only                                      | `spring.*`, `mcp.*`, `infrastructure.*`, `transport.*` |
+| `infrastructure` | `domain`, `application`, `spring.*`, external libs | `transport.*`                                          |
+| `transport`      | `domain.model`, `application`, `spring.*`, `mcp.*` | `infrastructure.*` directly                            |
 
 These rules should be enforced with ArchUnit tests as the project matures.
 
@@ -472,6 +480,7 @@ These rules should be enforced with ArchUnit tests as the project matures.
 Every significant capability must have a specification in `docs/specs/` before implementation. Use `docs/specs/SPEC_TEMPLATE.md` as the format.
 
 A specification must define:
+
 - Motivation
 - Responsibilities (what Archivist does; what it does not do)
 - Public contract (capability signature and return shape)
@@ -557,7 +566,7 @@ Do not resolve the conflict silently. Surface it.
 To propose a new public capability:
 
 1. Check that the capability is expressed in domain terms, not retrieval technology terms
-2. Verify that the capability represents *retrieval of evidence*, not *reasoning or synthesis*
+2. Verify that the capability represents _retrieval of evidence_, not _reasoning or synthesis_
 3. Open a GitHub issue with:
    - The capability name and proposed signature
    - The motivation (what agent need does it serve?)
@@ -649,19 +658,19 @@ public class RetrieveContextUseCase {
 
 Understanding what Archivist will never do is as important as understanding what it does.
 
-| Temptation | Why it is out of scope |
-|---|---|
-| Summarise retrieved content | Summarisation is reasoning — belongs to the consuming agent |
-| Answer questions | Answering is reasoning — belongs to the consuming agent |
-| Interpret or infer meaning | Interpretation is reasoning — belongs to the consuming agent |
-| Expose `grep` or `readFile` | Violates Invariant 2 — leaks retrieval technology into the contract |
-| Expose `vectorSearch` or `bm25Search` | Violates Invariant 2 — leaks retrieval technology into the contract |
-| Couple to a specific Second Brain format | Archivist must remain independent of Second Brain's storage implementation |
-| Depend on Spring Boot in domain tests | Violates Invariant 1 — domain must be framework-independent |
-| Change the public contract when switching retrieval strategies | Violates Invariant 8 — the public contract must be stable |
-| Use `@Autowired` field injection in any class | Violates coding standards — use constructor injection |
-| Skip the specification step to ship faster | Violates the development workflow — specs precede code |
+| Temptation                                                     | Why it is out of scope                                                     |
+| -------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| Summarise retrieved content                                    | Summarisation is reasoning — belongs to the consuming agent                |
+| Answer questions                                               | Answering is reasoning — belongs to the consuming agent                    |
+| Interpret or infer meaning                                     | Interpretation is reasoning — belongs to the consuming agent               |
+| Expose `grep` or `readFile`                                    | Violates Invariant 2 — leaks retrieval technology into the contract        |
+| Expose `vectorSearch` or `bm25Search`                          | Violates Invariant 2 — leaks retrieval technology into the contract        |
+| Couple to a specific Second Brain format                       | Archivist must remain independent of Second Brain's storage implementation |
+| Depend on Spring Boot in domain tests                          | Violates Invariant 1 — domain must be framework-independent                |
+| Change the public contract when switching retrieval strategies | Violates Invariant 8 — the public contract must be stable                  |
+| Use `@Autowired` field injection in any class                  | Violates coding standards — use constructor injection                      |
+| Skip the specification step to ship faster                     | Violates the development workflow — specs precede code                     |
 
 ---
 
-*This document is the project constitution. It takes precedence over any verbal instruction, convenience, or implementation shortcut. When in doubt, return to the Architectural North Star.*
+_This document is the project constitution. It takes precedence over any verbal instruction, convenience, or implementation shortcut. When in doubt, return to the Architectural North Star._
