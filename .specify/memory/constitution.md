@@ -1,11 +1,13 @@
 <!--
 SYNC IMPACT REPORT
-Version change: 1.1.1 → 1.2.0  (MINOR — mandatory feature-branch workflow per spec)
-Changed sections: Development Workflow — Feature branch rule (NON-NEGOTIABLE)
+Version change: 1.2.0 → 1.2.1  (PATCH — release-gated issue lifecycle clarification)
+Changed sections: Development Workflow — Issue lifecycle labels and PR reference rule
 Templates requiring updates:
-  ✅ AGENTS.md §13 — Feature branch rule (authoritative detail)
-  ✅ .cursor/rules/github-issues-and-prs.mdc — branch gate before commits
-  ✅ .cursor/rules/archivist.mdc — distilled branch invariant
+  ✅ AGENTS.md §13 — Issue lifecycle and Refs keywords
+  ✅ .cursor/rules/github-issues-and-prs.mdc — PR issue references
+  ✅ .github/pull_request_template.md — Issues resolved section
+  ✅ .github/workflows/issue-lifecycle.yml — merge and release automation
+  ✅ docs/adr/ADR-0001-release-gated-issue-closure.md — decision record
 Follow-up TODOs: none
 -->
 
@@ -73,7 +75,9 @@ Archivist MUST NOT couple to Obsidian internals: folder paths, wikilink syntax, 
 
 ## Development Workflow
 
-**Lifecycle labels**: `spec: draft` → `spec: review` → `spec: approved` → implementation → `under-review` → `pending-release` → `released`
+**Lifecycle labels**: `spec: draft` → `spec: review` → `spec: approved` → implementation → `under-review` → `pending-release` → `released` (closed)
+
+Epic and sub-issues follow the same lifecycle. Each issue is referenced explicitly in the implementation PR; there is no cascade closure from epic to sub-issues.
 
 ### Feature branch rule (NON-NEGOTIABLE)
 
@@ -107,9 +111,9 @@ Epic issue (one per spec)
   └── Sub-issue: Polish & Verification       (tasks as checkboxes)
 ```
 
-**Issue manifest**: `/speckit-taskstoissues` MUST write `specs/<feature>/github-issues.md` with the epic number, every sub-issue number, and a ready-to-paste **PR closing keywords** block.
+**Issue manifest**: `/speckit-taskstoissues` MUST write `specs/<feature>/github-issues.md` with the epic number, every sub-issue number, and a ready-to-paste **PR issue references** block.
 
-**PR closing rule**: The implementation PR MUST include `Closes #NNN` for the epic and **every** sub-issue listed in `github-issues.md`. GitHub does not cascade-close sub-issues when the epic closes — explicit keywords are required.
+**PR reference rule**: The implementation PR MUST include `Refs #NNN` for the epic and **every** sub-issue listed in `github-issues.md`. Do not use `Closes #NNN` — issues close when Release Please publishes a GitHub release, not when the PR merges. Workflow automation in `.github/workflows/issue-lifecycle.yml` owns label transitions.
 
 ## Governance
 
@@ -127,4 +131,4 @@ The extended reference for AI-assisted development is `AGENTS.md` at the reposit
 
 If a request conflicts with an Architectural Invariant (Principles I, II, or III), stop and surface the conflict — do not implement the violation.
 
-**Version**: 1.2.0 | **Ratified**: 2026-07-12 | **Last Amended**: 2026-07-12
+**Version**: 1.2.1 | **Ratified**: 2026-07-12 | **Last Amended**: 2026-07-12

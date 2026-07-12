@@ -2,14 +2,15 @@
 
 <!-- What this PR delivers and which spec it implements -->
 
-## Issues closed
+## Issues resolved
 
 <!-- REQUIRED: epic + every sub-issue from specs/<feature>/github-issues.md -->
-<!-- GitHub closes each issue below when this PR merges -->
+<!-- Use Refs — issues close when Release Please publishes a release, not on merge -->
 
-Closes #EPIC
-<!-- Closes #SUB1 -->
-<!-- Closes #SUB2 -->
+Refs #EPIC
+
+<!-- Refs #SUB1 -->
+<!-- Refs #SUB2 -->
 
 ## Changes
 

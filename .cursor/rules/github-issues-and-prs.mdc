@@ -1,5 +1,5 @@
 ---
-description: GitHub epic/sub-issue structure and mandatory PR closing keywords for spec implementation PRs
+description: GitHub epic/sub-issue structure and mandatory PR issue references for spec implementation PRs
 alwaysApply: true
 ---
 
@@ -17,12 +17,12 @@ Read `AGENTS.md` §13 **GitHub Issue Structure** and **Feature branch rule** for
 
 - One **epic** per spec; one **sub-issue** per phase/user story in `tasks.md`
 - Tasks (`T001`, …) are checkboxes inside sub-issue bodies — never standalone issues
-- Write `specs/<feature>/github-issues.md` with all issue numbers and a **PR closing keywords** block
+- Write `specs/<feature>/github-issues.md` with all issue numbers and a **PR issue references** block
 
 ## When creating an implementation PR
 
 1. Read `specs/<feature>/github-issues.md`
-2. Include an **Issues closed** section with `Closes #NNN` for the epic **and every sub-issue**
+2. Include an **Issues resolved** section with `Refs #NNN` for the epic **and every sub-issue**
 3. Use `.github/pull_request_template.md` as the starting structure
 
-Do not close only the epic. Sub-issues do not auto-close when the parent closes.
+Epic and sub-issues follow the same lifecycle: `under-review` → `pending-release` → `released`. Do not use `Closes #NNN` — release automation closes issues when a GitHub release is published.
