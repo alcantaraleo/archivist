@@ -531,15 +531,33 @@ If the implementation diverges from the specification, update the specification 
 Every spec produces exactly one epic issue. Phases and user stories from `tasks.md` become sub-issues of the epic. Individual tasks (`T001`, `T002`, …) are checklist items inside their phase/story sub-issue — they must never become standalone issues.
 
 ```
-Epic issue              ← one per spec; PR links here
-  ├── Phase 1 sub-issue      ← tasks T001–T00N as checkboxes
-  ├── Phase 2 sub-issue      ← tasks as checkboxes
-  ├── US1 sub-issue (P1)     ← tasks as checkboxes
-  ├── US2 sub-issue (P2)     ← tasks as checkboxes
-  └── Polish sub-issue       ← tasks as checkboxes
+Epic issue              ← one per spec; implementation PR closes this
+  ├── Phase 1 sub-issue      ← tasks T001–T00N as checkboxes; PR closes this
+  ├── Phase 2 sub-issue      ← tasks as checkboxes; PR closes this
+  ├── US1 sub-issue (P1)     ← tasks as checkboxes; PR closes this
+  ├── US2 sub-issue (P2)     ← tasks as checkboxes; PR closes this
+  └── Polish sub-issue       ← tasks as checkboxes; PR closes this
 ```
 
 This structure keeps the issue tracker readable. Individual checkboxes can be promoted to GitHub sub-issues from the UI if a single task needs independent tracking.
+
+**Creating issues** — run `/speckit-taskstoissues` after `tasks.md` is approved. The skill creates the epic, one sub-issue per phase/user story (via `gh issue create --parent`), and writes `specs/<feature>/github-issues.md` listing every issue number.
+
+**Closing issues** — the single implementation PR for a spec MUST close the epic **and every sub-issue** explicitly. Do not rely on cascade from the epic; GitHub does not auto-close sub-issues when a parent closes.
+
+1. Read `specs/<feature>/github-issues.md`
+2. Copy the **PR closing keywords** block into the PR body under **Issues closed**
+3. One `Closes #NNN` line per issue (epic first, then all sub-issues)
+
+Example:
+
+```
+Closes #38
+Closes #39
+Closes #40
+```
+
+Use `.github/pull_request_template.md` — the **Issues closed** section is mandatory for every implementation PR.
 
 ---
 

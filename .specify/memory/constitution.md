@@ -87,7 +87,7 @@ Scopes that signal domain work: `capability`, `retrieval`, `domain`, `transport`
 
 **Release**: Automated via Release Please from conventional commits. `feat` and `fix` prefixes trigger version bumps.
 
-**Issue structure**: Every spec produces exactly one GitHub epic issue. Below the epic, create one sub-issue per phase/user story (as defined in `tasks.md`). Tasks (`T001`, `T002`, …) are `- [ ] TNNN: description` checkboxes inside their phase/story sub-issue body — they MUST NOT become standalone issues. The implementation PR links to the epic issue. When running `/speckit-taskstoissues`, always follow this hierarchy:
+**Issue structure**: Every spec produces exactly one GitHub epic issue. Below the epic, create one sub-issue per phase/user story (as defined in `tasks.md`). Tasks (`T001`, `T002`, …) are `- [ ] TNNN: description` checkboxes inside their phase/story sub-issue body — they MUST NOT become standalone issues. When running `/speckit-taskstoissues`, always follow this hierarchy:
 
 ```
 Epic issue (one per spec)
@@ -98,6 +98,10 @@ Epic issue (one per spec)
   └── ...
   └── Sub-issue: Polish & Verification       (tasks as checkboxes)
 ```
+
+**Issue manifest**: `/speckit-taskstoissues` MUST write `specs/<feature>/github-issues.md` with the epic number, every sub-issue number, and a ready-to-paste **PR closing keywords** block.
+
+**PR closing rule**: The implementation PR MUST include `Closes #NNN` for the epic and **every** sub-issue listed in `github-issues.md`. GitHub does not cascade-close sub-issues when the epic closes — explicit keywords are required.
 
 ## Governance
 
