@@ -566,33 +566,37 @@ If spec work was accidentally committed to `main`, move the commit to the correc
 Every spec produces exactly one epic issue. Phases and user stories from `tasks.md` become sub-issues of the epic. Individual tasks (`T001`, `T002`, …) are checklist items inside their phase/story sub-issue — they must never become standalone issues.
 
 ```
-Epic issue              ← one per spec; implementation PR closes this
-  ├── Phase 1 sub-issue      ← tasks T001–T00N as checkboxes; PR closes this
-  ├── Phase 2 sub-issue      ← tasks as checkboxes; PR closes this
-  ├── US1 sub-issue (P1)     ← tasks as checkboxes; PR closes this
-  ├── US2 sub-issue (P2)     ← tasks as checkboxes; PR closes this
-  └── Polish sub-issue       ← tasks as checkboxes; PR closes this
+Epic issue              ← one per spec; implementation PR references this
+  ├── Phase 1 sub-issue      ← tasks T001–T00N as checkboxes; PR references this
+  ├── Phase 2 sub-issue      ← tasks as checkboxes; PR references this
+  ├── US1 sub-issue (P1)     ← tasks as checkboxes; PR references this
+  ├── US2 sub-issue (P2)     ← tasks as checkboxes; PR references this
+  └── Polish sub-issue       ← tasks as checkboxes; PR references this
 ```
 
 This structure keeps the issue tracker readable. Individual checkboxes can be promoted to GitHub sub-issues from the UI if a single task needs independent tracking.
 
 **Creating issues** — run `/speckit-taskstoissues` after `tasks.md` is approved. The skill creates the epic, one sub-issue per phase/user story (via `gh issue create --parent`), and writes `specs/<feature>/github-issues.md` listing every issue number.
 
-**Closing issues** — the single implementation PR for a spec MUST close the epic **and every sub-issue** explicitly. Do not rely on cascade from the epic; GitHub does not auto-close sub-issues when a parent closes.
+**Issue lifecycle** — epic and sub-issues follow the same rules. Implementation PRs reference every issue with `Refs #NNN` (not `Closes`). Workflow automation handles label transitions:
 
-1. Read `specs/<feature>/github-issues.md`
-2. Copy the **PR closing keywords** block into the PR body under **Issues closed**
-3. One `Closes #NNN` line per issue (epic first, then all sub-issues)
+1. PR opened → `under-review`
+2. PR merged to `main` → `pending-release`
+3. GitHub release published → issue closed with `released`
+
+4. Read `specs/<feature>/github-issues.md`
+5. Copy the **PR issue references** block into the PR body under **Issues resolved**
+6. One `Refs #NNN` line per issue (epic first, then all sub-issues)
 
 Example:
 
 ```
-Closes #38
-Closes #39
-Closes #40
+Refs #38
+Refs #39
+Refs #40
 ```
 
-Use `.github/pull_request_template.md` — the **Issues closed** section is mandatory for every implementation PR.
+Use `.github/pull_request_template.md` — the **Issues resolved** section is mandatory for every implementation PR.
 
 ---
 

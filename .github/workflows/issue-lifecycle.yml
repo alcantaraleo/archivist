@@ -2,33 +2,118 @@ name: Issue Lifecycle
 
 on:
   pull_request:
-    types: [closed]
+    types: [opened, reopened, synchronize, closed]
     branches: [main]
+  release:
+    types: [published]
 
 permissions:
   issues: write
 
 jobs:
-  pending-release:
-    if: github.event.pull_request.merged == true
+  ensure-labels:
+    if: github.event_name == 'pull_request' || github.event_name == 'release'
     runs-on: ubuntu-latest
 
     steps:
-      - name: Swap under-review → pending-release
+      - uses: actions/checkout@v4
+
+      - name: Ensure lifecycle labels exist
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_BODY: ${{ github.event.pull_request.body }}
+          REPO: ${{ github.repository }}
         run: |
-          ISSUE=$(echo "$PR_BODY" | grep -oP '(?<=#)\d+' | head -1)
-          if [ -z "$ISSUE" ]; then
-            echo "No linked issue found in PR body."
+          source .github/scripts/issue-lifecycle.sh
+          ensure_labels
+
+  under-review:
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.event.action != 'closed' &&
+      !contains(github.event.pull_request.head.ref, 'release-please') &&
+      !startsWith(github.event.pull_request.title, 'chore(main): release')
+    needs: ensure-labels
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Add under-review to referenced issues
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+        run: |
+          source .github/scripts/issue-lifecycle.sh
+          if is_release_please_pr "${{ github.event.pull_request.title }}" "${{ github.event.pull_request.head.ref }}"; then
+            echo "Skipping Release Please PR."
             exit 0
           fi
-          echo "Updating issue #${ISSUE}"
-          gh issue edit "$ISSUE" \
-            --remove-label "under-review" \
-            --add-label "pending-release" \
-            --repo "${{ github.repository }}"
-          gh issue comment "$ISSUE" \
-            --body "PR merged. Issue is now pending the next release." \
-            --repo "${{ github.repository }}"
+          ADD_COMMENT="${{ github.event.action == 'opened' || github.event.action == 'reopened' }}"
+          process_pr_issues "under-review" "$PR_BODY" "$PR_URL" "$ADD_COMMENT"
+
+  pending-release:
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.merged == true &&
+      !contains(github.event.pull_request.head.ref, 'release-please') &&
+      !startsWith(github.event.pull_request.title, 'chore(main): release')
+    needs: ensure-labels
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Move referenced issues to pending-release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+        run: |
+          source .github/scripts/issue-lifecycle.sh
+          if is_release_please_pr "${{ github.event.pull_request.title }}" "${{ github.event.pull_request.head.ref }}"; then
+            echo "Skipping Release Please PR."
+            exit 0
+          fi
+          process_pr_issues "pending-release" "$PR_BODY" "$PR_URL"
+
+  cleanup-unmerged:
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.event.action == 'closed' &&
+      github.event.pull_request.merged == false &&
+      !contains(github.event.pull_request.head.ref, 'release-please') &&
+      !startsWith(github.event.pull_request.title, 'chore(main): release')
+    needs: ensure-labels
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Remove under-review from referenced issues
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          source .github/scripts/issue-lifecycle.sh
+          process_pr_issues "cleanup-unmerged" "$PR_BODY" ""
+
+  released:
+    if: github.event_name == 'release'
+    needs: ensure-labels
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Close pending-release issues and mark released
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          source .github/scripts/issue-lifecycle.sh
+          close_released_issues "$RELEASE_TAG"
