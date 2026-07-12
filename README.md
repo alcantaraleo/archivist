@@ -239,8 +239,8 @@ Startup confirmation is written to **stderr**; stdout is reserved for the MCP ST
 
 ### Phase 1 — Foundation
 
-- [ ] Clean Architecture skeleton with domain model
-- [ ] Domain capability interfaces (input ports)
+- [x] Clean Architecture skeleton with domain model
+- [x] Domain capability interfaces (input ports)
 - [ ] Lexical retrieval strategy
 - [ ] MCP transport adapter
 - [ ] Second Brain integration (initial)
