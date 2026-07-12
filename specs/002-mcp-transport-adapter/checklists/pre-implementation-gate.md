@@ -102,13 +102,13 @@ _Tracking artifacts required before implementation PR — not yet produced._
 
 _Code deliverables — all pending; tracked here for visibility._
 
-- [ ] **DEL031** `[CRITICAL]` Phase 1 — test infrastructure (T001–T002): `spring-boot-starter-test` on `:transport`
-- [ ] **DEL032** `[CRITICAL]` Phase 2 — fixture verification (T003)
-- [ ] **DEL033** `[CRITICAL]` Phase 3 — eight application stub use cases (T004–T011)
-- [ ] **DEL034** `[CRITICAL]` Phase 4 — MCP transport adapter core (T012–T016)
-- [ ] **DEL035** `[HIGH]` Phase 5 — transport unit tests (T017–T018)
-- [ ] **DEL036** `[HIGH]` Phase 6 — contract regression + adapter integration tests (T019–T021)
-- [ ] **DEL037** `[HIGH]` Phase 7 — polish & full quickstart verification (T022–T027)
+- [x] **DEL031** `[CRITICAL]` Phase 1 — test infrastructure (T001–T002): `spring-boot-starter-test` on `:transport`
+- [x] **DEL032** `[CRITICAL]` Phase 2 — fixture verification (T003)
+- [x] **DEL033** `[CRITICAL]` Phase 3 — eight application stub use cases (T004–T011)
+- [x] **DEL034** `[CRITICAL]` Phase 4 — MCP transport adapter core (T012–T016)
+- [x] **DEL035** `[HIGH]` Phase 5 — transport unit tests (T017–T018)
+- [x] **DEL036** `[HIGH]` Phase 6 — contract regression + adapter integration tests (T019–T021)
+- [x] **DEL037** `[HIGH]` Phase 7 — polish & full quickstart verification (T022–T027)
 
 ---
 

@@ -24,8 +24,8 @@
 
 **Purpose**: Add Spring Boot test support to the transport module. No production source changes.
 
-- [ ] T001 Add `spring-boot-starter-test` library alias to `gradle/libs.versions.toml` — coordinate `org.springframework.boot:spring-boot-starter-test`, version via Spring Boot BOM (`4.1.0`)
-- [ ] T002 Add `testImplementation(libs.spring.boot.starter.test)` to `transport/build.gradle.kts`
+- [x] T001 Add `spring-boot-starter-test` library alias to `gradle/libs.versions.toml` — coordinate `org.springframework.boot:spring-boot-starter-test`, version via Spring Boot BOM (`4.1.0`)
+- [x] T002 Add `testImplementation(libs.spring.boot.starter.test)` to `transport/build.gradle.kts`
 
 **Checkpoint**: `./gradlew :transport:dependencies --configuration testCompileClasspath` lists `spring-boot-starter-test`; no new non-Spring test libraries added.
 
@@ -37,7 +37,7 @@
 
 ⚠️ **CRITICAL**: Contract regression tests (US4) depend on these fixtures. Do not modify tool names, descriptions, or schemas without updating `specs/001-project-scaffolding/contracts/mcp-server.md` through the specification workflow.
 
-- [ ] T003 Verify contract fixtures in `specs/002-mcp-transport-adapter/contracts/` — confirm `mcp-tools-expected.json` (eight tools), `mcp-server-identity-expected.json` (`name: archivist`, `version: 0.1.0`), and `evidence-response-schema-expected.json` match `specs/001-project-scaffolding/contracts/mcp-server.md`; fix any drift before proceeding
+- [x] T003 Verify contract fixtures in `specs/002-mcp-transport-adapter/contracts/` — confirm `mcp-tools-expected.json` (eight tools), `mcp-server-identity-expected.json` (`name: archivist`, `version: 0.1.0`), and `evidence-response-schema-expected.json` match `specs/001-project-scaffolding/contracts/mcp-server.md`; fix any drift before proceeding
 
 **Checkpoint**: All three JSON fixtures present and consistent with the 001 MCP server contract.
 
@@ -51,14 +51,14 @@
 
 ### Implementation
 
-- [ ] T004 [P] [US1] Create `application/src/main/java/io/archivist/application/usecase/RetrieveContextUseCase.java` — implements `RetrieveContext`; `retrieveContext(String query)` returns `List.of()`
-- [ ] T005 [P] [US1] Create `application/src/main/java/io/archivist/application/usecase/FindDecisionsUseCase.java` — implements `FindDecisions`; `findDecisions(String topic)` returns `List.of()`
-- [ ] T006 [P] [US1] Create `application/src/main/java/io/archivist/application/usecase/FindProjectsUseCase.java` — implements `FindProjects`; `findProjects(String criteria)` returns `List.of()`
-- [ ] T007 [P] [US1] Create `application/src/main/java/io/archivist/application/usecase/FindPeopleUseCase.java` — implements `FindPeople`; `findPeople(String name)` returns `List.of()`
-- [ ] T008 [P] [US1] Create `application/src/main/java/io/archivist/application/usecase/FindConceptsUseCase.java` — implements `FindConcepts`; `findConcepts(String topic)` returns `List.of()`
-- [ ] T009 [P] [US1] Create `application/src/main/java/io/archivist/application/usecase/FindRelatedKnowledgeUseCase.java` — implements `FindRelatedKnowledge`; `findRelatedKnowledge(String query)` returns `List.of()`
-- [ ] T010 [P] [US1] Create `application/src/main/java/io/archivist/application/usecase/FindReadingsUseCase.java` — implements `FindReadings`; `findReadings(String topic)` returns `List.of()`
-- [ ] T011 [P] [US1] Create `application/src/main/java/io/archivist/application/usecase/FindDebriefsUseCase.java` — implements `FindDebriefs`; `findDebriefs(String topic)` returns `List.of()`
+- [x] T004 [P] [US1] Create `application/src/main/java/io/archivist/application/usecase/RetrieveContextUseCase.java` — implements `RetrieveContext`; `retrieveContext(String query)` returns `List.of()`
+- [x] T005 [P] [US1] Create `application/src/main/java/io/archivist/application/usecase/FindDecisionsUseCase.java` — implements `FindDecisions`; `findDecisions(String topic)` returns `List.of()`
+- [x] T006 [P] [US1] Create `application/src/main/java/io/archivist/application/usecase/FindProjectsUseCase.java` — implements `FindProjects`; `findProjects(String criteria)` returns `List.of()`
+- [x] T007 [P] [US1] Create `application/src/main/java/io/archivist/application/usecase/FindPeopleUseCase.java` — implements `FindPeople`; `findPeople(String name)` returns `List.of()`
+- [x] T008 [P] [US1] Create `application/src/main/java/io/archivist/application/usecase/FindConceptsUseCase.java` — implements `FindConcepts`; `findConcepts(String topic)` returns `List.of()`
+- [x] T009 [P] [US1] Create `application/src/main/java/io/archivist/application/usecase/FindRelatedKnowledgeUseCase.java` — implements `FindRelatedKnowledge`; `findRelatedKnowledge(String query)` returns `List.of()`
+- [x] T010 [P] [US1] Create `application/src/main/java/io/archivist/application/usecase/FindReadingsUseCase.java` — implements `FindReadings`; `findReadings(String topic)` returns `List.of()`
+- [x] T011 [P] [US1] Create `application/src/main/java/io/archivist/application/usecase/FindDebriefsUseCase.java` — implements `FindDebriefs`; `findDebriefs(String topic)` returns `List.of()`
 
 **Checkpoint**: `./gradlew :application:build` succeeds. All eight stubs compile with constructor-free plain classes (no-args or implicit default constructor).
 
@@ -72,11 +72,11 @@
 
 ### Implementation
 
-- [ ] T012 [P] [US2] Create `transport/src/main/java/io/archivist/transport/mcp/McpInputValidator.java` — static `requireNonBlank(String value, String paramName)` throwing `IllegalArgumentException` with parameter name when null, empty, or whitespace-only
-- [ ] T013 [P] [US2] Create `transport/src/main/java/io/archivist/transport/mcp/EvidenceJsonMapper.java` — constructor-injected `com.fasterxml.jackson.databind.ObjectMapper`; method to serialise `List<Evidence>` to JSON string matching contract shape (enum names, ISO-8601 instants)
-- [ ] T014 [US2] Create `transport/src/main/java/io/archivist/transport/config/StubUseCaseConfiguration.java` — `@Configuration` with eight `@Bean` methods returning `port.in` interface types wired to stub use case classes from US1; constructor injection only
-- [ ] T015 [US2] Create `transport/src/main/java/io/archivist/transport/mcp/ArchivistMcpTools.java` — `@Component` with eight `@McpTool` / `@McpToolParam` methods (names, descriptions, parameter names per `specs/002-mcp-transport-adapter/contracts/mcp-tools-expected.json`); validate → delegate to injected `port.in` → serialise via injected `EvidenceJsonMapper` → return JSON string (sole serialisation path; depends on T012, T013, T014)
-- [ ] T016 [US2] Update `transport/src/main/java/io/archivist/transport/ArchivistApplication.java` — ensure `StubUseCaseConfiguration` and `ArchivistMcpTools` are picked up (add `@Import(StubUseCaseConfiguration.class)` if component scan does not cover `config` subpackage); no field injection
+- [x] T012 [P] [US2] Create `transport/src/main/java/io/archivist/transport/mcp/McpInputValidator.java` — static `requireNonBlank(String value, String paramName)` throwing `IllegalArgumentException` with parameter name when null, empty, or whitespace-only
+- [x] T013 [P] [US2] Create `transport/src/main/java/io/archivist/transport/mcp/EvidenceJsonMapper.java` — constructor-injected `com.fasterxml.jackson.databind.ObjectMapper`; method to serialise `List<Evidence>` to JSON string matching contract shape (enum names, ISO-8601 instants)
+- [x] T014 [US2] Create `transport/src/main/java/io/archivist/transport/config/StubUseCaseConfiguration.java` — `@Configuration` with eight `@Bean` methods returning `port.in` interface types wired to stub use case classes from US1; constructor injection only
+- [x] T015 [US2] Create `transport/src/main/java/io/archivist/transport/mcp/ArchivistMcpTools.java` — `@Component` with eight `@McpTool` / `@McpToolParam` methods (names, descriptions, parameter names per `specs/002-mcp-transport-adapter/contracts/mcp-tools-expected.json`); validate → delegate to injected `port.in` → serialise via injected `EvidenceJsonMapper` → return JSON string (sole serialisation path; depends on T012, T013, T014)
+- [x] T016 [US2] Update `transport/src/main/java/io/archivist/transport/ArchivistApplication.java` — ensure `StubUseCaseConfiguration` and `ArchivistMcpTools` are picked up (add `@Import(StubUseCaseConfiguration.class)` if component scan does not cover `config` subpackage); no field injection
 
 **Checkpoint**: `./gradlew :transport:build` compiles. MCP server boots with eight registered tools (manual MCP client list — names match contract).
 
@@ -90,8 +90,8 @@
 
 ### Tests
 
-- [ ] T017 [P] [US3] Create `transport/src/test/java/io/archivist/transport/mcp/McpInputValidatorTest.java` — JUnit 5; assert `requireNonBlank` throws for null, empty, and whitespace-only values; assert no throw for valid non-blank input; zero Spring imports
-- [ ] T018 [P] [US3] Create `transport/src/test/java/io/archivist/transport/mcp/EvidenceJsonMapperTest.java` — JUnit 5 with manually constructed `ObjectMapper`; serialise canonical sample `Evidence` list; compare output to `specs/002-mcp-transport-adapter/contracts/evidence-response-schema-expected.json` via `JsonNode.equals()`; zero Spring test context
+- [x] T017 [P] [US3] Create `transport/src/test/java/io/archivist/transport/mcp/McpInputValidatorTest.java` — JUnit 5; assert `requireNonBlank` throws for null, empty, and whitespace-only values; assert no throw for valid non-blank input; zero Spring imports
+- [x] T018 [P] [US3] Create `transport/src/test/java/io/archivist/transport/mcp/EvidenceJsonMapperTest.java` — JUnit 5 with manually constructed `ObjectMapper`; serialise canonical sample `Evidence` list; compare output to `specs/002-mcp-transport-adapter/contracts/evidence-response-schema-expected.json` via `JsonNode.equals()`; zero Spring test context
 
 **Checkpoint**: Both unit test classes pass independently without `@SpringBootTest`.
 
@@ -105,9 +105,9 @@
 
 ### Tests
 
-- [ ] T019 [US4] Create `transport/src/test/java/io/archivist/transport/support/McpAdapterTestConfiguration.java` — `@TestConfiguration` with explicit `@Import` of `StubUseCaseConfiguration`, `ArchivistMcpTools`, `EvidenceJsonMapper`, and Spring AI MCP tool-callback auto-configuration only; must NOT load `ArchivistApplication`, `ArchivistProperties`, or `:infrastructure`; test properties: `spring.ai.mcp.server.stdio=false` (or exclude STDIO auto-config if property unsupported)
-- [ ] T020 [US4] Create `transport/src/test/java/io/archivist/transport/mcp/McpContractRegressionTest.java` — `@SpringBootTest(classes = McpAdapterTestConfiguration.class)`; autowire `List<org.springframework.ai.tool.ToolCallback>`; assert exactly eight tools; compare each `getToolDefinition()` name/description/inputSchema to `specs/002-mcp-transport-adapter/contracts/mcp-tools-expected.json` via `ObjectMapper.readTree()` + `JsonNode.equals()`; assert server identity matches `mcp-server-identity-expected.json`; assert `EvidenceJsonMapper` output matches `evidence-response-schema-expected.json` (depends on T019, T015)
-- [ ] T021 [US4] Create `transport/src/test/java/io/archivist/transport/mcp/ArchivistMcpToolsTest.java` — `@SpringBootTest(classes = McpAdapterTestConfiguration.class)`; use `@MockitoBean` to replace individual `port.in` beans; **parameterized** invalid-input tests across all eight tools (blank/null → `IllegalArgumentException` with parameter name, mock never called); valid input → delegates and returns `[]` JSON; mock returning sample evidence → serialised response matches `evidence-response-schema-expected.json` via production `EvidenceJsonMapper` path (AC-9d); mock throwing → tool error surfaces (depends on T019, T015)
+- [x] T019 [US4] Create `transport/src/test/java/io/archivist/transport/support/McpAdapterTestConfiguration.java` — `@TestConfiguration` with explicit `@Import` of `StubUseCaseConfiguration`, `ArchivistMcpTools`, `EvidenceJsonMapper`, and Spring AI MCP tool-callback auto-configuration only; must NOT load `ArchivistApplication`, `ArchivistProperties`, or `:infrastructure`; test properties: `spring.ai.mcp.server.stdio=false` (or exclude STDIO auto-config if property unsupported)
+- [x] T020 [US4] Create `transport/src/test/java/io/archivist/transport/mcp/McpContractRegressionTest.java` — `@SpringBootTest(classes = McpAdapterTestConfiguration.class)`; autowire `List<org.springframework.ai.tool.ToolCallback>`; assert exactly eight tools; compare each `getToolDefinition()` name/description/inputSchema to `specs/002-mcp-transport-adapter/contracts/mcp-tools-expected.json` via `ObjectMapper.readTree()` + `JsonNode.equals()`; assert server identity matches `mcp-server-identity-expected.json`; assert `EvidenceJsonMapper` output matches `evidence-response-schema-expected.json` (depends on T019, T015)
+- [x] T021 [US4] Create `transport/src/test/java/io/archivist/transport/mcp/ArchivistMcpToolsTest.java` — `@SpringBootTest(classes = McpAdapterTestConfiguration.class)`; use `@MockitoBean` to replace individual `port.in` beans; **parameterized** invalid-input tests across all eight tools (blank/null → `IllegalArgumentException` with parameter name, mock never called); valid input → delegates and returns `[]` JSON; mock returning sample evidence → serialised response matches `evidence-response-schema-expected.json` via production `EvidenceJsonMapper` path (AC-9d); mock throwing → tool error surfaces (depends on T019, T015)
 
 **Checkpoint**: `./gradlew :transport:test` passes including contract regression. Unintended contract drift fails the build (AC-10).
 
@@ -117,12 +117,12 @@
 
 **Purpose**: Code quality, dependency rules, and full quickstart validation.
 
-- [ ] T022 [P] Verify no star imports in new source: `grep -r "^import .*\*;" --include="*.java" application/src/main/java/io/archivist/application/usecase transport/src` — must produce no output (AC-15)
-- [ ] T023 [P] Verify no field injection in new source: `grep -r "@Autowired" --include="*.java" application/src/main/java/io/archivist/application/usecase transport/src` — must produce no output (AC-14)
-- [ ] T024 [P] Verify transport does not depend on infrastructure: `./gradlew :transport:dependencies --configuration compileClasspath` — no `:infrastructure` entries (AC-7)
-- [ ] T025 Run transport tests: `./gradlew :transport:test` — all tests pass
-- [ ] T026 Run full build: `./gradlew build` from repo root — `BUILD SUCCESSFUL` required; contract regression tests included (AC-1, AC-10)
-- [ ] T027 Run full quickstart verification: execute all checks in `specs/002-mcp-transport-adapter/quickstart.md` in order; confirm MCP client lists eight tools and stub invocations return `[]` (AC-12, AC-13)
+- [x] T022 [P] Verify no star imports in new source: `grep -r "^import .*\*;" --include="*.java" application/src/main/java/io/archivist/application/usecase transport/src` — must produce no output (AC-15)
+- [x] T023 [P] Verify no field injection in new source: `grep -r "@Autowired" --include="*.java" application/src/main/java/io/archivist/application/usecase transport/src` — must produce no output (AC-14)
+- [x] T024 [P] Verify transport does not depend on infrastructure: `./gradlew :transport:dependencies --configuration compileClasspath` — no `:infrastructure` entries (AC-7)
+- [x] T025 Run transport tests: `./gradlew :transport:test` — all tests pass
+- [x] T026 Run full build: `./gradlew build` from repo root — `BUILD SUCCESSFUL` required; contract regression tests included (AC-1, AC-10)
+- [x] T027 Run full quickstart verification: execute all checks in `specs/002-mcp-transport-adapter/quickstart.md` in order; confirm MCP client lists eight tools and stub invocations return `[]` (AC-12, AC-13)
 - [x] T028 Run `/speckit-taskstoissues` before opening the implementation PR — creates epic + sub-issues and writes `specs/002-mcp-transport-adapter/github-issues.md` per constitution workflow
 
 ---
