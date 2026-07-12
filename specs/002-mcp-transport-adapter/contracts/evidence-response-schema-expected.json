@@ -1,0 +1,15 @@
+[
+  {
+    "content": "Sample retrieved knowledge text for contract verification.",
+    "provenance": {
+      "sourceId": "contract-test-source-id",
+      "title": "Contract Test Entry",
+      "type": "CONCEPT",
+      "zone": "SYNTHESIZED",
+      "tags": ["contract", "test"],
+      "sources": ["raw-source-id"],
+      "created": "2026-01-01T12:00:00Z",
+      "updated": "2026-01-02T12:00:00Z"
+    }
+  }
+]

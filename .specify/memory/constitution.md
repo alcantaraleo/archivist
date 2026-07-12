@@ -1,14 +1,11 @@
 <!--
 SYNC IMPACT REPORT
-Version change: (none) → 1.0.0  (initial ratification)
-Added sections: Core Principles (I–V), Technology Constraints, Development Workflow, Governance
-Removed sections: N/A (first version)
+Version change: 1.1.1 → 1.2.0  (MINOR — mandatory feature-branch workflow per spec)
+Changed sections: Development Workflow — Feature branch rule (NON-NEGOTIABLE)
 Templates requiring updates:
-  ✅ .specify/templates/plan-template.md — Constitution Check gates filled; Technical Context pre-filled
-  ✅ .specify/templates/spec-template.md — replaced user-story format with Archivist domain-capability
-      format (Motivation, Responsibilities, Public Contract, Acceptance Criteria, Domain Model Impact,
-      Architectural Impact, Out of Scope, Open Questions, Approval)
-  ✅ .specify/memory/constitution.md — this file
+  ✅ AGENTS.md §13 — Feature branch rule (authoritative detail)
+  ✅ .cursor/rules/github-issues-and-prs.mdc — branch gate before commits
+  ✅ .cursor/rules/archivist.mdc — distilled branch invariant
 Follow-up TODOs: none
 -->
 
@@ -58,7 +55,7 @@ Archivist MUST NOT couple to Obsidian internals: folder paths, wikilink syntax, 
 ## Technology Constraints
 
 **Language**: Java 21+
-**Framework**: Spring Boot 3.x (infrastructure and transport layers only)
+**Framework**: Spring Boot 4.x (infrastructure and transport layers only; pin version in `gradle/libs.versions.toml` — currently 4.1.0 per specs/001-project-scaffolding/research.md)
 **AI / Retrieval integration**: Spring AI (infrastructure layer only)
 **Build**: Gradle with Kotlin DSL exclusively — Maven is never permitted
 **MCP transport**: Spring AI MCP Server (transport layer only)
@@ -77,6 +74,17 @@ Archivist MUST NOT couple to Obsidian internals: folder paths, wikilink syntax, 
 ## Development Workflow
 
 **Lifecycle labels**: `spec: draft` → `spec: review` → `spec: approved` → implementation → `under-review` → `pending-release` → `released`
+
+### Feature branch rule (NON-NEGOTIABLE)
+
+Every spec MUST use a dedicated Git branch for **all** work on that spec — specification artifacts and implementation — before any commit.
+
+- Branch name MUST be `NNN-feature-slug`, matching `specs/NNN-feature-slug/` and the **Feature Branch** field in `spec.md` (e.g. `002-mcp-transport-adapter`).
+- Create the branch **before the first commit** for that spec. Never commit spec or implementation work directly to `main`.
+- Changes reach `main` ONLY through a merged pull request from the feature branch.
+- Before committing, verify the current branch is the spec's feature branch, not `main`.
+
+See `AGENTS.md` §13 for the full rule, examples, and recovery when work lands on `main` by mistake.
 
 **PR titles**: MUST follow Conventional Commits — `type(scope): description`
 Scopes that signal domain work: `capability`, `retrieval`, `domain`, `transport`, `infra`
@@ -119,4 +127,4 @@ The extended reference for AI-assisted development is `AGENTS.md` at the reposit
 
 If a request conflicts with an Architectural Invariant (Principles I, II, or III), stop and surface the conflict — do not implement the violation.
 
-**Version**: 1.1.0 | **Ratified**: 2026-07-12 | **Last Amended**: 2026-07-12
+**Version**: 1.2.0 | **Ratified**: 2026-07-12 | **Last Amended**: 2026-07-12

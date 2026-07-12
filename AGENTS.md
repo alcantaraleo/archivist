@@ -511,20 +511,55 @@ Significant architectural decisions should be recorded in `docs/adr/` using the 
 Archivist follows Specification-Driven Development.
 
 ```
-Issue → Specification → Review → Approve → Implement → Verify → Merge
+Issue → Feature branch → Specification → Review → Approve → Implement → Verify → Merge (PR)
 ```
 
 1. **Issue** — describe the capability, motivation, and constraints in a GitHub issue
-2. **Specification** — write `docs/specs/SPEC-NNNN-capability-name.md` following the template
-3. **Review** — specification is reviewed for architectural alignment
-4. **Approve** — specification is explicitly approved before any implementation begins
-5. **Implement** — implementation follows the approved specification strictly
-6. **Verify** — each acceptance criterion is checked and confirmed
-7. **Merge** — code is merged only when all criteria are met and review passes
+2. **Feature branch** — create and work on a dedicated branch **before the first commit** for this spec (see [Feature branch rule](#feature-branch-rule-non-negotiable))
+3. **Specification** — write `docs/specs/SPEC-NNNN-capability-name.md` or `specs/NNN-feature/` following the template
+4. **Review** — specification is reviewed for architectural alignment
+5. **Approve** — specification is explicitly approved before any implementation begins
+6. **Implement** — implementation follows the approved specification strictly
+7. **Verify** — each acceptance criterion is checked and confirmed
+8. **Merge** — changes reach `main` **only** through a merged pull request from the feature branch
 
 **Implementation must not begin before specification approval.**
 
 If the implementation diverges from the specification, update the specification first and have it re-approved.
+
+### Feature branch rule (NON-NEGOTIABLE)
+
+Every spec gets **exactly one long-lived feature branch** for **all** work related to that spec — specification artifacts, contract fixtures, tasks, GitHub issue manifest updates, **and** implementation code.
+
+| Rule                        | Requirement                                                                                                                                                                         |
+| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **When to create**          | Before the **first commit** that touches files for this spec. Create the branch at the start of `/speckit-specify` or when adding `specs/NNN-feature-slug/`, whichever comes first. |
+| **Branch name**             | MUST match the spec directory slug: `NNN-feature-slug` (e.g. `002-mcp-transport-adapter`). MUST match the **Feature Branch** field in `spec.md`.                                    |
+| **What goes on the branch** | Everything for that spec: `specs/NNN-feature-slug/**`, related `.specify/` updates, implementation code, tests, and any spec-specific governance edits.                             |
+| **What must NEVER happen**  | Committing spec artifacts or implementation **directly to `main`**. Pushing spec work to `main` without a PR.                                                                       |
+| **How `main` is updated**   | Only by merging a PR from the feature branch after review. One spec typically yields one or more PRs from the same branch; all merges go through PR.                                |
+| **Before every commit**     | AI agents and contributors MUST confirm `git branch --show-current` equals the spec's feature branch (not `main`).                                                                  |
+
+**Example (correct workflow):**
+
+```bash
+git checkout main && git pull
+git checkout -b 002-mcp-transport-adapter
+# … write spec, plan, tasks, contracts …
+git commit -m "docs(transport): add MCP transport adapter specification kit"
+git push -u origin 002-mcp-transport-adapter
+# … open PR; merge to main when approved …
+```
+
+**Example (violation — do not do this):**
+
+```bash
+# On main — WRONG: spec artifacts committed without a feature branch
+git commit -m "docs(transport): add spec kit"
+git push origin main
+```
+
+If spec work was accidentally committed to `main`, move the commit to the correctly named feature branch and restore `main` before opening a PR — do not leave spec commits on `main`.
 
 ### GitHub Issue Structure
 

@@ -5,7 +5,13 @@ alwaysApply: true
 
 # GitHub Issues and PRs
 
-Read `AGENTS.md` §13 **GitHub Issue Structure** for the full rule.
+Read `AGENTS.md` §13 **GitHub Issue Structure** and **Feature branch rule** for the full rules.
+
+## Feature branch (before any commit)
+
+- Each new spec MUST have branch `NNN-feature-slug` (e.g. `002-mcp-transport-adapter`) **before the first commit** for that spec
+- Spec kit artifacts, fixtures, tasks, and implementation all go on that branch — **never on `main`**
+- Confirm `git branch --show-current` is the feature branch before committing; merge to `main` via PR only
 
 ## When creating issues (`/speckit-taskstoissues`)
 
