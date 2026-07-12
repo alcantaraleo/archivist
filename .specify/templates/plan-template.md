@@ -40,19 +40,19 @@
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+_GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
-| Gate | Principle | Check |
-|---|---|---|
-| Domain independence | I. Clean Architecture | Does any `domain.*` or `application.*` class import `org.springframework.*` or `io.modelcontextprotocol.*`? → MUST be NO |
-| Contract language | II. Domain-Driven Public Contract | Do all public capability names use domain terms (not `vectorSearch`, `bm25`, `readFile`)? → MUST be YES |
-| No reasoning in output | III. Retrieval, Never Reasoning | Do all capabilities return `List<Evidence>` (not strings, summaries, or primitives)? → MUST be YES |
-| Provenance completeness | III. Retrieval, Never Reasoning | Does every `Evidence` include a `Provenance` with `sourceId`, `type`, `zone`, `sources`? → MUST be YES |
-| Spec approved | IV. Specification-Driven Development | Is there an approved specification before implementation begins? → MUST be YES |
-| Strategy hidden | V. Replaceable Infrastructure | Are all retrieval implementations behind `domain.port.out` interfaces? → MUST be YES |
-| No Obsidian coupling | V. Replaceable Infrastructure | Does any code reference Obsidian folder paths, wikilink syntax, or YAML frontmatter? → MUST be NO |
-| Build tool | Technology Constraints | Is Gradle (Kotlin DSL) used exclusively? No Maven? → MUST be YES |
-| Injection style | Technology Constraints | Is constructor injection used everywhere? No `@Autowired` on fields? → MUST be YES |
+| Gate                    | Principle                            | Check                                                                                                                    |
+| ----------------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------ |
+| Domain independence     | I. Clean Architecture                | Does any `domain.*` or `application.*` class import `org.springframework.*` or `io.modelcontextprotocol.*`? → MUST be NO |
+| Contract language       | II. Domain-Driven Public Contract    | Do all public capability names use domain terms (not `vectorSearch`, `bm25`, `readFile`)? → MUST be YES                  |
+| No reasoning in output  | III. Retrieval, Never Reasoning      | Do all capabilities return `List<Evidence>` (not strings, summaries, or primitives)? → MUST be YES                       |
+| Provenance completeness | III. Retrieval, Never Reasoning      | Does every `Evidence` include a `Provenance` with `sourceId`, `type`, `zone`, `sources`? → MUST be YES                   |
+| Spec approved           | IV. Specification-Driven Development | Is there an approved specification before implementation begins? → MUST be YES                                           |
+| Strategy hidden         | V. Replaceable Infrastructure        | Are all retrieval implementations behind `domain.port.out` interfaces? → MUST be YES                                     |
+| No Obsidian coupling    | V. Replaceable Infrastructure        | Does any code reference Obsidian folder paths, wikilink syntax, or YAML frontmatter? → MUST be NO                        |
+| Build tool              | Technology Constraints               | Is Gradle (Kotlin DSL) used exclusively? No Maven? → MUST be YES                                                         |
+| Injection style         | Technology Constraints               | Is constructor injection used everywhere? No `@Autowired` on fields? → MUST be YES                                       |
 
 ## Project Structure
 
@@ -69,6 +69,7 @@ specs/[###-feature]/
 ```
 
 ### Source Code (repository root)
+
 <!--
   ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
   for this feature. Delete unused options and expand the chosen structure with
@@ -119,7 +120,7 @@ directories captured above]
 
 > **Fill ONLY if Constitution Check has violations that must be justified**
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
-| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
+| Violation                  | Why Needed         | Simpler Alternative Rejected Because |
+| -------------------------- | ------------------ | ------------------------------------ |
+| [e.g., 4th project]        | [current need]     | [why 3 projects insufficient]        |
+| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient]  |

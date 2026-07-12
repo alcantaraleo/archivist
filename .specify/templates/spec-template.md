@@ -40,9 +40,9 @@ capabilityName(param: Type, ...): ReturnType
 
 ### Parameters
 
-| Parameter | Type | Description |
-|---|---|---|
-| `param` | `String` | Description of the parameter |
+| Parameter | Type     | Description                  |
+| --------- | -------- | ---------------------------- |
+| `param`   | `String` | Description of the parameter |
 
 ### Return type
 
@@ -51,14 +51,15 @@ List<Evidence>
 ```
 
 Each `Evidence` must include:
+
 - `content` — the retrieved knowledge
 - `provenance` — source, location, and timestamp
 
 ### Error conditions
 
-| Condition | Behaviour |
-|---|---|
-| No results found | Returns empty list |
+| Condition              | Behaviour                         |
+| ---------------------- | --------------------------------- |
+| No results found       | Returns empty list                |
 | Query is null or empty | Throws `IllegalArgumentException` |
 
 ---
@@ -138,5 +139,5 @@ public interface CapabilityName {
 ## 9. Approval
 
 | Reviewer | Decision | Date |
-|---|---|---|
-| | | |
+| -------- | -------- | ---- |
+|          |          |      |
