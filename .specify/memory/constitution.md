@@ -1,9 +1,11 @@
 <!--
 SYNC IMPACT REPORT
-Version change: 1.1.0 → 1.1.1  (PATCH — correct Spring Boot version to match scaffold research)
-Changed sections: Technology Constraints — Spring Boot 3.x → 4.x (aligned with specs/001-project-scaffolding/research.md)
+Version change: 1.1.1 → 1.2.0  (MINOR — mandatory feature-branch workflow per spec)
+Changed sections: Development Workflow — Feature branch rule (NON-NEGOTIABLE)
 Templates requiring updates:
-  ✅ .specify/templates/plan-template.md — update Primary Dependencies to Spring Boot 4.x
+  ✅ AGENTS.md §13 — Feature branch rule (authoritative detail)
+  ✅ .cursor/rules/github-issues-and-prs.mdc — branch gate before commits
+  ✅ .cursor/rules/archivist.mdc — distilled branch invariant
 Follow-up TODOs: none
 -->
 
@@ -73,6 +75,17 @@ Archivist MUST NOT couple to Obsidian internals: folder paths, wikilink syntax, 
 
 **Lifecycle labels**: `spec: draft` → `spec: review` → `spec: approved` → implementation → `under-review` → `pending-release` → `released`
 
+### Feature branch rule (NON-NEGOTIABLE)
+
+Every spec MUST use a dedicated Git branch for **all** work on that spec — specification artifacts and implementation — before any commit.
+
+- Branch name MUST be `NNN-feature-slug`, matching `specs/NNN-feature-slug/` and the **Feature Branch** field in `spec.md` (e.g. `002-mcp-transport-adapter`).
+- Create the branch **before the first commit** for that spec. Never commit spec or implementation work directly to `main`.
+- Changes reach `main` ONLY through a merged pull request from the feature branch.
+- Before committing, verify the current branch is the spec's feature branch, not `main`.
+
+See `AGENTS.md` §13 for the full rule, examples, and recovery when work lands on `main` by mistake.
+
 **PR titles**: MUST follow Conventional Commits — `type(scope): description`
 Scopes that signal domain work: `capability`, `retrieval`, `domain`, `transport`, `infra`
 
@@ -114,4 +127,4 @@ The extended reference for AI-assisted development is `AGENTS.md` at the reposit
 
 If a request conflicts with an Architectural Invariant (Principles I, II, or III), stop and surface the conflict — do not implement the violation.
 
-**Version**: 1.1.1 | **Ratified**: 2026-07-12 | **Last Amended**: 2026-07-12
+**Version**: 1.2.0 | **Ratified**: 2026-07-12 | **Last Amended**: 2026-07-12

@@ -17,7 +17,7 @@ They do not replace AGENTS.md — they complement it.
 
 Archivist provides stable, domain-driven access to knowledge while allowing retrieval strategies to evolve independently.
 
-- **The domain retrieves** — capabilities define *what* is retrieved
+- **The domain retrieves** — capabilities define _what_ is retrieved
 - **The consuming agent reasons** — synthesis, interpretation, and answers belong to the consumer
 - **The transport adapts** — MCP, REST, CLI are interchangeable adapters
 - **The infrastructure serves the domain** — infrastructure implements interfaces defined by the domain
@@ -43,12 +43,12 @@ Archivist provides stable, domain-driven access to knowledge while allowing retr
 
 ## Layer Dependency Rules
 
-| Layer | May import | Must never import |
-|---|---|---|
-| `domain` | Nothing outside `domain` | `spring.*`, `mcp.*`, `infrastructure.*`, `transport.*` |
-| `application` | `domain` only | `spring.*`, `mcp.*`, `infrastructure.*`, `transport.*` |
-| `infrastructure` | `domain`, `application`, `spring.*`, external libs | `transport.*` |
-| `transport` | `domain.model`, `application`, `spring.*`, `mcp.*` | `infrastructure.*` directly |
+| Layer            | May import                                         | Must never import                                      |
+| ---------------- | -------------------------------------------------- | ------------------------------------------------------ |
+| `domain`         | Nothing outside `domain`                           | `spring.*`, `mcp.*`, `infrastructure.*`, `transport.*` |
+| `application`    | `domain` only                                      | `spring.*`, `mcp.*`, `infrastructure.*`, `transport.*` |
+| `infrastructure` | `domain`, `application`, `spring.*`, external libs | `transport.*`                                          |
+| `transport`      | `domain.model`, `application`, `spring.*`, `mcp.*` | `infrastructure.*` directly                            |
 
 ---
 
@@ -93,12 +93,14 @@ io.archivist.transport.mcp         → MCP adapter
 Every significant capability requires a specification before implementation.
 
 ```
-Issue → Specification (docs/specs/) → Review → Approve → Implement → Verify → Merge
+Issue → Feature branch → Specification → Review → Approve → Implement → Verify → Merge (PR)
 ```
 
 Use `docs/specs/SPEC_TEMPLATE.md` for the specification format.
 
 **Implementation must not begin before specification approval.**
+
+**Feature branch (NON-NEGOTIABLE):** Before the first commit for a new spec, create branch `NNN-feature-slug` (matching `specs/NNN-feature-slug/`). Never commit spec artifacts or code to `main`. Merge via PR only. See `AGENTS.md` §13.
 
 ---
 
