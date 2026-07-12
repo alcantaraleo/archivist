@@ -21,7 +21,7 @@ LLM agents frequently need access to personal context — past decisions, active
 
 This creates tight coupling. When the storage or indexing mechanism changes, every consuming agent breaks. Retrieval technology leaks into the contract.
 
-Archivist solves this by publishing a stable domain contract that hides retrieval implementation entirely. The contract defines *what* is retrieved. The implementation decides *how*.
+Archivist solves this by publishing a stable domain contract that hides retrieval implementation entirely. The contract defines _what_ is retrieved. The implementation decides _how_.
 
 The retrieval engine is free to evolve — from lexical search to hybrid retrieval to knowledge graph traversal — without changing the public interface that consumers depend on.
 
@@ -133,29 +133,29 @@ The domain knows nothing about Spring, MCP, Spring AI, or any storage technology
 
 These rules are non-negotiable. Every implementation must preserve them.
 
-| # | Invariant | Rule |
-|---|---|---|
-| 1 | **Clean Architecture** | The domain must be executable and testable without Spring Boot, Spring AI, or the MCP SDK |
-| 2 | **Domain before implementation** | Public capabilities represent domain concepts, never retrieval technologies |
-| 3 | **Retrieval, never reasoning** | Archivist returns evidence; consuming agents reason |
-| 4 | **Retrieval strategies are replaceable** | The retrieval implementation is private and may change without notice |
-| 5 | **MCP is an adapter** | MCP is one transport; the domain must be reusable from CLI, REST, and tests |
-| 6 | **Frameworks are plugins** | Spring Boot, Spring AI, MCP SDK, vector stores are implementation details |
-| 7 | **Evidence must remain traceable** | All retrieved content preserves provenance (source, location, timestamp) |
-| 8 | **Stable public contract** | The domain capability interface must remain stable as retrieval evolves |
+| #   | Invariant                                | Rule                                                                                      |
+| --- | ---------------------------------------- | ----------------------------------------------------------------------------------------- |
+| 1   | **Clean Architecture**                   | The domain must be executable and testable without Spring Boot, Spring AI, or the MCP SDK |
+| 2   | **Domain before implementation**         | Public capabilities represent domain concepts, never retrieval technologies               |
+| 3   | **Retrieval, never reasoning**           | Archivist returns evidence; consuming agents reason                                       |
+| 4   | **Retrieval strategies are replaceable** | The retrieval implementation is private and may change without notice                     |
+| 5   | **MCP is an adapter**                    | MCP is one transport; the domain must be reusable from CLI, REST, and tests               |
+| 6   | **Frameworks are plugins**               | Spring Boot, Spring AI, MCP SDK, vector stores are implementation details                 |
+| 7   | **Evidence must remain traceable**       | All retrieved content preserves provenance (source, location, timestamp)                  |
+| 8   | **Stable public contract**               | The domain capability interface must remain stable as retrieval evolves                   |
 
 ---
 
 ## Technology Stack
 
-| Concern | Technology |
-|---|---|
-| Language | Java 21+ |
-| Framework | Spring Boot 3.x |
-| AI / Retrieval integration | Spring AI |
-| Build system | Gradle (Kotlin DSL) |
-| MCP transport | Spring AI MCP Server |
-| Testing | JUnit 5, Mockito |
+| Concern                    | Technology                   |
+| -------------------------- | ---------------------------- |
+| Language                   | Java 21+                     |
+| Framework                  | Spring Boot 4.1.0            |
+| AI / Retrieval integration | Spring AI 2.0.0              |
+| Build system               | Gradle (Kotlin DSL)          |
+| MCP transport              | Spring AI MCP Server (STDIO) |
+| Testing                    | JUnit 5, Mockito             |
 
 ---
 
@@ -203,9 +203,42 @@ See `docs/specs/SPEC_TEMPLATE.md` for the specification format.
 
 ---
 
+## Getting Started
+
+### Prerequisites
+
+- Java 21+
+- An existing directory for your Second Brain knowledge root
+
+### Build
+
+```bash
+./gradlew build
+```
+
+### Environment Variables
+
+| Variable                      | Description                                                  | Example                 | Required |
+| ----------------------------- | ------------------------------------------------------------ | ----------------------- | -------- |
+| `ARCHIVIST_SECOND_BRAIN_PATH` | Absolute path to an **existing** Second Brain root directory | `/path/to/second-brain` | Yes      |
+
+All environment-specific values are supplied via environment variables. They are bound in `transport/src/main/resources/application.properties` using `${ENV_VAR_NAME}` placeholder syntax — no literals in source or properties files.
+
+### Run (STDIO MCP server)
+
+```bash
+export ARCHIVIST_SECOND_BRAIN_PATH=/path/to/existing/directory
+./gradlew :transport:bootRun
+```
+
+Startup confirmation is written to **stderr**; stdout is reserved for the MCP STDIO protocol.
+
+---
+
 ## Roadmap
 
 ### Phase 1 — Foundation
+
 - [ ] Clean Architecture skeleton with domain model
 - [ ] Domain capability interfaces (input ports)
 - [ ] Lexical retrieval strategy
@@ -213,12 +246,14 @@ See `docs/specs/SPEC_TEMPLATE.md` for the specification format.
 - [ ] Second Brain integration (initial)
 
 ### Phase 2 — Retrieval Evolution
+
 - [ ] BM25 retrieval strategy
 - [ ] Embedding-based retrieval
 - [ ] Hybrid retrieval (BM25 + embeddings)
 - [ ] Re-ranking
 
 ### Phase 3 — Advanced Retrieval
+
 - [ ] Knowledge graph traversal
 - [ ] Temporal retrieval
 - [ ] Learned query planning
