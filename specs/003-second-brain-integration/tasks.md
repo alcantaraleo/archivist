@@ -25,8 +25,8 @@
 
 **Purpose**: Add infrastructure-only dependencies for YAML parsing, validation, and Spring tests. No production source changes yet.
 
-- [ ] T001 Add `snakeyaml` library alias to `gradle/libs.versions.toml` — coordinate `org.yaml:snakeyaml`, version via Spring Boot BOM (`4.1.0`)
-- [ ] T002 Update `infrastructure/build.gradle.kts` — add `implementation(libs.spring.boot.starter.validation)`, `implementation(libs.snakeyaml)`, `testImplementation(libs.spring.boot.starter.test)`
+- [x] T001 Add `snakeyaml` library alias to `gradle/libs.versions.toml` — coordinate `org.yaml:snakeyaml`, version via Spring Boot BOM (`4.1.0`)
+- [x] T002 Update `infrastructure/build.gradle.kts` — add `implementation(libs.spring.boot.starter.validation)`, `implementation(libs.snakeyaml)`, `testImplementation(libs.spring.boot.starter.test)`
 
 **Checkpoint**: `./gradlew :infrastructure:dependencies --configuration compileClasspath` lists `snakeyaml` and `spring-boot-starter-validation`; domain and application compile classpaths unchanged.
 
@@ -38,7 +38,7 @@
 
 ⚠️ **CRITICAL**: Integration tests (US5) depend on these fixtures. Do not modify expected outcomes without updating `spec.md` through the specification workflow.
 
-- [ ] T003 Verify contract fixtures in `specs/003-second-brain-integration/contracts/` — confirm `knowledge-corpus-port.md` matches spec §3 signatures; `mapping-defaults.md` zone-prefix table complete; `fixture-catalog-expected.json` has `catalogSize: 5`, five entries, `excludedSourceIds` includes `edge-cases/unknown-type`, and `loadBySourceIdCases` hit/miss ids; fix any drift before proceeding
+- [x] T003 Verify contract fixtures in `specs/003-second-brain-integration/contracts/` — confirm `knowledge-corpus-port.md` matches spec §3 signatures; `mapping-defaults.md` zone-prefix table complete; `fixture-catalog-expected.json` has `catalogSize: 5`, five entries, `excludedSourceIds` includes `edge-cases/unknown-type`, and `loadBySourceIdCases` hit/miss ids; fix any drift before proceeding
 
 **Checkpoint**: All contract artifacts present and consistent with approved spec §3 and plan Phase E.
 
@@ -52,12 +52,12 @@
 
 ### Implementation
 
-- [ ] T004 [P] [US1] Create `domain/src/main/java/io/archivist/domain/model/ContentAvailability.java` — enum with `AVAILABLE` and `UNAVAILABLE_ENTRY_TOO_LARGE` only
-- [ ] T005 [US1] Extend `domain/src/main/java/io/archivist/domain/model/Provenance.java` — add non-null `ContentAvailability contentAvailability` as final record component (depends on T004)
-- [ ] T006 [US1] Preserve MCP contract unchanged (Option B per [ADR-0003](../../docs/adr/ADR-0003-flag-size-limited-corpus-entries.md)): add transport serialisation boundary in `transport/src/main/java/io/archivist/transport/mcp/` (e.g. `EvidenceResponse` / `ProvenanceResponse` records omitting `contentAvailability`); update `EvidenceJsonMapper.java` to map domain `Evidence` → response DTO before JSON; update `Provenance` construction sites in transport tests with `ContentAvailability.AVAILABLE`; verify `./gradlew :transport:test` still matches `specs/002-mcp-transport-adapter/contracts/evidence-response-schema-expected.json` unchanged (depends on T005)
-- [ ] T007 [P] [US1] Create `domain/src/main/java/io/archivist/domain/port/out/KnowledgeCorpus.java` — signatures and Javadoc exactly per spec §3 (`catalog`, `loadBySourceId`, `loadAll`; size-limited inclusion semantics documented)
-- [ ] T008 [P] [US1] Create `domain/src/main/java/io/archivist/domain/port/out/KnowledgeCorpusException.java` — unchecked exception for unrecoverable corpus access failures after startup; no Spring or IO type imports
-- [ ] T009 [US1] Verify domain module: `./gradlew :domain:compileJava :domain:test` — all tests pass; `:domain:dependencies --configuration compileClasspath` has zero Spring entries (depends on T004–T008)
+- [x] T004 [P] [US1] Create `domain/src/main/java/io/archivist/domain/model/ContentAvailability.java` — enum with `AVAILABLE` and `UNAVAILABLE_ENTRY_TOO_LARGE` only
+- [x] T005 [US1] Extend `domain/src/main/java/io/archivist/domain/model/Provenance.java` — add non-null `ContentAvailability contentAvailability` as final record component (depends on T004)
+- [x] T006 [US1] Preserve MCP contract unchanged (Option B per [ADR-0003](../../docs/adr/ADR-0003-flag-size-limited-corpus-entries.md)): add transport serialisation boundary in `transport/src/main/java/io/archivist/transport/mcp/` (e.g. `EvidenceResponse` / `ProvenanceResponse` records omitting `contentAvailability`); update `EvidenceJsonMapper.java` to map domain `Evidence` → response DTO before JSON; update `Provenance` construction sites in transport tests with `ContentAvailability.AVAILABLE`; verify `./gradlew :transport:test` still matches `specs/002-mcp-transport-adapter/contracts/evidence-response-schema-expected.json` unchanged (depends on T005)
+- [x] T007 [P] [US1] Create `domain/src/main/java/io/archivist/domain/port/out/KnowledgeCorpus.java` — signatures and Javadoc exactly per spec §3 (`catalog`, `loadBySourceId`, `loadAll`; size-limited inclusion semantics documented)
+- [x] T008 [P] [US1] Create `domain/src/main/java/io/archivist/domain/port/out/KnowledgeCorpusException.java` — unchecked exception for unrecoverable corpus access failures after startup; no Spring or IO type imports
+- [x] T009 [US1] Verify domain module: `./gradlew :domain:compileJava :domain:test` — all tests pass; `:domain:dependencies --configuration compileClasspath` has zero Spring entries (depends on T004–T008)
 
 **Checkpoint**: Domain compiles and tests pass. `KnowledgeCorpus` interface exists with approved signatures. Transport tests compile with updated `Provenance` constructors (still return `[]` via stubs).
 
@@ -71,17 +71,17 @@
 
 ### Implementation
 
-- [ ] T010 [P] [US2] Create `infrastructure/src/main/java/io/archivist/infrastructure/secondbrain/MetadataEnvelopeParser.java` — split leading `---` YAML envelope from Markdown body; parse map via SnakeYAML; support parse from partial prefix buffer for size-limited entries
-- [ ] T011 [P] [US2] Create `infrastructure/src/main/java/io/archivist/infrastructure/secondbrain/SourceIdNormalizer.java` — relative path → stable `sourceId` (normalised path without extension; optional metadata `id` override)
-- [ ] T012 [P] [US2] Create `infrastructure/src/main/java/io/archivist/infrastructure/secondbrain/ZoneTypeResolver.java` — longest-prefix zone rules + metadata fields → `KnowledgeZone` / `KnowledgeType`; unrecoverable mapping returns empty (caller omits with WARN)
-- [ ] T013 [US2] Create `infrastructure/src/main/java/io/archivist/infrastructure/secondbrain/CorpusEntryMapper.java` — map parsed metadata + optional body → `Provenance` / `Evidence`; set `contentAvailability` (`AVAILABLE` or `UNAVAILABLE_ENTRY_TOO_LARGE`); title/timestamp fallback rules per plan (depends on T010–T012, T004–T005)
+- [x] T010 [P] [US2] Create `infrastructure/src/main/java/io/archivist/infrastructure/secondbrain/MetadataEnvelopeParser.java` — split leading `---` YAML envelope from Markdown body; parse map via SnakeYAML; support parse from partial prefix buffer for size-limited entries
+- [x] T011 [P] [US2] Create `infrastructure/src/main/java/io/archivist/infrastructure/secondbrain/SourceIdNormalizer.java` — relative path → stable `sourceId` (normalised path without extension; optional metadata `id` override)
+- [x] T012 [P] [US2] Create `infrastructure/src/main/java/io/archivist/infrastructure/secondbrain/ZoneTypeResolver.java` — longest-prefix zone rules + metadata fields → `KnowledgeZone` / `KnowledgeType`; unrecoverable mapping returns empty (caller omits with WARN)
+- [x] T013 [US2] Create `infrastructure/src/main/java/io/archivist/infrastructure/secondbrain/CorpusEntryMapper.java` — map parsed metadata + optional body → `Provenance` / `Evidence`; set `contentAvailability` (`AVAILABLE` or `UNAVAILABLE_ENTRY_TOO_LARGE`); title/timestamp fallback rules per plan (depends on T010–T012, T004–T005)
 
 ### Tests
 
-- [ ] T014 [P] [US2] Create `infrastructure/src/test/java/io/archivist/infrastructure/secondbrain/MetadataEnvelopeParserTest.java` — JUnit 5; envelope split, body extraction, prefix-buffer parse; zero Spring imports
-- [ ] T015 [P] [US2] Create `infrastructure/src/test/java/io/archivist/infrastructure/secondbrain/SourceIdNormalizerTest.java` — JUnit 5; stable sourceId from path and metadata override
-- [ ] T016 [P] [US2] Create `infrastructure/src/test/java/io/archivist/infrastructure/secondbrain/ZoneTypeResolverTest.java` — JUnit 5; path-prefix zone mapping per `contracts/mapping-defaults.md`; unknown type → empty
-- [ ] T017 [US2] Create `infrastructure/src/test/java/io/archivist/infrastructure/secondbrain/CorpusEntryMapperTest.java` — JUnit 5; AVAILABLE path populates body + flag; UNAVAILABLE_ENTRY_TOO_LARGE path has empty content + flag set; depends on T013
+- [x] T014 [P] [US2] Create `infrastructure/src/test/java/io/archivist/infrastructure/secondbrain/MetadataEnvelopeParserTest.java` — JUnit 5; envelope split, body extraction, prefix-buffer parse; zero Spring imports
+- [x] T015 [P] [US2] Create `infrastructure/src/test/java/io/archivist/infrastructure/secondbrain/SourceIdNormalizerTest.java` — JUnit 5; stable sourceId from path and metadata override
+- [x] T016 [P] [US2] Create `infrastructure/src/test/java/io/archivist/infrastructure/secondbrain/ZoneTypeResolverTest.java` — JUnit 5; path-prefix zone mapping per `contracts/mapping-defaults.md`; unknown type → empty
+- [x] T017 [US2] Create `infrastructure/src/test/java/io/archivist/infrastructure/secondbrain/CorpusEntryMapperTest.java` — JUnit 5; AVAILABLE path populates body + flag; UNAVAILABLE_ENTRY_TOO_LARGE path has empty content + flag set; depends on T013
 
 **Checkpoint**: All four unit test classes pass independently. Parser and mapper handle oversize flag path without Spring context.
 
@@ -95,9 +95,9 @@
 
 ### Implementation
 
-- [ ] T018 [P] [US3] Create `infrastructure/src/main/java/io/archivist/infrastructure/secondbrain/CorpusWalker.java` — `Files.walk` discovery of `.md` files; skip hidden path segments (`.obsidian`, `.git`, etc.) and configured ignore globs
-- [ ] T019 [US3] Create `infrastructure/src/main/java/io/archivist/infrastructure/secondbrain/CorpusEntryLoader.java` — virtual threads + semaphore; `Files.size()` first; full read when ≤ `max-entry-bytes` → `AVAILABLE`; leading `metadata-read-bytes` only when oversized → `UNAVAILABLE_ENTRY_TOO_LARGE`; duplicate sourceId: first wins with WARN (depends on T010, T013, T018)
-- [ ] T020 [US3] Create `infrastructure/src/main/java/io/archivist/infrastructure/secondbrain/SecondBrainKnowledgeCorpus.java` — implements `KnowledgeCorpus`; orchestrates walk → parallel load → map; `catalog()` metadata-only for normal entries, includes flagged entries; `loadBySourceId` null → NPE, blank → empty; unrecoverable parse → omit with WARN (depends on T007, T018, T019)
+- [x] T018 [P] [US3] Create `infrastructure/src/main/java/io/archivist/infrastructure/secondbrain/CorpusWalker.java` — `Files.walk` discovery of `.md` files; skip hidden path segments (`.obsidian`, `.git`, etc.) and configured ignore globs
+- [x] T019 [US3] Create `infrastructure/src/main/java/io/archivist/infrastructure/secondbrain/CorpusEntryLoader.java` — virtual threads + semaphore; `Files.size()` first; full read when ≤ `max-entry-bytes` → `AVAILABLE`; leading `metadata-read-bytes` only when oversized → `UNAVAILABLE_ENTRY_TOO_LARGE`; duplicate sourceId: first wins with WARN (depends on T010, T013, T018)
+- [x] T020 [US3] Create `infrastructure/src/main/java/io/archivist/infrastructure/secondbrain/SecondBrainKnowledgeCorpus.java` — implements `KnowledgeCorpus`; orchestrates walk → parallel load → map; `catalog()` metadata-only for normal entries, includes flagged entries; `loadBySourceId` null → NPE, blank → empty; unrecoverable parse → omit with WARN (depends on T007, T018, T019)
 
 **Checkpoint**: `:infrastructure:compileJava` succeeds. Adapter implements all three port methods with spec §3 semantics (integration proof in US5).
 
@@ -111,9 +111,9 @@
 
 ### Implementation
 
-- [ ] T021 [P] [US4] Create `infrastructure/src/main/java/io/archivist/infrastructure/secondbrain/SecondBrainCorpusProperties.java` — `@ConfigurationProperties("archivist.second-brain")` with `path`, `max-entry-bytes` (default 1048576), `metadata-read-bytes` (default 65536), `load-concurrency` (default 32), `ignore-globs`
-- [ ] T022 [P] [US4] Create `infrastructure/src/main/java/io/archivist/infrastructure/secondbrain/SecondBrainMappingProperties.java` — `@ConfigurationProperties("archivist.second-brain.mapping")` with `zone-prefixes` defaults per `contracts/mapping-defaults.md` and optional `zone-default-types`
-- [ ] T023 [US4] Create `infrastructure/src/main/java/io/archivist/infrastructure/secondbrain/SecondBrainConfiguration.java` — `@Configuration` registering `KnowledgeCorpus` bean wired to `SecondBrainKnowledgeCorpus` with properties; constructor injection only; no `transport.*` imports (depends on T020–T022)
+- [x] T021 [P] [US4] Create `infrastructure/src/main/java/io/archivist/infrastructure/secondbrain/SecondBrainCorpusProperties.java` — `@ConfigurationProperties("archivist.second-brain")` with `path`, `max-entry-bytes` (default 1048576), `metadata-read-bytes` (default 65536), `load-concurrency` (default 32), `ignore-globs`
+- [x] T022 [P] [US4] Create `infrastructure/src/main/java/io/archivist/infrastructure/secondbrain/SecondBrainMappingProperties.java` — `@ConfigurationProperties("archivist.second-brain.mapping")` with `zone-prefixes` defaults per `contracts/mapping-defaults.md` and optional `zone-default-types`
+- [x] T023 [US4] Create `infrastructure/src/main/java/io/archivist/infrastructure/secondbrain/SecondBrainConfiguration.java` — `@Configuration` registering `KnowledgeCorpus` bean wired to `SecondBrainKnowledgeCorpus` with properties; constructor injection only; no `transport.*` imports (depends on T020–T022)
 
 **Checkpoint**: Spring configuration compiles. Corpus bean registerable in minimal test context.
 
@@ -127,13 +127,13 @@
 
 ### Fixture corpus
 
-- [ ] T024 [US5] Create fixture Markdown under `infrastructure/src/test/resources/fixture-corpus/` — `raw/readings/sample-reading.md`, `wiki/concepts/sample-concept.md`, `dev/decisions/sample-decision.md`, `wiki/people/sample-person.md`, `wiki/concepts/sample-with-sources.md`, `edge-cases/unknown-type.md` (invalid type for omission test); frontmatter and body text matching `contracts/fixture-catalog-expected.json`
-- [ ] T025 [US5] Add oversize entry scenario for AC-10 — either `infrastructure/src/test/resources/fixture-corpus/edge-cases/oversize-entry.md` exceeding default `max-entry-bytes` or `@TempDir` generated file in integration test setup
+- [x] T024 [US5] Create fixture Markdown under `infrastructure/src/test/resources/fixture-corpus/` — `raw/readings/sample-reading.md`, `wiki/concepts/sample-concept.md`, `dev/decisions/sample-decision.md`, `wiki/people/sample-person.md`, `wiki/concepts/sample-with-sources.md`, `edge-cases/unknown-type.md` (invalid type for omission test); frontmatter and body text matching `contracts/fixture-catalog-expected.json`
+- [x] T025 [US5] Add oversize entry scenario for AC-10 — either `infrastructure/src/test/resources/fixture-corpus/edge-cases/oversize-entry.md` exceeding default `max-entry-bytes` or `@TempDir` generated file in integration test setup
 
 ### Tests
 
-- [ ] T026 [US5] Create `infrastructure/src/test/java/io/archivist/infrastructure/secondbrain/support/SecondBrainCorpusTestConfiguration.java` — `@TestConfiguration` / minimal `@SpringBootTest` config; corpus path → fixture root; must NOT load full `ArchivistApplication` or transport beans
-- [ ] T027 [US5] Create `infrastructure/src/test/java/io/archivist/infrastructure/secondbrain/SecondBrainKnowledgeCorpusIntegrationTest.java` — `@SpringBootTest(classes = SecondBrainCorpusTestConfiguration.class)`; assert `catalog()` size and per-entry `KnowledgeType`/`KnowledgeZone` against `contracts/fixture-catalog-expected.json`; assert `loadAll()` body text; assert `sources` chain on `sample-with-sources`; assert `unknown-type` absent; assert oversize entry present with `UNAVAILABLE_ENTRY_TOO_LARGE` and empty content; assert `loadBySourceId` hit/miss cases (depends on T023–T026)
+- [x] T026 [US5] Create `infrastructure/src/test/java/io/archivist/infrastructure/secondbrain/support/SecondBrainCorpusTestConfiguration.java` — `@TestConfiguration` / minimal `@SpringBootTest` config; corpus path → fixture root; must NOT load full `ArchivistApplication` or transport beans
+- [x] T027 [US5] Create `infrastructure/src/test/java/io/archivist/infrastructure/secondbrain/SecondBrainKnowledgeCorpusIntegrationTest.java` — `@SpringBootTest(classes = SecondBrainCorpusTestConfiguration.class)`; assert `catalog()` size and per-entry `KnowledgeType`/`KnowledgeZone` against `contracts/fixture-catalog-expected.json`; assert `loadAll()` body text; assert `sources` chain on `sample-with-sources`; assert `unknown-type` absent; assert oversize entry present with `UNAVAILABLE_ENTRY_TOO_LARGE` and empty content; assert `loadBySourceId` hit/miss cases (depends on T023–T026)
 
 **Checkpoint**: Integration test passes. Contract drift fails the build. Fixture load completes in < 2 s on CI hardware.
 
@@ -143,12 +143,12 @@
 
 **Purpose**: Dependency rules, architectural boundaries, and full quickstart validation.
 
-- [ ] T028 [P] Verify domain and application have no infrastructure imports: `./gradlew :domain:dependencies --configuration compileClasspath` and `./gradlew :application:dependencies --configuration compileClasspath` — no `:infrastructure`, SnakeYAML, or Markdown parsing libraries (AC-11)
-- [ ] T029 [P] Verify transport does not depend on infrastructure: `./gradlew :transport:dependencies --configuration compileClasspath` — no `:infrastructure` entries; MCP stub behaviour unchanged (AC-12, AC-13)
-- [ ] T030 [P] Verify no star imports in new source: `grep -r "^import .*\*;" --include="*.java" infrastructure/src/main/java/io/archivist/infrastructure/secondbrain` — must produce no output
-- [ ] T031 Run infrastructure tests: `./gradlew :infrastructure:test` — all unit and integration tests pass
-- [ ] T032 Run full build: `./gradlew build` from repo root — `BUILD SUCCESSFUL` required (AC-1)
-- [ ] T033 Run full quickstart verification: execute all checks in `specs/003-second-brain-integration/quickstart.md` in order; confirm domain/application Spring-free, transport independent, fixture integration passes (AC-14, AC-15)
+- [x] T028 [P] Verify domain and application have no infrastructure imports: `./gradlew :domain:dependencies --configuration compileClasspath` and `./gradlew :application:dependencies --configuration compileClasspath` — no `:infrastructure`, SnakeYAML, or Markdown parsing libraries (AC-11)
+- [x] T029 [P] Verify transport does not depend on infrastructure: `./gradlew :transport:dependencies --configuration compileClasspath` — no `:infrastructure` entries; MCP stub behaviour unchanged (AC-12, AC-13)
+- [x] T030 [P] Verify no star imports in new source: `grep -r "^import .*\*;" --include="*.java" infrastructure/src/main/java/io/archivist/infrastructure/secondbrain` — must produce no output
+- [x] T031 Run infrastructure tests: `./gradlew :infrastructure:test` — all unit and integration tests pass
+- [x] T032 Run full build: `./gradlew build` from repo root — `BUILD SUCCESSFUL` required (AC-1)
+- [x] T033 Run full quickstart verification: execute all checks in `specs/003-second-brain-integration/quickstart.md` in order; confirm domain/application Spring-free, transport independent, fixture integration passes (AC-14, AC-15)
 - [x] T034 Run `/speckit-taskstoissues` before opening the implementation PR — creates epic + sub-issues and writes `specs/003-second-brain-integration/github-issues.md` per constitution workflow
 
 ---
