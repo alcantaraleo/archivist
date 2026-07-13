@@ -243,7 +243,7 @@ Startup confirmation is written to **stderr**; stdout is reserved for the MCP ST
 - [x] Domain capability interfaces (input ports)
 - [ ] Lexical retrieval strategy
 - [x] MCP transport adapter
-- [ ] Second Brain integration (initial)
+- [x] Second Brain integration (initial)
 
 ### Phase 2 — Retrieval Evolution
 
