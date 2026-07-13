@@ -1,9 +1,11 @@
-package io.archivist.domain.model;
+package io.archivist.transport.mcp;
 
+import io.archivist.domain.model.KnowledgeType;
+import io.archivist.domain.model.KnowledgeZone;
 import java.time.Instant;
 import java.util.List;
 
-public record Provenance(
+record ProvenanceResponse(
         String sourceId,
         String title,
         KnowledgeType type,
@@ -11,6 +13,5 @@ public record Provenance(
         List<String> tags,
         List<String> sources,
         Instant created,
-        Instant updated,
-        ContentAvailability contentAvailability) {
+        Instant updated) {
 }

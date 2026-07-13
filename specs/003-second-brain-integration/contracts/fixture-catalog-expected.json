@@ -1,0 +1,56 @@
+{
+  "description": "Expected KnowledgeCorpus outcomes for infrastructure/src/test/resources/fixture-corpus/",
+  "catalogSize": 5,
+  "entries": [
+    {
+      "sourceId": "raw/readings/sample-reading",
+      "title": "Sample Reading",
+      "type": "READING",
+      "zone": "SOURCE",
+      "tags": ["reading", "fixture"],
+      "sources": [],
+      "bodyEquals": "Body text for sample reading."
+    },
+    {
+      "sourceId": "wiki/concepts/sample-concept",
+      "title": "Sample Concept",
+      "type": "CONCEPT",
+      "zone": "SYNTHESIZED",
+      "tags": ["architecture", "fixture"],
+      "sources": [],
+      "bodyEquals": "Concept body explaining the sample."
+    },
+    {
+      "sourceId": "dev/decisions/sample-decision",
+      "title": "Sample Decision",
+      "type": "DECISION",
+      "zone": "TECHNICAL",
+      "tags": ["adr", "fixture"],
+      "sources": [],
+      "bodyEquals": "We decided to use fixture-driven tests."
+    },
+    {
+      "sourceId": "wiki/people/sample-person",
+      "title": "Sample Person",
+      "type": "PERSON",
+      "zone": "SYNTHESIZED",
+      "tags": [],
+      "sources": [],
+      "bodyEquals": "Professional context for sample person."
+    },
+    {
+      "sourceId": "wiki/concepts/sample-with-sources",
+      "title": "Sample With Sources",
+      "type": "CONCEPT",
+      "zone": "SYNTHESIZED",
+      "tags": [],
+      "sources": ["raw/readings/sample-reading"],
+      "bodyEquals": "Concept grounded in sample reading."
+    }
+  ],
+  "excludedSourceIds": ["edge-cases/unknown-type"],
+  "loadBySourceIdCases": {
+    "hit": "wiki/concepts/sample-concept",
+    "miss": "nonexistent/entry"
+  }
+}

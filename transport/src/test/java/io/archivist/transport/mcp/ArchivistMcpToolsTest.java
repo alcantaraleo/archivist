@@ -7,6 +7,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import io.archivist.domain.model.ContentAvailability;
 import io.archivist.domain.model.Evidence;
 import io.archivist.domain.model.KnowledgeType;
 import io.archivist.domain.model.KnowledgeZone;
@@ -214,6 +215,7 @@ class ArchivistMcpToolsTest {
                         List.of("contract", "test"),
                         List.of("raw-source-id"),
                         Instant.parse("2026-01-01T12:00:00Z"),
-                        Instant.parse("2026-01-02T12:00:00Z")));
+                        Instant.parse("2026-01-02T12:00:00Z"),
+                        ContentAvailability.AVAILABLE));
     }
 }

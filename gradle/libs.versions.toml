@@ -13,6 +13,7 @@ spring-ai-starter-mcp-server = { module = "org.springframework.ai:spring-ai-star
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
 junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
 mockito-core = { module = "org.mockito:mockito-core" }
+snakeyaml = { module = "org.yaml:snakeyaml" }
 
 [plugins]
 spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
