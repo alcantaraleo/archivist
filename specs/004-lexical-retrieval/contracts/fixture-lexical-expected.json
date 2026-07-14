@@ -1,0 +1,122 @@
+{
+  "description": "Expected lexical retrieval outcomes for infrastructure integration tests against fixture-corpus/",
+  "corpusPath": "infrastructure/src/test/resources/fixture-corpus/",
+  "defaultMaxResults": 20,
+  "scenarios": [
+    {
+      "id": "retrieve-context-sample",
+      "acceptanceCriteria": ["AC-4"],
+      "query": {
+        "factory": "unrestricted",
+        "text": "sample",
+        "maxResults": 20
+      },
+      "minResultCount": 1,
+      "mustIncludeSourceIds": ["wiki/concepts/sample-concept"],
+      "allResultsMustMatchTermIn": ["title", "content", "tags"]
+    },
+    {
+      "id": "find-decisions-fixture",
+      "acceptanceCriteria": ["AC-5"],
+      "query": {
+        "factory": "withType",
+        "text": "fixture",
+        "type": "DECISION",
+        "maxResults": 20
+      },
+      "minResultCount": 1,
+      "mustIncludeSourceIds": ["dev/decisions/sample-decision"],
+      "allResultsType": "DECISION"
+    },
+    {
+      "id": "find-concepts-sample",
+      "acceptanceCriteria": ["AC-6"],
+      "query": {
+        "factory": "withTypes",
+        "text": "sample",
+        "types": ["CONCEPT", "SYNTHESIS"],
+        "maxResults": 20
+      },
+      "minResultCount": 1,
+      "allResultsTypes": ["CONCEPT", "SYNTHESIS"],
+      "mustNotIncludeTypes": ["DECISION", "PERSON", "READING"]
+    },
+    {
+      "id": "title-ranks-above-body",
+      "acceptanceCriteria": ["AC-7"],
+      "query": {
+        "factory": "unrestricted",
+        "text": "sample",
+        "maxResults": 20
+      },
+      "firstResultSourceId": "wiki/concepts/sample-concept",
+      "note": "Title contains 'Sample'; body-only matches rank lower"
+    },
+    {
+      "id": "find-people-sample",
+      "acceptanceCriteria": ["AC-13"],
+      "query": {
+        "factory": "withType",
+        "text": "sample",
+        "type": "PERSON",
+        "maxResults": 20
+      },
+      "minResultCount": 1,
+      "mustIncludeSourceIds": ["wiki/people/sample-person"],
+      "allResultsType": "PERSON"
+    },
+    {
+      "id": "max-results-cap",
+      "acceptanceCriteria": ["AC-9"],
+      "query": {
+        "factory": "unrestricted",
+        "text": "sample",
+        "maxResults": 2
+      },
+      "exactResultCount": 2
+    },
+    {
+      "id": "oversize-title-match",
+      "acceptanceCriteria": ["AC-10"],
+      "query": {
+        "factory": "unrestricted",
+        "text": "oversize-fixture-title",
+        "maxResults": 20
+      },
+      "mustIncludeSourceIds": ["edge-cases/oversize-entry"],
+      "includedEntryContentEmpty": true,
+      "includedEntryAvailability": "UNAVAILABLE_ENTRY_TOO_LARGE",
+      "note": "Fixture entry title matches; body not searchable"
+    },
+    {
+      "id": "oversize-body-only-excluded",
+      "acceptanceCriteria": ["AC-11"],
+      "query": {
+        "factory": "unrestricted",
+        "text": "unique-body-only-token-xyz",
+        "maxResults": 20
+      },
+      "mustNotIncludeSourceIds": ["edge-cases/oversize-entry"],
+      "note": "Token appears only in truncated body of oversize entry, not in title/tags"
+    },
+    {
+      "id": "no-match-empty",
+      "acceptanceCriteria": [],
+      "query": {
+        "factory": "unrestricted",
+        "text": "zzznomatchzz",
+        "maxResults": 20
+      },
+      "exactResultCount": 0
+    }
+  ],
+  "deduplication": {
+    "acceptanceCriteria": ["AC-8"],
+    "rule": "At most one Evidence per sourceId in any result list"
+  },
+  "performance": {
+    "acceptanceCriteria": ["AC-16"],
+    "maxDurationMs": 2000,
+    "scenario": "retrieve-context-sample"
+  }
+}
