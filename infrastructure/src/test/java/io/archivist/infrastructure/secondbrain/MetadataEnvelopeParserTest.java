@@ -29,6 +29,23 @@ class MetadataEnvelopeParserTest {
     }
 
     @Test
+    void shouldStripBlankLineAfterClosingDelimiter() {
+        String text =
+                """
+                ---
+                title: Sample
+                type: concept
+                ---
+
+                Body text for sample reading.
+                """;
+
+        MetadataEnvelopeParser.ParseResult result = parser.parse(text);
+
+        assertEquals("Body text for sample reading.", result.body());
+    }
+
+    @Test
     void shouldParseMetadataFromPrefixBuffer() {
         String text =
                 """

@@ -14,7 +14,8 @@ import org.springframework.context.annotation.Import;
 
 @SpringBootConfiguration
 @EnableAutoConfiguration(
-        exclude = {McpServerAutoConfiguration.class, ToolCallbackConverterAutoConfiguration.class})
+        exclude = {McpServerAutoConfiguration.class, ToolCallbackConverterAutoConfiguration.class},
+        excludeName = "io.archivist.infrastructure.retrieval.ArchivistRetrievalAutoConfiguration")
 @Import({
     StubUseCaseConfiguration.class,
     TransportJacksonConfiguration.class,
