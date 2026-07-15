@@ -36,6 +36,28 @@ class ZoneTypeResolverTest {
     }
 
     @Test
+    void shouldMatchZonePrefixCaseInsensitively() {
+        var resolved = resolver.resolve("Wiki/People/Victor.md", Map.of("type", "person"));
+
+        assertTrue(resolved.isPresent());
+        assertEquals(KnowledgeZone.SYNTHESIZED, resolved.get().zone());
+        assertEquals(KnowledgeType.PERSON, resolved.get().type());
+    }
+
+    @Test
+    void shouldAliasMeetingPersonToPerson() {
+        ZoneTypeResolver aliased = new ZoneTypeResolver(
+                defaultZonePrefixes(),
+                Map.of(),
+                Map.of("meeting-person", KnowledgeType.PERSON));
+
+        var resolved = aliased.resolve("Wiki/People/Victor.md", Map.of("type", "meeting-person"));
+
+        assertTrue(resolved.isPresent());
+        assertEquals(KnowledgeType.PERSON, resolved.get().type());
+    }
+
+    @Test
     void shouldReturnEmptyForUnknownType() {
         var resolved = resolver.resolve("wiki/concepts/unknown", Map.of("type", "NOT_A_REAL_TYPE"));
 

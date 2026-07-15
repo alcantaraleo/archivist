@@ -17,7 +17,9 @@ public class SecondBrainConfiguration {
         MetadataEnvelopeParser metadataEnvelopeParser = new MetadataEnvelopeParser();
         SourceIdNormalizer sourceIdNormalizer = new SourceIdNormalizer();
         ZoneTypeResolver zoneTypeResolver = new ZoneTypeResolver(
-                mappingProperties.getZonePrefixes(), mappingProperties.getZoneDefaultTypes());
+                mappingProperties.getZonePrefixes(),
+                mappingProperties.getZoneDefaultTypes(),
+                mappingProperties.getTypeAliases());
         CorpusEntryMapper corpusEntryMapper = new CorpusEntryMapper(sourceIdNormalizer, zoneTypeResolver);
         CorpusWalker corpusWalker = new CorpusWalker(corpusProperties.getIgnoreGlobs());
         CorpusEntryLoader corpusEntryLoader = new CorpusEntryLoader(

@@ -11,6 +11,7 @@ public class SecondBrainMappingProperties {
 
     private Map<String, KnowledgeZone> zonePrefixes = defaultZonePrefixes();
     private Map<KnowledgeZone, KnowledgeType> zoneDefaultTypes = new LinkedHashMap<>();
+    private Map<String, KnowledgeType> typeAliases = defaultTypeAliases();
 
     public Map<String, KnowledgeZone> getZonePrefixes() {
         return zonePrefixes;
@@ -28,6 +29,14 @@ public class SecondBrainMappingProperties {
         this.zoneDefaultTypes = zoneDefaultTypes;
     }
 
+    public Map<String, KnowledgeType> getTypeAliases() {
+        return typeAliases;
+    }
+
+    public void setTypeAliases(Map<String, KnowledgeType> typeAliases) {
+        this.typeAliases = typeAliases;
+    }
+
     private static Map<String, KnowledgeZone> defaultZonePrefixes() {
         Map<String, KnowledgeZone> defaults = new LinkedHashMap<>();
         defaults.put("raw/", KnowledgeZone.SOURCE);
@@ -36,6 +45,13 @@ public class SecondBrainMappingProperties {
         defaults.put("identity/", KnowledgeZone.IDENTITY);
         defaults.put("runtime/", KnowledgeZone.COMPILED);
         defaults.put("observability/", KnowledgeZone.SIGNAL);
+        return defaults;
+    }
+
+    /** Vault frontmatter types that are not exact KnowledgeType enum names. */
+    private static Map<String, KnowledgeType> defaultTypeAliases() {
+        Map<String, KnowledgeType> defaults = new LinkedHashMap<>();
+        defaults.put("meeting-person", KnowledgeType.PERSON);
         return defaults;
     }
 }
