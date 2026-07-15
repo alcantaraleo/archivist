@@ -23,6 +23,8 @@ Bug fix = root cause, not symptom: a report names a symptom. Grep every caller o
 
 Rules:
 
+- **AGENTS.md and Archivist architectural invariants outrank ponytail.** Shortest wrong-layer diff is still wrong — never violate Clean Architecture, leak retrieval tech into the contract, or skip spec approval for significant capabilities. YAGNI does not skip the spec kit.
+- Ponytail applies once the correct layer and approach are known: root-cause fix, reuse what exists, stdlib first, minimum code that works.
 - No abstractions that weren't explicitly requested.
 - No new dependency if it can be avoided.
 - No boilerplate nobody asked for.
