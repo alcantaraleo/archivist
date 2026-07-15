@@ -29,8 +29,7 @@ import tools.jackson.databind.json.JsonMapper;
 @TestPropertySource(
         properties = {
             "spring.ai.mcp.server.enabled=false",
-            "spring.ai.mcp.server.name=archivist",
-            "spring.ai.mcp.server.version=0.1.0"
+            "spring.ai.mcp.server.name=archivist"
         })
 class McpContractRegressionTest {
 

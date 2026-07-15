@@ -2,10 +2,20 @@
   "packages": {
     ".": {
       "release-type": "java",
+      "skip-snapshot": true,
       "extra-files": [
         {
           "type": "generic",
           "path": "gradle.properties"
+        },
+        {
+          "type": "generic",
+          "path": "transport/src/main/resources/application.properties"
+        },
+        {
+          "type": "json",
+          "path": "specs/002-mcp-transport-adapter/contracts/mcp-server-identity-expected.json",
+          "jsonpath": "$.version"
         }
       ]
     }
