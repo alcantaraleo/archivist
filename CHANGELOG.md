@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.1](https://github.com/alcantaraleo/archivist/compare/v0.2.0...v0.2.1) (2026-07-15)
+
+
+### Bug Fixes
+
+* **ci:** disable Release Please SNAPSHOT PRs and sync MCP version ([2b2e643](https://github.com/alcantaraleo/archivist/commit/2b2e643a06014826888b5eee4f3eb5893a54b432))
+* **ci:** disable Release Please SNAPSHOT PRs and sync MCP version ([bc905fa](https://github.com/alcantaraleo/archivist/commit/bc905faf47c5a844832a513e1319a40b9374395f))
+
 ## [0.2.0](https://github.com/alcantaraleo/archivist/compare/v0.1.0...v0.2.0) (2026-07-15)
 
 
