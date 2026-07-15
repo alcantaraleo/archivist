@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.2.2](https://github.com/alcantaraleo/archivist/compare/v0.2.1...v0.2.2) (2026-07-15)
+
+
+### Bug Fixes
+
+* **secondbrain:** findPeople misses Wiki/ meeting-person notes ([6865db3](https://github.com/alcantaraleo/archivist/commit/6865db3642171ec1fd2eca7752d4474cbe505c15))
+* **secondbrain:** map Wiki/ and meeting-person for findPeople ([ed48c3d](https://github.com/alcantaraleo/archivist/commit/ed48c3d55f3ed4e997c6f2ea4b247a8b53c87eb6)), closes [#92](https://github.com/alcantaraleo/archivist/issues/92)
+* **transport:** ship stable transport.jar path for MCP configs ([79520ff](https://github.com/alcantaraleo/archivist/commit/79520ff2c8c52c286a3d5797e1c22e0fe7b1bd15))
+
 ## [0.2.1](https://github.com/alcantaraleo/archivist/compare/v0.2.0...v0.2.1) (2026-07-15)
 
 
