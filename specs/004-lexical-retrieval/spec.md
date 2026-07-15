@@ -243,14 +243,14 @@ All eight use case classes gain constructor-injected `KnowledgeGateway` and capa
 
 **New components (conceptual):**
 
-| Component                      | Responsibility                                                                        |
-| ------------------------------ | ------------------------------------------------------------------------------------- |
-| `RetrievalStrategy` (internal) | Package-private contract: `List<Evidence> retrieve(Query query)`                      |
-| `LexicalRetrievalStrategy`     | Keyword matching, filtering, ranking, deduplication via `KnowledgeCorpus`             |
-| `RetrievalStrategyRegistry`    | Maps strategy name → implementation; validates active strategy at startup             |
-| `KnowledgeGatewayImpl`         | Implements `KnowledgeGateway`; delegates to active strategy                           |
-| `RetrievalConfiguration`       | Spring beans for gateway, strategies, registry, use cases                             |
-| `RetrievalProperties`          | `archivist.retrieval.active-strategy`, `archivist.retrieval.max-results` (default 20) |
+| Component                      | Responsibility                                                                                                                                                                                        |
+| ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `RetrievalStrategy` (internal) | Module-internal SPI in `infrastructure.retrieval` (public within that module for Spring/`List` injection; not a `domain.port.out` interface): `String name()`, `List<Evidence> retrieve(Query query)` |
+| `LexicalRetrievalStrategy`     | Keyword matching, filtering, ranking, deduplication via `KnowledgeCorpus`                                                                                                                             |
+| `RetrievalStrategyRegistry`    | Maps strategy name → implementation; validates active strategy at startup                                                                                                                             |
+| `KnowledgeGatewayImpl`         | Implements `KnowledgeGateway`; delegates to active strategy                                                                                                                                           |
+| `RetrievalConfiguration`       | Spring beans for gateway, strategies, registry, use cases                                                                                                                                             |
+| `RetrievalProperties`          | `archivist.retrieval.active-strategy`, `archivist.retrieval.max-results` (default 20)                                                                                                                 |
 
 Dependency direction:
 
@@ -306,7 +306,11 @@ transport.mcp → application.usecase / domain.port.in (unchanged)
 
 ## 9. Open Questions
 
-- [ ] GitHub epic issue number — assign when `/speckit-taskstoissues` runs
+None remaining.
+
+| Resolved                       | Resolution                                                                                                                  |
+| ------------------------------ | --------------------------------------------------------------------------------------------------------------------------- |
+| GitHub epic / phase sub-issues | Epic [#74](https://github.com/alcantaraleo/archivist/issues/74); sub-issues #75–#84 in [github-issues.md](github-issues.md) |
 
 ---
 

@@ -46,11 +46,11 @@
       "acceptanceCriteria": ["AC-7"],
       "query": {
         "factory": "unrestricted",
-        "text": "sample",
+        "text": "concept",
         "maxResults": 20
       },
       "firstResultSourceId": "wiki/concepts/sample-concept",
-      "note": "Title contains 'Sample'; body-only matches rank lower"
+      "note": "Title contains 'Concept'; body-only matches (sample-with-sources) rank lower"
     },
     {
       "id": "find-people-sample",

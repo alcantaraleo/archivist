@@ -36,7 +36,7 @@ public class MetadataEnvelopeParser {
         if (bodyStart < text.length() && text.charAt(bodyStart) == '\n') {
             bodyStart++;
         }
-        String body = bodyStart < text.length() ? text.substring(bodyStart).stripTrailing() : "";
+        String body = bodyStart < text.length() ? text.substring(bodyStart).strip() : "";
         return new ParseResult(parseYamlMap(yamlPart), body);
     }
 

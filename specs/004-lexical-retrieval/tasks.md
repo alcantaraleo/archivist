@@ -13,7 +13,7 @@
 | Story | Deliverable                                                       | Acceptance Criteria                 |
 | ----- | ----------------------------------------------------------------- | ----------------------------------- |
 | US1   | Enriched domain `Query` with factories                            | Gateway filter semantics            |
-| US2   | `RetrievalStrategy` SPI + lexical scorer/strategy + unit tests    | AC-4–AC-11 (partial), AC-16         |
+| US2   | `RetrievalStrategy` SPI + lexical scorer/strategy + unit tests    | AC-4–AC-11 (partial; unit-level)    |
 | US3   | `KnowledgeGatewayImpl` + `RetrievalStrategyRegistry` + properties | AC-14, AC-15 (foundation)           |
 | US4   | Real application use cases + delegation unit tests                | AC-12, capability → `Query` mapping |
 | US5   | Spring wiring + Boot auto-configuration                           | AC-3, AC-14                         |
@@ -27,8 +27,8 @@
 
 **Purpose**: Add infrastructure to transport classpath for Boot auto-configuration. No production Java changes beyond Gradle yet.
 
-- [ ] T001 Update `transport/build.gradle.kts` — add `implementation(project(":infrastructure"))` for composition-root classpath (transport main sources must still not import infrastructure types)
-- [ ] T002 Add retrieval property defaults to `transport/src/main/resources/application.properties` — `archivist.retrieval.active-strategy=lexical`, `archivist.retrieval.max-results=20`
+- [x] T001 Update `transport/build.gradle.kts` — add `implementation(project(":infrastructure"))` for composition-root classpath (transport main sources must still not import infrastructure types)
+- [x] T002 Add retrieval property defaults to `transport/src/main/resources/application.properties` — `archivist.retrieval.active-strategy=lexical`, `archivist.retrieval.max-results=20`
 
 **Checkpoint**: `./gradlew :transport:dependencies --configuration compileClasspath` lists `:infrastructure`; `:transport:compileJava` still succeeds (auto-config not yet consumed).
 
@@ -40,8 +40,8 @@
 
 ⚠️ **CRITICAL**: Integration tests (US7) depend on these fixtures. Do not modify expected outcomes without updating `spec.md` through the specification workflow.
 
-- [ ] T003 Verify contract fixtures in `specs/004-lexical-retrieval/contracts/` — confirm `knowledge-gateway-port.md` matches spec §3 gateway semantics; `query-model.md` capability → factory table complete; `retrieval-strategy-spi.md` extension checklist present; `fixture-lexical-expected.json` scenarios cover AC-4–AC-11 and AC-13; fix any drift before proceeding
-- [ ] T004 Verify spec 003 prerequisite — `KnowledgeCorpus` interface and fixture corpus exist at `infrastructure/src/test/resources/fixture-corpus/` with `contracts/fixture-catalog-expected.json`; `./gradlew :infrastructure:test --tests "*SecondBrainKnowledgeCorpusIntegrationTest*"` passes on current branch
+- [x] T003 Verify contract fixtures in `specs/004-lexical-retrieval/contracts/` — confirm `knowledge-gateway-port.md` matches spec §3 gateway semantics; `query-model.md` capability → factory table complete; `retrieval-strategy-spi.md` extension checklist present; `fixture-lexical-expected.json` scenarios cover AC-4–AC-11 and AC-13; fix any drift before proceeding
+- [x] T004 Verify spec 003 prerequisite — `KnowledgeCorpus` interface and fixture corpus exist at `infrastructure/src/test/resources/fixture-corpus/` with `contracts/fixture-catalog-expected.json`; `./gradlew :infrastructure:test --tests "*SecondBrainKnowledgeCorpusIntegrationTest*"` passes on current branch
 
 **Checkpoint**: All contract artifacts present. Spec 003 corpus integration green.
 
@@ -55,13 +55,13 @@
 
 ### Implementation
 
-- [ ] T005 [US1] Extend `domain/src/main/java/io/archivist/domain/model/Query.java` — record fields `text`, `Set<KnowledgeType> types`, `Set<KnowledgeZone> zones`, `int maxResults`; compact constructor validates non-null sets (`Set.copyOf`), `maxResults > 0`; factories `unrestricted`, `withType`, `withTypes` per `contracts/query-model.md`
-- [ ] T006 [US1] Update any existing `Query` construction sites in codebase (grep `new Query(` / `Query(`) to use new factories — likely none outside new code; ensure `:domain:compileJava` clean
+- [x] T005 [US1] Extend `domain/src/main/java/io/archivist/domain/model/Query.java` — record fields `text`, `Set<KnowledgeType> types`, `Set<KnowledgeZone> zones`, `int maxResults`; compact constructor validates non-null sets (`Set.copyOf`), `maxResults > 0`; factories `unrestricted`, `withType`, `withTypes` per `contracts/query-model.md`
+- [x] T006 [US1] Update any existing `Query` construction sites in codebase (grep `new Query(` / `Query(`) to use new factories — likely none outside new code; ensure `:domain:compileJava` clean
 
 ### Tests
 
-- [ ] T007 [US1] Create `domain/src/test/java/io/archivist/domain/model/QueryTest.java` — JUnit 5; factory semantics (empty type/zone set = no filter); rejects non-positive `maxResults`; rejects null fields; zero Spring imports
-- [ ] T008 [US1] Verify domain module: `./gradlew :domain:compileJava :domain:test` — all tests pass; no Spring on compile classpath (depends on T005–T007)
+- [x] T007 [US1] Create `domain/src/test/java/io/archivist/domain/model/QueryTest.java` — JUnit 5; factory semantics (empty type/zone set = no filter); rejects non-positive `maxResults`; rejects null fields; zero Spring imports
+- [x] T008 [US1] Verify domain module: `./gradlew :domain:compileJava :domain:test` — all tests pass; no Spring on compile classpath (depends on T005–T007)
 
 **Checkpoint**: `Query` factories match `contracts/query-model.md`. Domain MVP ready for retrieval implementation.
 
@@ -75,14 +75,14 @@
 
 ### Implementation
 
-- [ ] T009 [P] [US2] Create `infrastructure/src/main/java/io/archivist/infrastructure/retrieval/RetrievalStrategy.java` — SPI: `String name()`, `List<Evidence> retrieve(Query query)`; Javadoc references `contracts/retrieval-strategy-spi.md`
-- [ ] T010 [P] [US2] Create `infrastructure/src/main/java/io/archivist/infrastructure/retrieval/LexicalScorer.java` — package-private; tokenise query (`toLowerCase`, split `[\s\p{Punct}]+`); score title×3, tag×2, body×1 per matching term; tie-break `sourceId` ascending
-- [ ] T011 [US2] Create `infrastructure/src/main/java/io/archivist/infrastructure/retrieval/LexicalRetrievalStrategy.java` — implements `RetrievalStrategy`; `name()` returns `"lexical"`; uses `KnowledgeCorpus.loadAll()`; applies type/zone filters; `UNAVAILABLE_ENTRY_TOO_LARGE` matches title/tags only; score, dedupe by `sourceId`, limit `maxResults` (depends on T009–T010)
+- [x] T009 [P] [US2] Create `infrastructure/src/main/java/io/archivist/infrastructure/retrieval/RetrievalStrategy.java` — SPI: `String name()`, `List<Evidence> retrieve(Query query)`; Javadoc references `contracts/retrieval-strategy-spi.md`
+- [x] T010 [P] [US2] Create `infrastructure/src/main/java/io/archivist/infrastructure/retrieval/LexicalScorer.java` — package-private; tokenise query (`toLowerCase`, split `[\s\p{Punct}]+`); score title×3, tag×2, body×1 per matching term; tie-break `sourceId` ascending
+- [x] T011 [US2] Create `infrastructure/src/main/java/io/archivist/infrastructure/retrieval/LexicalRetrievalStrategy.java` — implements `RetrievalStrategy`; `name()` returns `"lexical"`; uses `KnowledgeCorpus.loadAll()`; applies type/zone filters; `UNAVAILABLE_ENTRY_TOO_LARGE` matches title/tags only; score, dedupe by `sourceId`, limit `maxResults` (depends on T009–T010)
 
 ### Tests
 
-- [ ] T012 [P] [US2] Create `infrastructure/src/test/java/io/archivist/infrastructure/retrieval/LexicalScorerTest.java` — JUnit 5; case insensitivity; title outranks body; multi-term scoring; zero Spring imports
-- [ ] T013 [US2] Create `infrastructure/src/test/java/io/archivist/infrastructure/retrieval/LexicalRetrievalStrategyTest.java` — JUnit 5; Mockito mock `KnowledgeCorpus`; type filter excludes wrong types; availability policy (title match includes oversize, body-only token excludes); deduplication; maxResults cap (depends on T011)
+- [x] T012 [P] [US2] Create `infrastructure/src/test/java/io/archivist/infrastructure/retrieval/LexicalScorerTest.java` — JUnit 5; case insensitivity; title outranks body; multi-term scoring; zero Spring imports
+- [x] T013 [US2] Create `infrastructure/src/test/java/io/archivist/infrastructure/retrieval/LexicalRetrievalStrategyTest.java` — JUnit 5; Mockito mock `KnowledgeCorpus`; type filter excludes wrong types; availability policy (title match includes oversize, body-only token excludes); deduplication; maxResults cap (depends on T011)
 
 **Checkpoint**: Lexical strategy unit-tested in isolation. No Spring annotations on scorer/strategy classes.
 
@@ -96,14 +96,14 @@
 
 ### Implementation
 
-- [ ] T014 [P] [US3] Create `infrastructure/src/main/java/io/archivist/infrastructure/retrieval/RetrievalProperties.java` — `@ConfigurationProperties("archivist.retrieval")` with `activeStrategy` (default `lexical`), `maxResults` (default `20`); validation annotations as needed
-- [ ] T015 [US3] Create `infrastructure/src/main/java/io/archivist/infrastructure/retrieval/RetrievalStrategyRegistry.java` — index strategies by `name()`; reject duplicate names; `getActive()` resolves configured name; unknown name → `IllegalStateException` with registered names listed (depends on T009)
-- [ ] T016 [US3] Create `infrastructure/src/main/java/io/archivist/infrastructure/retrieval/KnowledgeGatewayImpl.java` — implements `domain.port.out.KnowledgeGateway`; null query → NPE; blank text → empty list; else `registry.getActive().retrieve(query)` (depends on T015)
+- [x] T014 [P] [US3] Create `infrastructure/src/main/java/io/archivist/infrastructure/retrieval/RetrievalProperties.java` — `@ConfigurationProperties("archivist.retrieval")` with `activeStrategy` (default `lexical`), `maxResults` (default `20`); validation annotations as needed
+- [x] T015 [US3] Create `infrastructure/src/main/java/io/archivist/infrastructure/retrieval/RetrievalStrategyRegistry.java` — index strategies by `name()`; reject duplicate names; `getActive()` resolves configured name; unknown name → `IllegalStateException` with registered names listed (depends on T009)
+- [x] T016 [US3] Create `infrastructure/src/main/java/io/archivist/infrastructure/retrieval/KnowledgeGatewayImpl.java` — implements `domain.port.out.KnowledgeGateway`; null query → NPE; blank text → empty list; else `registry.getActive().retrieve(query)` (depends on T015)
 
 ### Tests
 
-- [ ] T017 [US3] Create `infrastructure/src/test/java/io/archivist/infrastructure/retrieval/RetrievalStrategyRegistryTest.java` — JUnit 5; unknown active strategy fails construction; duplicate `name()` fails; resolves `lexical` when registered
-- [ ] T018 [US3] Create `infrastructure/src/test/java/io/archivist/infrastructure/retrieval/KnowledgeGatewayImplTest.java` — JUnit 5; mock registry/strategy; blank text returns empty; delegates to active strategy (depends on T016)
+- [x] T017 [US3] Create `infrastructure/src/test/java/io/archivist/infrastructure/retrieval/RetrievalStrategyRegistryTest.java` — JUnit 5; unknown active strategy fails construction; duplicate `name()` fails; resolves `lexical` when registered
+- [x] T018 [US3] Create `infrastructure/src/test/java/io/archivist/infrastructure/retrieval/KnowledgeGatewayImplTest.java` — JUnit 5; mock registry/strategy; blank text returns empty; delegates to active strategy (depends on T016)
 
 **Checkpoint**: Gateway + registry form the stable boundary between application and private strategies (AC-15 foundation).
 
@@ -117,26 +117,26 @@
 
 ### Implementation
 
-- [ ] T019 [P] [US4] Update `application/src/main/java/io/archivist/application/usecase/RetrieveContextUseCase.java` — constructor inject `KnowledgeGateway` + `int defaultMaxResults`; `retrieveContext` → `gateway.retrieve(Query.unrestricted(query, defaultMaxResults))`
-- [ ] T020 [P] [US4] Update `application/src/main/java/io/archivist/application/usecase/FindDecisionsUseCase.java` — `Query.withType(topic, KnowledgeType.DECISION, defaultMaxResults)`
-- [ ] T021 [P] [US4] Update `application/src/main/java/io/archivist/application/usecase/FindProjectsUseCase.java` — `Query.withType(criteria, KnowledgeType.PROJECT, defaultMaxResults)`
-- [ ] T022 [P] [US4] Update `application/src/main/java/io/archivist/application/usecase/FindPeopleUseCase.java` — `Query.withType(name, KnowledgeType.PERSON, defaultMaxResults)`
-- [ ] T023 [P] [US4] Update `application/src/main/java/io/archivist/application/usecase/FindConceptsUseCase.java` — `Query.withTypes(topic, Set.of(CONCEPT, SYNTHESIS), defaultMaxResults)`
-- [ ] T024 [P] [US4] Update `application/src/main/java/io/archivist/application/usecase/FindRelatedKnowledgeUseCase.java` — `Query.unrestricted(query, defaultMaxResults)` (lexical fallback)
-- [ ] T025 [P] [US4] Update `application/src/main/java/io/archivist/application/usecase/FindReadingsUseCase.java` — `Query.withType(topic, KnowledgeType.READING, defaultMaxResults)`
-- [ ] T026 [P] [US4] Update `application/src/main/java/io/archivist/application/usecase/FindDebriefsUseCase.java` — `Query.withType(topic, KnowledgeType.DEBRIEF, defaultMaxResults)`
+- [x] T019 [P] [US4] Update `application/src/main/java/io/archivist/application/usecase/RetrieveContextUseCase.java` — constructor inject `KnowledgeGateway` + `int defaultMaxResults`; `retrieveContext` → `gateway.retrieve(Query.unrestricted(query, defaultMaxResults))`
+- [x] T020 [P] [US4] Update `application/src/main/java/io/archivist/application/usecase/FindDecisionsUseCase.java` — `Query.withType(topic, KnowledgeType.DECISION, defaultMaxResults)`
+- [x] T021 [P] [US4] Update `application/src/main/java/io/archivist/application/usecase/FindProjectsUseCase.java` — `Query.withType(criteria, KnowledgeType.PROJECT, defaultMaxResults)`
+- [x] T022 [P] [US4] Update `application/src/main/java/io/archivist/application/usecase/FindPeopleUseCase.java` — `Query.withType(name, KnowledgeType.PERSON, defaultMaxResults)`
+- [x] T023 [P] [US4] Update `application/src/main/java/io/archivist/application/usecase/FindConceptsUseCase.java` — `Query.withTypes(topic, Set.of(CONCEPT, SYNTHESIS), defaultMaxResults)`
+- [x] T024 [P] [US4] Update `application/src/main/java/io/archivist/application/usecase/FindRelatedKnowledgeUseCase.java` — `Query.unrestricted(query, defaultMaxResults)` (lexical fallback)
+- [x] T025 [P] [US4] Update `application/src/main/java/io/archivist/application/usecase/FindReadingsUseCase.java` — `Query.withType(topic, KnowledgeType.READING, defaultMaxResults)`
+- [x] T026 [P] [US4] Update `application/src/main/java/io/archivist/application/usecase/FindDebriefsUseCase.java` — `Query.withType(topic, KnowledgeType.DEBRIEF, defaultMaxResults)`
 
 ### Tests
 
-- [ ] T027 [P] [US4] Create `application/src/test/java/io/archivist/application/usecase/RetrieveContextUseCaseTest.java` — Mockito mock `KnowledgeGateway`; verify `Query.unrestricted` with expected text and maxResults
-- [ ] T028 [P] [US4] Create `application/src/test/java/io/archivist/application/usecase/FindDecisionsUseCaseTest.java` — verify `Query.withType(..., DECISION, ...)`
-- [ ] T029 [P] [US4] Create `application/src/test/java/io/archivist/application/usecase/FindProjectsUseCaseTest.java` — verify `PROJECT` filter
-- [ ] T030 [P] [US4] Create `application/src/test/java/io/archivist/application/usecase/FindPeopleUseCaseTest.java` — verify `PERSON` filter
-- [ ] T031 [P] [US4] Create `application/src/test/java/io/archivist/application/usecase/FindConceptsUseCaseTest.java` — verify `CONCEPT` + `SYNTHESIS` filter
-- [ ] T032 [P] [US4] Create `application/src/test/java/io/archivist/application/usecase/FindRelatedKnowledgeUseCaseTest.java` — verify unrestricted `Query`
-- [ ] T033 [P] [US4] Create `application/src/test/java/io/archivist/application/usecase/FindReadingsUseCaseTest.java` — verify `READING` filter
-- [ ] T034 [P] [US4] Create `application/src/test/java/io/archivist/application/usecase/FindDebriefsUseCaseTest.java` — verify `DEBRIEF` filter
-- [ ] T035 [US4] Verify application module: `./gradlew :application:compileJava :application:test` — all tests pass; compile classpath has no `:infrastructure` (depends on T019–T034)
+- [x] T027 [P] [US4] Create `application/src/test/java/io/archivist/application/usecase/RetrieveContextUseCaseTest.java` — Mockito mock `KnowledgeGateway`; verify `Query.unrestricted` with expected text and maxResults
+- [x] T028 [P] [US4] Create `application/src/test/java/io/archivist/application/usecase/FindDecisionsUseCaseTest.java` — verify `Query.withType(..., DECISION, ...)`
+- [x] T029 [P] [US4] Create `application/src/test/java/io/archivist/application/usecase/FindProjectsUseCaseTest.java` — verify `PROJECT` filter
+- [x] T030 [P] [US4] Create `application/src/test/java/io/archivist/application/usecase/FindPeopleUseCaseTest.java` — verify `PERSON` filter
+- [x] T031 [P] [US4] Create `application/src/test/java/io/archivist/application/usecase/FindConceptsUseCaseTest.java` — verify `CONCEPT` + `SYNTHESIS` filter
+- [x] T032 [P] [US4] Create `application/src/test/java/io/archivist/application/usecase/FindRelatedKnowledgeUseCaseTest.java` — verify unrestricted `Query`
+- [x] T033 [P] [US4] Create `application/src/test/java/io/archivist/application/usecase/FindReadingsUseCaseTest.java` — verify `READING` filter
+- [x] T034 [P] [US4] Create `application/src/test/java/io/archivist/application/usecase/FindDebriefsUseCaseTest.java` — verify `DEBRIEF` filter
+- [x] T035 [US4] Verify application module: `./gradlew :application:compileJava :application:test` — all tests pass; compile classpath has no `:infrastructure` (depends on T019–T034)
 
 **Checkpoint**: AC-12 satisfied. Use cases are thin translators — no retrieval logic in application layer.
 
@@ -150,10 +150,10 @@
 
 ### Implementation
 
-- [ ] T036 [US5] Create `infrastructure/src/main/java/io/archivist/infrastructure/retrieval/RetrievalConfiguration.java` — `@Configuration` registering: `LexicalRetrievalStrategy` bean, `RetrievalStrategyRegistry`, `KnowledgeGateway` → `KnowledgeGatewayImpl`, and eight use case beans wiring `defaultMaxResults` from `RetrievalProperties`; constructor injection only (depends on T011, T016, T019–T026)
-- [ ] T037 [US5] Create `infrastructure/src/main/java/io/archivist/infrastructure/retrieval/ArchivistRetrievalAutoConfiguration.java` — `@AutoConfiguration` + `@EnableConfigurationProperties(RetrievalProperties.class)` + `@Import({RetrievalConfiguration.class, SecondBrainConfiguration.class})`
-- [ ] T038 [US5] Create `infrastructure/src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports` — register `io.archivist.infrastructure.retrieval.ArchivistRetrievalAutoConfiguration`
-- [ ] T039 [US5] Verify `./gradlew :infrastructure:compileJava` succeeds with Spring configuration (depends on T036–T038)
+- [x] T036 [US5] Create `infrastructure/src/main/java/io/archivist/infrastructure/retrieval/RetrievalConfiguration.java` — `@Configuration` registering: `LexicalRetrievalStrategy` bean, `RetrievalStrategyRegistry`, `KnowledgeGateway` → `KnowledgeGatewayImpl`, and eight use case beans wiring `defaultMaxResults` from `RetrievalProperties`; constructor injection only (depends on T011, T016, T019–T026)
+- [x] T037 [US5] Create `infrastructure/src/main/java/io/archivist/infrastructure/retrieval/ArchivistRetrievalAutoConfiguration.java` — `@AutoConfiguration` + `@EnableConfigurationProperties(RetrievalProperties.class)` + `@Import({RetrievalConfiguration.class, SecondBrainConfiguration.class})`
+- [x] T038 [US5] Create `infrastructure/src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports` — register `io.archivist.infrastructure.retrieval.ArchivistRetrievalAutoConfiguration`
+- [x] T039 [US5] Verify `./gradlew :infrastructure:compileJava` succeeds with Spring configuration (depends on T036–T038)
 
 **Checkpoint**: Auto-configuration entry point registered. Beans creatable in test context (proven in US7).
 
@@ -167,11 +167,11 @@
 
 ### Implementation
 
-- [ ] T040 [US6] Update `transport/src/main/java/io/archivist/transport/ArchivistApplication.java` — remove `@Import(StubUseCaseConfiguration.class)`; keep `TransportJacksonConfiguration` only; rely on infrastructure auto-configuration for use case beans
-- [ ] T041 [US6] Delete `transport/src/main/java/io/archivist/transport/config/StubUseCaseConfiguration.java`
-- [ ] T042 [US6] Create `transport/src/test/java/io/archivist/transport/TransportLayerIsolationTest.java` — scan or grep `transport/src/main/java`; fail if any file contains `import io.archivist.infrastructure` (AC-2)
-- [ ] T043 [US6] Confirm `transport/src/test/java/io/archivist/transport/support/McpAdapterTestConfiguration.java` unchanged — still uses Mockito `port.in` mocks, not infrastructure retrieval beans
-- [ ] T044 [US6] Run `./gradlew :transport:test` — MCP contract regression tests pass unchanged (AC-1 partial; depends on T040–T043)
+- [x] T040 [US6] Update `transport/src/main/java/io/archivist/transport/ArchivistApplication.java` — remove `@Import(StubUseCaseConfiguration.class)`; keep `TransportJacksonConfiguration` only; rely on infrastructure auto-configuration for use case beans
+- [x] T041 [US6] Delete `transport/src/main/java/io/archivist/transport/config/StubUseCaseConfiguration.java`
+- [x] T042 [US6] Create `transport/src/test/java/io/archivist/transport/TransportLayerIsolationTest.java` — scan or grep `transport/src/main/java`; fail if any file contains `import io.archivist.infrastructure` (AC-2)
+- [x] T043 [US6] Confirm `transport/src/test/java/io/archivist/transport/support/McpAdapterTestConfiguration.java` unchanged — still uses Mockito `port.in` mocks, not infrastructure retrieval beans
+- [x] T044 [US6] Run `./gradlew :transport:test` — MCP contract regression tests pass unchanged (AC-1 partial; depends on T040–T043)
 
 **Checkpoint**: AC-2, AC-3 satisfied. Transport oblivious to active retrieval strategy.
 
@@ -185,12 +185,12 @@
 
 ### Fixture
 
-- [ ] T045 [US7] Add oversize entry for AC-10/AC-11 — create `infrastructure/src/test/resources/fixture-corpus/edge-cases/oversize-entry.md` with title containing `oversize-fixture-title` and body containing `unique-body-only-token-xyz` only (exceeds default `max-entry-bytes`), OR generate via `@TempDir` in integration test setup per plan Phase G
+- [x] T045 [US7] Add oversize entry for AC-10/AC-11 — create `infrastructure/src/test/resources/fixture-corpus/edge-cases/oversize-entry.md` with title containing `oversize-fixture-title` and body containing `unique-body-only-token-xyz` only (exceeds default `max-entry-bytes`), OR generate via `@TempDir` in integration test setup per plan Phase G
 
 ### Tests
 
-- [ ] T046 [US7] Create `infrastructure/src/test/java/io/archivist/infrastructure/retrieval/support/RetrievalTestConfiguration.java` — minimal `@SpringBootTest` config; `archivist.second-brain.path` → fixture corpus; loads retrieval + corpus beans only; must NOT load `ArchivistApplication` or transport MCP beans
-- [ ] T047 [US7] Create `infrastructure/src/test/java/io/archivist/infrastructure/retrieval/LexicalRetrievalIntegrationTest.java` — `@SpringBootTest(classes = RetrievalTestConfiguration.class)`; assert scenarios from `contracts/fixture-lexical-expected.json`: retrieveContext sample (AC-4), findDecisions fixture type filter (AC-5), findConcepts multi-type (AC-6), title ranking (AC-7), dedupe (AC-8), maxResults cap (AC-9), oversize title match (AC-10), oversize body exclusion (AC-11), findPeople (AC-13); timing guard < 2s (AC-16); uses `KnowledgeGateway` directly (depends on T046, T045)
+- [x] T046 [US7] Create `infrastructure/src/test/java/io/archivist/infrastructure/retrieval/support/RetrievalTestConfiguration.java` — minimal `@SpringBootTest` config; `archivist.second-brain.path` → fixture corpus; loads retrieval + corpus beans only; must NOT load `ArchivistApplication` or transport MCP beans
+- [x] T047 [US7] Create `infrastructure/src/test/java/io/archivist/infrastructure/retrieval/LexicalRetrievalIntegrationTest.java` — `@SpringBootTest(classes = RetrievalTestConfiguration.class)`; assert scenarios from `contracts/fixture-lexical-expected.json`: retrieveContext sample (AC-4), findDecisions fixture type filter (AC-5), findConcepts multi-type (AC-6), title ranking (AC-7), dedupe (AC-8), maxResults cap (AC-9), oversize title match (AC-10), oversize body exclusion (AC-11), findPeople (AC-13); timing guard < 2s (AC-16); uses `KnowledgeGateway` directly (depends on T046, T045)
 
 **Checkpoint**: Lexical retrieval contract gate green. AC-4–AC-11, AC-13, AC-16 satisfied at infrastructure layer.
 
@@ -200,15 +200,15 @@
 
 **Purpose**: Architectural boundaries, full build, quickstart, GitHub issue manifest.
 
-- [ ] T048 [P] Verify domain and application have no infrastructure imports: `./gradlew :domain:dependencies --configuration compileClasspath` and `./gradlew :application:dependencies --configuration compileClasspath` — no `:infrastructure` entries
-- [ ] T049 [P] Verify transport main sources have no infrastructure imports: `./gradlew :transport:test --tests "*TransportLayerIsolationTest*"` (AC-2)
-- [ ] T050 [P] Verify `ArchivistMcpTools.java` unchanged in contract surface — no new imports from `infrastructure.*`; tool handlers inject `port.in` only (AC-15 review)
-- [ ] T051 [P] Verify no star imports in new retrieval sources: `grep -r "^import .*\*;" --include="*.java" infrastructure/src/main/java/io/archivist/infrastructure/retrieval` — must produce no output
-- [ ] T052 Run infrastructure tests: `./gradlew :infrastructure:test` — all unit and integration tests pass
-- [ ] T053 Run full build: `./gradlew build` from repo root — `BUILD SUCCESSFUL` required (AC-1)
-- [ ] T054 Run full quickstart verification: execute all checks in `specs/004-lexical-retrieval/quickstart.md` in order (AC-1–AC-16 traceability)
-- [ ] T055 Update `README.md` Phase 1 roadmap — mark "Lexical retrieval strategy" complete (checkbox `[x]`)
-- [ ] T056 Run `/speckit-taskstoissues` before opening the implementation PR — creates epic + sub-issues and writes `specs/004-lexical-retrieval/github-issues.md` per constitution workflow
+- [x] T048 [P] Verify domain and application have no infrastructure imports: `./gradlew :domain:dependencies --configuration compileClasspath` and `./gradlew :application:dependencies --configuration compileClasspath` — no `:infrastructure` entries
+- [x] T049 [P] Verify transport main sources have no infrastructure imports: `./gradlew :transport:test --tests "*TransportLayerIsolationTest*"` (AC-2)
+- [x] T050 [P] Verify `ArchivistMcpTools.java` unchanged in contract surface — no new imports from `infrastructure.*`; tool handlers inject `port.in` only (AC-15 review)
+- [x] T051 [P] Verify no star imports in new retrieval sources: `grep -r "^import .*\*;" --include="*.java" infrastructure/src/main/java/io/archivist/infrastructure/retrieval` — must produce no output
+- [x] T052 Run infrastructure tests: `./gradlew :infrastructure:test` — all unit and integration tests pass
+- [x] T053 Run full build: `./gradlew build` from repo root — `BUILD SUCCESSFUL` required (AC-1)
+- [x] T054 Run full quickstart verification: execute all checks in `specs/004-lexical-retrieval/quickstart.md` in order (AC-1–AC-16 traceability)
+- [x] T055 Update `README.md` Phase 1 roadmap — mark "Lexical retrieval strategy" complete (checkbox `[x]`)
+- [x] T056 Run `/speckit-taskstoissues` before opening the implementation PR — **done**: epic #74 + sub-issues #75–#84 in `specs/004-lexical-retrieval/github-issues.md`
 
 ---
 
@@ -312,7 +312,7 @@ Task: star-import grep                    [T051]
 4. Phase 7 → Spring auto-config
 5. Phase 8 → remove transport stubs
 6. Phase 9 → integration tests green
-7. Phase 10 → `./gradlew build` + quickstart + `/speckit-taskstoissues`
+7. Phase 10 → `./gradlew build` + quickstart (GitHub issues already filed — see `github-issues.md`)
 
 ---
 

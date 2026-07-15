@@ -125,14 +125,14 @@ No Spring annotations. No retrieval logic beyond `Query` construction.
 
 ### Module-internal SPI (`infrastructure.retrieval`)
 
-| Class / Interface           | Visibility                | Responsibility                                            |
-| --------------------------- | ------------------------- | --------------------------------------------------------- |
-| `RetrievalStrategy`         | public in infra module    | SPI: `name()`, `retrieve(Query)`                          |
-| `RetrievalStrategyRegistry` | package-private or public | Maps name → strategy; resolves active; startup validation |
-| `LexicalRetrievalStrategy`  | package-private           | First SPI implementation                                  |
-| `LexicalScorer`             | package-private           | Tokenisation + weighted scoring                           |
-| `RetrievalConfiguration`    | package-private           | `@Configuration` — all retrieval beans                    |
-| `RetrievalProperties`       | package-private           | `@ConfigurationProperties` prefix `archivist.retrieval`   |
+| Class / Interface           | Visibility             | Responsibility                                            |
+| --------------------------- | ---------------------- | --------------------------------------------------------- |
+| `RetrievalStrategy`         | public in infra module | SPI: `name()`, `retrieve(Query)`                          |
+| `RetrievalStrategyRegistry` | public in infra module | Maps name → strategy; resolves active; startup validation |
+| `LexicalRetrievalStrategy`  | package-private        | First SPI implementation                                  |
+| `LexicalScorer`             | package-private        | Tokenisation + weighted scoring                           |
+| `RetrievalConfiguration`    | package-private        | `@Configuration` — all retrieval beans                    |
+| `RetrievalProperties`       | package-private        | `@ConfigurationProperties` prefix `archivist.retrieval`   |
 
 ### Consumed port (spec 003)
 
