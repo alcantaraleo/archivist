@@ -216,6 +216,18 @@ See `docs/specs/SPEC_TEMPLATE.md` for the specification format.
 ./gradlew build
 ```
 
+The MCP fat jar is always written to a **stable path** (version bumps do not rename it):
+
+```text
+transport/build/libs/transport.jar
+```
+
+Build just the jar with:
+
+```bash
+./gradlew :transport:bootJar
+```
+
 ### Environment Variables
 
 | Variable                      | Description                                                  | Example                 | Required |
@@ -232,6 +244,24 @@ export ARCHIVIST_SECOND_BRAIN_PATH=/path/to/existing/directory
 ```
 
 Startup confirmation is written to **stderr**; stdout is reserved for the MCP STDIO protocol.
+
+### Agent MCP (STDIO) config
+
+Point harnesses at the stable jar path so configs survive version bumps. Rebuild after pull to refresh the jar contents.
+
+```json
+{
+  "mcpServers": {
+    "archivist": {
+      "command": "java",
+      "args": ["-jar", "/absolute/path/to/archivist/transport/build/libs/transport.jar"],
+      "env": {
+        "ARCHIVIST_SECOND_BRAIN_PATH": "/absolute/path/to/second-brain"
+      }
+    }
+  }
+}
+```
 
 ---
 
