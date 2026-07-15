@@ -22,6 +22,8 @@ tasks.named<Test>("test") {
 
 tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
     enabled = true
+    // Stable filename so MCP harness configs do not break on version bumps
+    archiveFileName.set("transport.jar")
 }
 
 tasks.named<Jar>("jar") {
