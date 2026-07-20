@@ -1,13 +1,16 @@
 {
   "description": "Expected KnowledgeCorpus outcomes for infrastructure/src/test/resources/fixture-corpus/",
-  "catalogSize": 5,
+  "catalogSize": 7,
   "entries": [
     {
       "sourceId": "raw/readings/sample-reading",
       "title": "Sample Reading",
       "type": "READING",
       "zone": "SOURCE",
-      "tags": ["reading", "fixture"],
+      "tags": [
+        "reading",
+        "fixture"
+      ],
       "sources": [],
       "bodyEquals": "Body text for sample reading."
     },
@@ -16,7 +19,10 @@
       "title": "Sample Concept",
       "type": "CONCEPT",
       "zone": "SYNTHESIZED",
-      "tags": ["architecture", "fixture"],
+      "tags": [
+        "architecture",
+        "fixture"
+      ],
       "sources": [],
       "bodyEquals": "Concept body explaining the sample."
     },
@@ -25,7 +31,10 @@
       "title": "Sample Decision",
       "type": "DECISION",
       "zone": "TECHNICAL",
-      "tags": ["adr", "fixture"],
+      "tags": [
+        "adr",
+        "fixture"
+      ],
       "sources": [],
       "bodyEquals": "We decided to use fixture-driven tests."
     },
@@ -44,11 +53,85 @@
       "type": "CONCEPT",
       "zone": "SYNTHESIZED",
       "tags": [],
-      "sources": ["raw/readings/sample-reading"],
+      "sources": [
+        "raw/readings/sample-reading"
+      ],
       "bodyEquals": "Concept grounded in sample reading."
+    },
+    {
+      "sourceId": "ranking-bm25-sparse",
+      "title": "Overview Note",
+      "type": "CONCEPT",
+      "zone": "SYNTHESIZED",
+      "tags": [
+        "retrieval",
+        "ranking",
+        "probe",
+        "alpha",
+        "bravo",
+        "charlie",
+        "delta",
+        "echo",
+        "foxtrot",
+        "golf",
+        "hotel",
+        "india",
+        "juliet",
+        "kilo",
+        "lima",
+        "mike",
+        "november",
+        "oscar",
+        "papa",
+        "quebec",
+        "romeo",
+        "sierra",
+        "tango",
+        "uniform",
+        "victor",
+        "whiskey",
+        "xray",
+        "yankee",
+        "zulu",
+        "pad01",
+        "pad02",
+        "pad03",
+        "pad04",
+        "pad05",
+        "pad06",
+        "pad07",
+        "pad08",
+        "pad09",
+        "pad10",
+        "pad11",
+        "pad12",
+        "pad13",
+        "pad14",
+        "pad15",
+        "pad16",
+        "pad17",
+        "pad18",
+        "pad19",
+        "pad20"
+      ],
+      "sources": [],
+      "bodyEquals": "Unrelated filler content without probe terms repeated here."
+    },
+    {
+      "sourceId": "ranking-bm25-dense",
+      "title": "General Notes",
+      "type": "CONCEPT",
+      "zone": "SYNTHESIZED",
+      "tags": [
+        "misc"
+      ],
+      "sources": [],
+      "bodyEquals": "retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe"
     }
   ],
-  "excludedSourceIds": ["edge-cases/unknown-type"],
+  "excludedSourceIds": [
+    "edge-cases/unknown-type"
+  ],
   "loadBySourceIdCases": {
     "hit": "wiki/concepts/sample-concept",
     "miss": "nonexistent/entry"

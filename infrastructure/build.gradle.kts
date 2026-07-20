@@ -12,6 +12,9 @@ dependencies {
     implementation(libs.spring.ai.commons)
     implementation(libs.spring.boot.starter.validation)
     implementation(libs.snakeyaml)
+    implementation(libs.lucene.core)
+    implementation(libs.lucene.analysis.common)
+    implementation(libs.lucene.queryparser)
 
     testImplementation(libs.spring.boot.starter.test)
     testRuntimeOnly(libs.junit.platform.launcher)

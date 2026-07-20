@@ -31,6 +31,22 @@ class RetrievalConfiguration {
     }
 
     @Bean
+    Bm25IndexBuilder bm25IndexBuilder() {
+        return new Bm25IndexBuilder();
+    }
+
+    @Bean
+    Bm25IndexCache bm25IndexCache(Bm25IndexBuilder bm25IndexBuilder, RetrievalProperties properties) {
+        return new Bm25IndexCache(bm25IndexBuilder, properties.getBm25());
+    }
+
+    @Bean
+    RetrievalStrategy bm25RetrievalStrategy(
+            KnowledgeCorpus knowledgeCorpus, Bm25IndexCache bm25IndexCache, RetrievalProperties properties) {
+        return new Bm25RetrievalStrategy(knowledgeCorpus, bm25IndexCache, properties.getBm25());
+    }
+
+    @Bean
     RetrievalStrategyRegistry retrievalStrategyRegistry(
             List<RetrievalStrategy> strategies, RetrievalProperties properties) {
         return new RetrievalStrategyRegistry(strategies, properties.getActiveStrategy());

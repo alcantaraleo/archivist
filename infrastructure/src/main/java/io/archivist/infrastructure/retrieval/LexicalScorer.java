@@ -4,7 +4,6 @@ import io.archivist.domain.model.ContentAvailability;
 import io.archivist.domain.model.Evidence;
 import io.archivist.domain.model.Provenance;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
@@ -17,10 +16,7 @@ final class LexicalScorer {
     private static final int BODY_WEIGHT = 1;
 
     List<String> tokenize(String text) {
-        Objects.requireNonNull(text, "text");
-        return Arrays.stream(text.toLowerCase(Locale.ROOT).split("[\\s\\p{Punct}]+"))
-                .filter(token -> !token.isEmpty())
-                .toList();
+        return RetrievalTokenization.tokenize(text);
     }
 
     int score(Evidence evidence, List<String> queryTokens) {

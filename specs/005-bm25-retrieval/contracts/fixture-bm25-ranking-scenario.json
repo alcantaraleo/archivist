@@ -1,0 +1,27 @@
+{
+  "description": "AC-11: same Query text and filters; lexical vs bm25 result order must differ; top sourceId must differ.",
+  "query": {
+    "factory": "unrestricted",
+    "text": "retrieval ranking probe",
+    "maxResults": 10
+  },
+  "fixtureEntries": [
+    {
+      "sourceId": "ranking-bm25-sparse",
+      "pathHint": "wiki/concepts/ranking-bm25-sparse.md",
+      "role": "Strong tags match (lexical weight); weak/no title; body omits probe TF"
+    },
+    {
+      "sourceId": "ranking-bm25-dense",
+      "pathHint": "wiki/concepts/ranking-bm25-dense.md",
+      "role": "Weaker title; body repeats probe terms for high BM25 TF"
+    }
+  ],
+  "expectations": {
+    "bothStrategiesMatchAtLeastOne": true,
+    "lexicalTopSourceId": "ranking-bm25-sparse",
+    "bm25TopSourceId": "ranking-bm25-dense",
+    "orderingMustDiffer": true
+  },
+  "implementationNote": "Exact markdown bodies are created during /speckit-implement; integration test loads this JSON for asserted sourceIds and order."
+}
