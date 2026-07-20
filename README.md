@@ -46,6 +46,36 @@ Wire your agent to the jar — see [Agent MCP configuration](#agent-mcp-configur
 
 Archivist is a **retrieval layer** between LLM agents and a knowledge corpus. The public contract speaks in **domain terms** (`findDecisions`, `findPeople`, …). Storage, indexing, and ranking strategies stay **private** and can evolve (lexical today; hybrid and graph on the roadmap) without breaking MCP clients.
 
+It sits between external LLM agents and a personal knowledge system, exposing domain-specific capabilities so agents retrieve knowledge without knowing how it is stored, indexed, or organised.
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│                     Consuming agents (reason)                     │
+│          Cursor · Claude · GPT · custom agents · CLI             │
+└───────────────────────────────┬──────────────────────────────────┘
+                                │
+                     MCP / future REST · CLI
+                     domain capabilities only
+                     (evidence + provenance — not answers)
+                                │
+┌───────────────────────────────▼──────────────────────────────────┐
+│                            Archivist                              │
+│  ┌────────────────────────────────────────────────────────────┐  │
+│  │ Transport (MCP today) → Application → Domain contract       │  │
+│  └──────────────────────────────┬─────────────────────────────┘  │
+│                                 │ private                         │
+│  ┌──────────────────────────────▼─────────────────────────────┐  │
+│  │ Infrastructure: retrieval strategies · Second Brain adapter │  │
+│  └────────────────────────────────────────────────────────────┘  │
+└───────────────────────────────┬──────────────────────────────────┘
+                                │ read-only corpus access
+┌───────────────────────────────▼──────────────────────────────────┐
+│              Second Brain (your knowledge corpus)                 │
+│     Markdown entries · zones · types · provenance chain          │
+│     storage layout and indexing are implementation details        │
+└──────────────────────────────────────────────────────────────────┘
+```
+
 ### What Archivist is
 
 - An MCP adapter over eight stable **capabilities**
@@ -250,12 +280,15 @@ Zone/type mapping: `archivist.second-brain.mapping.zone-prefixes`, `archivist.se
                       │                │
           ┌───────────▼──────┐  ┌──────▼──────────────────┐
           │   Domain Layer   │  │   Infrastructure Layer   │
+          │                  │  │                          │
           │  · Entities      │  │  · Retrieval strategies  │
-          │  · Ports In/Out  │  │  · Second Brain adapters │
+          │  · Ports In      │  │  · Second Brain adapters │
+          │  · Ports Out     │  │  · Embedding providers   │
+          │  · Domain rules  │  │  · Vector stores         │
           └──────────────────┘  └──────────────────────────┘
 ```
 
-**Dependency rule:** dependencies point inward. The domain runs without Spring Boot, Spring AI, or the MCP SDK. Full invariants and layer rules: [`AGENTS.md`](AGENTS.md).
+**Dependency rule:** all arrows point inward. The domain knows nothing about Spring, MCP, Spring AI, or any storage technology. Infrastructure implements interfaces defined by the domain. Full invariants and layer rules: [`AGENTS.md`](AGENTS.md).
 
 ### Package layout
 
