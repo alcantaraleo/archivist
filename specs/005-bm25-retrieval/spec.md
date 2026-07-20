@@ -4,7 +4,7 @@
 **Feature Branch**: `005-bm25-retrieval`
 **Created:** 2026-07-20
 **Author:** Leonardo Alcantara
-**Issue:** _TBD — epic to be opened before approval_
+**Issue:** [#99 — feat(retrieval): BM25 Retrieval Strategy](https://github.com/alcantaraleo/archivist/issues/99)
 
 ---
 
