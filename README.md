@@ -2,6 +2,8 @@
 
 Domain-driven **MCP server** (STDIO) that exposes stable retrieval capabilities over a personal knowledge corpus called **Second Brain**. Archivist returns **evidence** with provenance; your agent does the reasoning.
 
+Archivist is built to read corpora that follow the **Second Brain** domain model — especially the public reference vault [alcantaraleo/second-brain-public](https://github.com/alcantaraleo/second-brain-public). Clone that repository (or use your own compatible tree) and point `ARCHIVIST_SECOND_BRAIN_PATH` at its root.
+
 ---
 
 ## Quick start
@@ -20,6 +22,14 @@ Try without a personal vault (checked-in fixture):
 
 ```bash
 export ARCHIVIST_SECOND_BRAIN_PATH="$(pwd)/infrastructure/src/test/resources/fixture-corpus"
+./gradlew :transport:bootRun
+```
+
+Or use the public reference Second Brain (same layout Archivist targets):
+
+```bash
+git clone https://github.com/alcantaraleo/second-brain-public.git /path/to/second-brain-public
+export ARCHIVIST_SECOND_BRAIN_PATH=/path/to/second-brain-public
 ./gradlew :transport:bootRun
 ```
 
@@ -145,13 +155,15 @@ Example fixture: [`specs/002-mcp-transport-adapter/contracts/evidence-response-s
 
 Archivist does **not** ship a knowledge base. You point `ARCHIVIST_SECOND_BRAIN_PATH` at an **existing directory** on disk.
 
+**Reference corpus:** [github.com/alcantaraleo/second-brain-public](https://github.com/alcantaraleo/second-brain-public) — public Second Brain vault (LLM-Wiki-style layout) that this project is intended to retrieve from. Use it to try Archivist end-to-end or as a template for your own corpus.
+
 ### Format (current implementation)
 
 - **Markdown** files under the corpus root (read-only scan)
 - **YAML frontmatter** for metadata (`type`, optional `zone`, tags, dates, `sources`, etc.)
 - Entries without a recognised `type` (and no configured alias) are skipped
 
-The domain model is defined in [`docs/second-brain-domain.md`](docs/second-brain-domain.md). Many users keep this corpus in an **Obsidian vault** with a familiar folder layout; Archivist’s **public contract** does not depend on Obsidian — only the infrastructure adapter maps files to domain types and zones.
+The domain model is defined in [`docs/second-brain-domain.md`](docs/second-brain-domain.md). The [second-brain-public](https://github.com/alcantaraleo/second-brain-public) repository is the primary public example of that model on disk. Many users keep a corpus in an **Obsidian vault** with the same folder layout; Archivist’s **public contract** does not depend on Obsidian — only the infrastructure adapter maps files to domain types and zones.
 
 ### Default zone mapping (path prefixes)
 
