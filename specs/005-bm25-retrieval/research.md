@@ -73,7 +73,7 @@ Implement with `BM25Similarity(k1, b)` on `IndexWriterConfig` / `IndexSearcher` 
 | `tags` | space-joined lowercased tags | **2.0** |
 | `body` | `evidence.content()` when `AVAILABLE`; omitted/empty when size-limited | **1.0** |
 
-Apply boosts via `Field.setBoost(float)` at index time (or per-field type boost in writer config). Matches Phase 1 lexical weights in `LexicalScorer`.
+Apply boosts at **query time** via Lucene `BoostQuery` around per-field `TermQuery`s (title / tags / body). Lucene 9 removed `Field.setBoost`; query-time boosts preserve the same 3 : 2 : 1 relative priority as Phase 1 `LexicalScorer`.
 
 Additional **non-scored** fields for filtering:
 
@@ -97,15 +97,17 @@ Additional **non-scored** fields for filtering:
 **Decision**: **Share tokenisation rules** with spec 004:
 
 1. Extract package-private **`RetrievalTokenization`** (or delegate to package-visible `LexicalScorer#tokenize`) in `io.archivist.infrastructure.retrieval`.
-2. **Query side**: tokenise `query.text()` with that helper; build a Lucene `BooleanQuery` with **MUST** clauses — each token must appear in at least one of `title`, `tags`, or `body` (same AND semantics as lexical “every token must match somewhere”).
+2. **Query side**: tokenise `query.text()` with that helper; build a Lucene `BooleanQuery` with **MUST** clauses — each token must appear in at least one of `title`, `tags`, or `body`. Per token, fields are combined with `DisjunctionMaxQuery` (best field wins; not a sum of field scores).
 3. **Index side**: custom **`Analyzer`** using the same split regex as `LexicalScorer`: `text.toLowerCase(Locale.ROOT)` then split on `[\\s\\p{Punct}]+`, drop empties.
 
-**Rationale**: Spec §3 requires identical tokenisation for operator expectations and ranking comparison tests.
+**Match-set note**: Spec 004 lexical keeps an entry when **any** token contributes (`score > 0`). BM25 intentionally uses **stricter AND** (every query token must match somewhere). Token **split/normalisation** stays identical; recall sets may diverge on partial multi-token queries.
+
+**Rationale**: Spec §3 requires identical tokenisation for operator expectations and ranking comparison tests; AND is the BM25 query policy for this feature.
 
 **Alternatives considered**:
 
 - Lucene `StandardAnalyzer` (stemming/stopwords): Rejected — diverges from lexical
-- OR-only multi-term query: Rejected — lexical requires all tokens to contribute to score
+- OR-only / score>0 multi-term query: Rejected — BM25 delivery chooses MUST-per-token for precision
 
 ---
 
@@ -148,7 +150,7 @@ Invalidate cached index when **either** fingerprint differs **or** `Instant.now(
 
 ## Decision 8: Index Cache Concurrency
 
-**Decision**: **`synchronized`** rebuild + search on the cache holder (single JVM, single active BM25 strategy bean). Search uses point-in-time `IndexSearcher` from current reader; rebuild closes prior directory/reader.
+**Decision**: **`synchronized`** rebuild + search on the cache holder (single JVM, single active BM25 strategy bean) via `Bm25IndexCache.withIndex(...)`. Search uses the current reader only while the monitor is held; rebuild closes the prior directory/reader only after clearing the active slot (failed rebuild must not leave a closed index reusable).
 
 **Rationale**: Personal corpus + single-threaded MCP STDIO usage makes fine-grained RW locks unnecessary. Document with `ponytail:` if contention appears — upgrade to `ReentrantReadWriteLock`.
 

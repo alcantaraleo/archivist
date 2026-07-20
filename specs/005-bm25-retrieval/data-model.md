@@ -88,8 +88,8 @@ Invalidation rule: rebuild when fingerprint ≠ cached **or** now > `builtAt + i
 | Responsibility |
 | -------------- |
 | `loadAll()` from corpus |
-| For each `Evidence`, add Lucene document per [research.md](research.md) Decision 4 |
-| Apply field boosts and `BM25Similarity` from properties |
+| For each distinct `sourceId` in `loadAll()`, add one Lucene document per [research.md](research.md) Decision 4 (last wins) |
+| Apply `BM25Similarity(k1,b)` at index time; field boosts 3:2:1 applied at query time (`BoostQuery`) |
 | Store `sourceId` for hit resolution |
 
 ---

@@ -9,7 +9,7 @@
     {
       "sourceId": "ranking-bm25-sparse",
       "pathHint": "wiki/concepts/ranking-bm25-sparse.md",
-      "role": "Strong title/tags match; body mentions each token once"
+      "role": "Strong tags match (lexical weight); weak/no title; body omits probe TF"
     },
     {
       "sourceId": "ranking-bm25-dense",

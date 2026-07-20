@@ -28,9 +28,9 @@
 
 **Purpose**: Add Lucene to the version catalogue and infrastructure module only.
 
-- [ ] T001 Add Lucene version and library aliases to `gradle/libs.versions.toml` — `lucene = "9.12.1"`; `lucene-core`, `lucene-analysis-common`, `lucene-queryparser` (coordinates per `research.md` Decision 1)
-- [ ] T002 Update `infrastructure/build.gradle.kts` — `implementation` dependencies on Lucene libraries; verify `:domain:dependencies` and `:application:dependencies` compile classpaths contain no Lucene artifacts
-- [ ] T003 Run `./gradlew :infrastructure:compileJava` — succeeds with Lucene on infrastructure classpath only (depends on T001–T002)
+- [x] T001 Add Lucene version and library aliases to `gradle/libs.versions.toml` — `lucene = "9.12.1"`; `lucene-core`, `lucene-analysis-common`, `lucene-queryparser` (coordinates per `research.md` Decision 1)
+- [x] T002 Update `infrastructure/build.gradle.kts` — `implementation` dependencies on Lucene libraries; verify `:domain:dependencies` and `:application:dependencies` compile classpaths contain no Lucene artifacts
+- [x] T003 Run `./gradlew :infrastructure:compileJava` — succeeds with Lucene on infrastructure classpath only (depends on T001–T002)
 
 **Checkpoint**: Lucene scoped to infrastructure. No production BM25 code yet.
 
@@ -42,8 +42,8 @@
 
 ⚠️ **CRITICAL**: Do not change lexical expected outcomes without spec workflow. AC-3 requires default `lexical` behaviour unchanged.
 
-- [ ] T004 Verify contract fixtures in `specs/005-bm25-retrieval/contracts/` — `knowledge-gateway-bm25-semantics.md`, `bm25-configuration.md`, `corpus-fingerprint-contract.md`, `retrieval-strategy-spi.md`, and `fixture-bm25-ranking-scenario.json` align with approved `spec.md` §3–5; fix doc drift only (no implementation)
-- [ ] T005 Verify spec 004 prerequisite — `./gradlew :infrastructure:test --tests "io.archivist.infrastructure.retrieval.LexicalRetrievalIntegrationTest"` and `RetrievalStrategyRegistryTest` pass; `infrastructure/src/test/java/io/archivist/infrastructure/retrieval/support/RetrievalTestConfiguration.java` exists
+- [x] T004 Verify contract fixtures in `specs/005-bm25-retrieval/contracts/` — `knowledge-gateway-bm25-semantics.md`, `bm25-configuration.md`, `corpus-fingerprint-contract.md`, `retrieval-strategy-spi.md`, and `fixture-bm25-ranking-scenario.json` align with approved `spec.md` §3–5; fix doc drift only (no implementation)
+- [x] T005 Verify spec 004 prerequisite — `./gradlew :infrastructure:test --tests "io.archivist.infrastructure.retrieval.LexicalRetrievalIntegrationTest"` and `RetrievalStrategyRegistryTest` pass; `infrastructure/src/test/java/io/archivist/infrastructure/retrieval/support/RetrievalTestConfiguration.java` exists
 
 **Checkpoint**: Lexical integration green. 005 contracts ready for test assertions.
 
@@ -57,12 +57,12 @@
 
 ### Implementation
 
-- [ ] T006 [US1] Extend `infrastructure/src/main/java/io/archivist/infrastructure/retrieval/RetrievalProperties.java` — nested `Bm25Properties` (or `@ConfigurationProperties` prefix `archivist.retrieval.bm25`) with field boosts 3/2/1, `indexTtl` default `Duration.ofMinutes(15)`, `k1` 1.2f, `b` 0.75f; validation per `contracts/bm25-configuration.md`
-- [ ] T007 [US1] Ensure `ArchivistRetrievalAutoConfiguration` enables nested BM25 properties binding — update `infrastructure/src/main/java/io/archivist/infrastructure/retrieval/ArchivistRetrievalAutoConfiguration.java` if `@EnableConfigurationProperties` must list nested type
+- [x] T006 [US1] Extend `infrastructure/src/main/java/io/archivist/infrastructure/retrieval/RetrievalProperties.java` — nested `Bm25Properties` (or `@ConfigurationProperties` prefix `archivist.retrieval.bm25`) with field boosts 3/2/1, `indexTtl` default `Duration.ofMinutes(15)`, `k1` 1.2f, `b` 0.75f; validation per `contracts/bm25-configuration.md`
+- [x] T007 [US1] Ensure `ArchivistRetrievalAutoConfiguration` enables nested BM25 properties binding — update `infrastructure/src/main/java/io/archivist/infrastructure/retrieval/ArchivistRetrievalAutoConfiguration.java` if `@EnableConfigurationProperties` must list nested type
 
 ### Tests
 
-- [ ] T008 [US1] Create `infrastructure/src/test/java/io/archivist/infrastructure/retrieval/Bm25PropertiesTest.java` — JUnit 5; assert defaults match `specs/005-bm25-retrieval/contracts/bm25-configuration.md`; rejects invalid boost/TTL where validated (depends on T006)
+- [x] T008 [US1] Create `infrastructure/src/test/java/io/archivist/infrastructure/retrieval/Bm25PropertiesTest.java` — JUnit 5; assert defaults match `specs/005-bm25-retrieval/contracts/bm25-configuration.md`; rejects invalid boost/TTL where validated (depends on T006)
 
 **Checkpoint**: Configuration contract implementable. MVP for `/speckit-implement` can stop here only for property wiring review — not feature-complete.
 
@@ -76,14 +76,14 @@
 
 ### Implementation
 
-- [ ] T009 [P] [US2] Create `infrastructure/src/main/java/io/archivist/infrastructure/retrieval/RetrievalTokenization.java` — package-private; `tokenize(String)` matching `LexicalScorer` regex and lowercase ROOT rules per `research.md` Decision 5
-- [ ] T010 [US2] Refactor `infrastructure/src/main/java/io/archivist/infrastructure/retrieval/LexicalScorer.java` — delegate `tokenize` to `RetrievalTokenization` (behaviour unchanged)
-- [ ] T011 [P] [US2] Create `infrastructure/src/main/java/io/archivist/infrastructure/retrieval/ArchivistCorpusAnalyzer.java` — Lucene `Analyzer` using same split/normalisation as `RetrievalTokenization` for index-time tokenisation
+- [x] T009 [P] [US2] Create `infrastructure/src/main/java/io/archivist/infrastructure/retrieval/RetrievalTokenization.java` — package-private; `tokenize(String)` matching `LexicalScorer` regex and lowercase ROOT rules per `research.md` Decision 5
+- [x] T010 [US2] Refactor `infrastructure/src/main/java/io/archivist/infrastructure/retrieval/LexicalScorer.java` — delegate `tokenize` to `RetrievalTokenization` (behaviour unchanged)
+- [x] T011 [P] [US2] Create `infrastructure/src/main/java/io/archivist/infrastructure/retrieval/ArchivistCorpusAnalyzer.java` — Lucene `Analyzer` using same split/normalisation as `RetrievalTokenization` for index-time tokenisation
 
 ### Tests
 
-- [ ] T012 [P] [US2] Create `infrastructure/src/test/java/io/archivist/infrastructure/retrieval/RetrievalTokenizationTest.java` — parity cases shared with lexical expectations (punctuation split, empty drops)
-- [ ] T013 [US2] Re-run `infrastructure/src/test/java/io/archivist/infrastructure/retrieval/LexicalScorerTest.java` — all pass after refactor (AC-3 regression guard; depends on T010)
+- [x] T012 [P] [US2] Create `infrastructure/src/test/java/io/archivist/infrastructure/retrieval/RetrievalTokenizationTest.java` — parity cases shared with lexical expectations (punctuation split, empty drops)
+- [x] T013 [US2] Re-run `infrastructure/src/test/java/io/archivist/infrastructure/retrieval/LexicalScorerTest.java` — all pass after refactor (AC-3 regression guard; depends on T010)
 
 **Checkpoint**: Tokenisation shared. Lexical tests still green.
 
@@ -97,11 +97,11 @@
 
 ### Implementation
 
-- [ ] T014 [US3] Create `infrastructure/src/main/java/io/archivist/infrastructure/retrieval/CorpusFingerprint.java` — implement algorithm in `specs/005-bm25-retrieval/contracts/corpus-fingerprint-contract.md`
+- [x] T014 [US3] Create `infrastructure/src/main/java/io/archivist/infrastructure/retrieval/CorpusFingerprint.java` — implement algorithm in `specs/005-bm25-retrieval/contracts/corpus-fingerprint-contract.md`
 
 ### Tests
 
-- [ ] T015 [US3] Create `infrastructure/src/test/java/io/archivist/infrastructure/retrieval/CorpusFingerprintTest.java` — JUnit 5; same catalog → same fingerprint; changed `updated` or entry count → different fingerprint; mock or minimal `KnowledgeCorpus` (depends on T014)
+- [x] T015 [US3] Create `infrastructure/src/test/java/io/archivist/infrastructure/retrieval/CorpusFingerprintTest.java` — JUnit 5; same catalog → same fingerprint; changed `updated` or entry count → different fingerprint; mock or minimal `KnowledgeCorpus` (depends on T014)
 
 **Checkpoint**: Fingerprint contract testable independent of Lucene index.
 
@@ -115,13 +115,13 @@
 
 ### Implementation
 
-- [ ] T016 [P] [US4] Create `infrastructure/src/main/java/io/archivist/infrastructure/retrieval/Bm25IndexBuilder.java` — `ByteBuffersDirectory`; document fields `sourceId`, `title`, `tags`, `body`, `knowledgeType`, `knowledgeZone` per `data-model.md`; field boosts from `Bm25Properties`; `BM25Similarity(k1,b)`; omit body for `UNAVAILABLE_ENTRY_TOO_LARGE`
-- [ ] T017 [US4] Create `infrastructure/src/main/java/io/archivist/infrastructure/retrieval/Bm25IndexCache.java` — acquire/rebuild on fingerprint mismatch or TTL expiry; `synchronized` rebuild per `research.md` Decision 8; propagate `KnowledgeCorpusException` (depends on T014, T016)
+- [x] T016 [P] [US4] Create `infrastructure/src/main/java/io/archivist/infrastructure/retrieval/Bm25IndexBuilder.java` — `ByteBuffersDirectory`; document fields `sourceId`, `title`, `tags`, `body`, `knowledgeType`, `knowledgeZone` per `data-model.md`; field boosts from `Bm25Properties`; `BM25Similarity(k1,b)`; omit body for `UNAVAILABLE_ENTRY_TOO_LARGE`
+- [x] T017 [US4] Create `infrastructure/src/main/java/io/archivist/infrastructure/retrieval/Bm25IndexCache.java` — acquire/rebuild on fingerprint mismatch or TTL expiry; `synchronized` rebuild per `research.md` Decision 8; propagate `KnowledgeCorpusException` (depends on T014, T016)
 
 ### Tests
 
-- [ ] T018 [US4] Create `infrastructure/src/test/java/io/archivist/infrastructure/retrieval/Bm25IndexBuilderTest.java` — JUnit 5; mocked corpus entries; assert oversize entry has empty body field in index; title/tags indexed
-- [ ] T019 [US4] Create `infrastructure/src/test/java/io/archivist/infrastructure/retrieval/Bm25IndexCacheTest.java` — fingerprint change triggers rebuild; TTL expiry triggers rebuild; stable corpus reuses cache (test hook or spy; depends on T017)
+- [x] T018 [US4] Create `infrastructure/src/test/java/io/archivist/infrastructure/retrieval/Bm25IndexBuilderTest.java` — JUnit 5; mocked corpus entries; assert oversize entry has empty body field in index; title/tags indexed
+- [x] T019 [US4] Create `infrastructure/src/test/java/io/archivist/infrastructure/retrieval/Bm25IndexCacheTest.java` — fingerprint change triggers rebuild; TTL expiry triggers rebuild; stable corpus reuses cache (test hook or spy; depends on T017)
 
 **Checkpoint**: Index lifecycle testable without full gateway.
 
@@ -135,11 +135,11 @@
 
 ### Implementation
 
-- [ ] T020 [US5] Create `infrastructure/src/main/java/io/archivist/infrastructure/retrieval/Bm25RetrievalStrategy.java` — blank query → empty list; boolean query all tokens MUST match; type/zone filters; map hits to `Evidence`; dedupe by `sourceId`; limit `maxResults`; same filter semantics as `LexicalRetrievalStrategy` (depends on T017, T009)
+- [x] T020 [US5] Create `infrastructure/src/main/java/io/archivist/infrastructure/retrieval/Bm25RetrievalStrategy.java` — blank query → empty list; boolean query all tokens MUST match; type/zone filters; map hits to `Evidence`; dedupe by `sourceId`; limit `maxResults`; same filter semantics as `LexicalRetrievalStrategy` (depends on T017, T009)
 
 ### Tests
 
-- [ ] T021 [US5] Create `infrastructure/src/test/java/io/archivist/infrastructure/retrieval/Bm25RetrievalStrategyTest.java` — JUnit 5; Mockito corpus/cache; type filter; size-limited title match vs body-only exclusion; dedupe; maxResults (depends on T020)
+- [x] T021 [US5] Create `infrastructure/src/test/java/io/archivist/infrastructure/retrieval/Bm25RetrievalStrategyTest.java` — JUnit 5; Mockito corpus/cache; type filter; size-limited title match vs body-only exclusion; dedupe; maxResults (depends on T020)
 
 **Checkpoint**: BM25 algorithm unit-tested in isolation.
 
@@ -153,11 +153,11 @@
 
 ### Implementation
 
-- [ ] T022 [US6] Update `infrastructure/src/main/java/io/archivist/infrastructure/retrieval/RetrievalConfiguration.java` — add `@Bean RetrievalStrategy bm25RetrievalStrategy(KnowledgeCorpus, Bm25Properties, …)` wiring `Bm25RetrievalStrategy` (depends on T020)
+- [x] T022 [US6] Update `infrastructure/src/main/java/io/archivist/infrastructure/retrieval/RetrievalConfiguration.java` — add `@Bean RetrievalStrategy bm25RetrievalStrategy(KnowledgeCorpus, Bm25Properties, …)` wiring `Bm25RetrievalStrategy` (depends on T020)
 
 ### Tests
 
-- [ ] T023 [US6] Extend `infrastructure/src/test/java/io/archivist/infrastructure/retrieval/RetrievalStrategyRegistryTest.java` — both `lexical` and `bm25` registered; `getActive()` resolves `bm25` when configured; unknown name still fails (AC-4)
+- [x] T023 [US6] Extend `infrastructure/src/test/java/io/archivist/infrastructure/retrieval/RetrievalStrategyRegistryTest.java` — both `lexical` and `bm25` registered; `getActive()` resolves `bm25` when configured; unknown name still fails (AC-4)
 
 **Checkpoint**: AC-4 satisfied at registry level.
 
@@ -171,11 +171,11 @@
 
 ### Implementation
 
-- [ ] T024 [US7] Extend `infrastructure/src/test/java/io/archivist/infrastructure/retrieval/support/RetrievalTestConfiguration.java` — support `@TestPropertySource` or properties for `archivist.retrieval.active-strategy=bm25` without breaking lexical integration tests
+- [x] T024 [US7] Extend `infrastructure/src/test/java/io/archivist/infrastructure/retrieval/support/RetrievalTestConfiguration.java` — support `@TestPropertySource` or properties for `archivist.retrieval.active-strategy=bm25` without breaking lexical integration tests
 
 ### Tests
 
-- [ ] T025 [US7] Create `infrastructure/src/test/java/io/archivist/infrastructure/retrieval/Bm25RetrievalIntegrationTest.java` — `@SpringBootTest(classes = RetrievalTestConfiguration.class)` with `active-strategy=bm25`; assert retrieveContext match + provenance (AC-5); findDecisions/findConcepts/findPeople type filters (AC-6–AC-8); dedupe (AC-9); maxResults (AC-10); oversize title match and body exclusion (AC-12–AC-13); `@Timeout(5)` on index+query method (AC-14); uses fixture corpus path (depends on T024, T022)
+- [x] T025 [US7] Create `infrastructure/src/test/java/io/archivist/infrastructure/retrieval/Bm25RetrievalIntegrationTest.java` — `@SpringBootTest(classes = RetrievalTestConfiguration.class)` with `active-strategy=bm25`; assert retrieveContext match + provenance (AC-5); findDecisions/findConcepts/findPeople type filters (AC-6–AC-8); dedupe (AC-9); maxResults (AC-10); oversize title match and body exclusion (AC-12–AC-13); `@Timeout(5)` on index+query method (AC-14); uses fixture corpus path (depends on T024, T022)
 
 **Checkpoint**: BM25 retrieval contract green on fixture corpus except AC-11.
 
@@ -189,12 +189,12 @@
 
 ### Fixture
 
-- [ ] T026 [P] [US8] Create `infrastructure/src/test/resources/fixture-corpus/wiki/concepts/ranking-bm25-sparse.md` — stable `sourceId` `ranking-bm25-sparse`; frontmatter/type CONCEPT; title/tags strong for query `retrieval ranking probe`; body minimal term mentions per `contracts/fixture-bm25-ranking-scenario.json`
-- [ ] T027 [P] [US8] Create `infrastructure/src/test/resources/fixture-corpus/wiki/concepts/ranking-bm25-dense.md` — stable `sourceId` `ranking-bm25-dense`; weaker title; body repeats probe tokens for BM25 TF delta
+- [x] T026 [P] [US8] Create `infrastructure/src/test/resources/fixture-corpus/wiki/concepts/ranking-bm25-sparse.md` — stable `sourceId` `ranking-bm25-sparse`; frontmatter/type CONCEPT; title/tags strong for query `retrieval ranking probe`; body minimal term mentions per `contracts/fixture-bm25-ranking-scenario.json`
+- [x] T027 [P] [US8] Create `infrastructure/src/test/resources/fixture-corpus/wiki/concepts/ranking-bm25-dense.md` — stable `sourceId` `ranking-bm25-dense`; weaker title; body repeats probe tokens for BM25 TF delta
 
 ### Tests
 
-- [ ] T028 [US8] Create `infrastructure/src/test/java/io/archivist/infrastructure/retrieval/Bm25RankingDifferentiationTest.java` — load JSON from `specs/005-bm25-retrieval/contracts/fixture-bm25-ranking-scenario.json`; same `Query` with `lexical` vs `bm25` active; assert top `sourceId` differs and full order differs (AC-11); tune fixture bodies in T026–T027 if test fails (depends on T026–T027, T025)
+- [x] T028 [US8] Create `infrastructure/src/test/java/io/archivist/infrastructure/retrieval/Bm25RankingDifferentiationTest.java` — load JSON from `specs/005-bm25-retrieval/contracts/fixture-bm25-ranking-scenario.json`; same `Query` with `lexical` vs `bm25` active; assert top `sourceId` differs and full order differs (AC-11); tune fixture bodies in T026–T027 if test fails (depends on T026–T027, T025)
 
 **Checkpoint**: AC-11 satisfied.
 
@@ -204,13 +204,13 @@
 
 **Purpose**: Full build, lexical regression, layer boundaries, quickstart, GitHub issues.
 
-- [ ] T029 [P] Verify domain/application compile classpaths — `./gradlew :domain:dependencies --configuration compileClasspath` and `:application:dependencies` show no Lucene or new infrastructure leakage (AC-15)
-- [ ] T030 [P] Verify transport isolation — `./gradlew :transport:test --tests "*TransportLayerIsolationTest*"` (AC-2)
-- [ ] T031 [P] Confirm `transport/src/main/java/io/archivist/transport/mcp/ArchivistMcpTools.java` unchanged in tool surface — no new tools; still injects `port.in` only (AC-15)
-- [ ] T032 Run lexical regression — `./gradlew :infrastructure:test --tests "*LexicalRetrievalIntegrationTest*"` with default `active-strategy=lexical` (AC-3)
-- [ ] T033 Run full infrastructure suite — `./gradlew :infrastructure:test`
-- [ ] T034 Run full build — `./gradlew build` from repo root (AC-1)
-- [ ] T035 Execute all checks in `specs/005-bm25-retrieval/quickstart.md` in order
+- [x] T029 [P] Verify domain/application compile classpaths — `./gradlew :domain:dependencies --configuration compileClasspath` and `:application:dependencies` show no Lucene or new infrastructure leakage (AC-15)
+- [x] T030 [P] Verify transport isolation — `./gradlew :transport:test --tests "*TransportLayerIsolationTest*"` (AC-2)
+- [x] T031 [P] Confirm `transport/src/main/java/io/archivist/transport/mcp/ArchivistMcpTools.java` unchanged in tool surface — no new tools; still injects `port.in` only (AC-15)
+- [x] T032 Run lexical regression — `./gradlew :infrastructure:test --tests "*LexicalRetrievalIntegrationTest*"` with default `active-strategy=lexical` (AC-3)
+- [x] T033 Run full infrastructure suite — `./gradlew :infrastructure:test`
+- [x] T034 Run full build — `./gradlew build` from repo root (AC-1)
+- [x] T035 Execute all checks in `specs/005-bm25-retrieval/quickstart.md` in order
 - [x] T036 Update `specs/005-bm25-retrieval/spec.md` **Issue** field with epic number after `/speckit-taskstoissues`
 - [x] T037 Run `/speckit-taskstoissues` — create epic + phase sub-issues; write `specs/005-bm25-retrieval/github-issues.md` with PR **Issues resolved** block
 
