@@ -1,97 +1,232 @@
 # Archivist
 
-A domain-driven MCP server that provides stable, structured access to a personal knowledge system called Second Brain.
+Domain-driven **MCP server** (STDIO) that exposes stable retrieval capabilities over a personal knowledge corpus called **Second Brain**. Archivist returns **evidence** with provenance; your agent does the reasoning.
+
+---
+
+## Quick start
+
+**Prerequisites:** Java 21+, Gradle wrapper (included), a directory to use as the corpus root.
+
+```bash
+git clone https://github.com/alcantaraleo/archivist.git
+cd archivist
+./gradlew :transport:bootJar
+export ARCHIVIST_SECOND_BRAIN_PATH=/path/to/your/corpus   # must exist
+java -jar transport/build/libs/transport.jar               # MCP on stdout; logs on stderr
+```
+
+Try without a personal vault (checked-in fixture):
+
+```bash
+export ARCHIVIST_SECOND_BRAIN_PATH="$(pwd)/infrastructure/src/test/resources/fixture-corpus"
+./gradlew :transport:bootRun
+```
+
+Wire your agent to the jar — see [Agent MCP configuration](#agent-mcp-configuration).
+
+---
+
+## Table of contents
+
+- [Overview](#overview)
+- [MCP tools and responses](#mcp-tools-and-responses)
+- [Corpus requirements](#corpus-requirements)
+- [Getting started](#getting-started)
+- [Configuration](#configuration)
+- [Architecture](#architecture)
+- [Development](#development)
+- [Roadmap](#roadmap)
+- [Documentation](#documentation)
+- [License](#license)
 
 ---
 
 ## Overview
 
-Archivist is a retrieval layer.
+Archivist is a **retrieval layer** between LLM agents and a knowledge corpus. The public contract speaks in **domain terms** (`findDecisions`, `findPeople`, …). Storage, indexing, and ranking strategies stay **private** and can evolve (lexical today; hybrid and graph on the roadmap) without breaking MCP clients.
 
-It sits between external LLM agents and a personal knowledge system, exposing domain-specific capabilities that allow agents to retrieve knowledge without knowing how that knowledge is stored, indexed, or organised.
+### What Archivist is
 
-The public interface speaks in domain terms.
-The retrieval implementation is entirely private.
+- An MCP adapter over eight stable **capabilities**
+- Read-only access to Markdown knowledge entries with metadata
+- Evidence + **provenance** (source id, type, zone, tags, source chain, timestamps)
 
----
+### What Archivist is not
 
-## Motivation
+- Not a filesystem wrapper, Markdown full-text search UI, or RAG answer engine
+- Not an agent, summariser, or reasoning engine
+- Not a hosted service — it runs locally against **your** corpus path
 
-LLM agents frequently need access to personal context — past decisions, active projects, known people, accumulated knowledge. The naive approach is to expose raw storage primitives: file reads, text searches, vector queries.
-
-This creates tight coupling. When the storage or indexing mechanism changes, every consuming agent breaks. Retrieval technology leaks into the contract.
-
-Archivist solves this by publishing a stable domain contract that hides retrieval implementation entirely. The contract defines _what_ is retrieved. The implementation decides _how_.
-
-The retrieval engine is free to evolve — from lexical search to hybrid retrieval to knowledge graph traversal — without changing the public interface that consumers depend on.
+**Boundary:** Archivist retrieves evidence. Consuming agents synthesise, interpret, and answer.
 
 ---
 
-## Purpose
+## MCP tools and responses
 
-Archivist exposes domain capabilities, not retrieval primitives.
+**Server identity:** `archivist` (MCP server name). Version is set in `transport/src/main/resources/application.properties` (Release Please keeps it in sync with GitHub releases).
 
-**Public capabilities — domain concepts:**
+**Transport:** MCP over **STDIO**. Startup confirmation and errors go to **stderr**; **stdout** is reserved for the MCP protocol.
 
+### Tools
+
+| Tool | Parameter | Purpose |
+| ---- | --------- | ------- |
+| `retrieveContext` | `query` | Contextual retrieval across all zones |
+| `findDecisions` | `topic` | Architecture and product decisions (ADRs) |
+| `findProjects` | `criteria` | Projects and initiatives |
+| `findPeople` | `name` | People with professional context |
+| `findConcepts` | `topic` | Concepts and cross-cutting insights |
+| `findRelatedKnowledge` | `query` | Related knowledge (see [current behaviour](#roadmap) below) |
+| `findReadings` | `topic` | Source materials (articles, transcripts, notes) |
+| `findDebriefs` | `topic` | Incident retrospectives and learning reviews |
+
+Canonical tool names and JSON Schemas: [`specs/002-mcp-transport-adapter/contracts/mcp-tools-expected.json`](specs/002-mcp-transport-adapter/contracts/mcp-tools-expected.json).
+
+### Response shape
+
+Each tool returns a JSON array of **evidence** objects:
+
+```json
+[
+  {
+    "content": "Retrieved body text when available.",
+    "provenance": {
+      "sourceId": "stable-entry-id",
+      "title": "Human-readable title",
+      "type": "CONCEPT",
+      "zone": "SYNTHESIZED",
+      "tags": ["tag-one"],
+      "sources": ["upstream-source-id"],
+      "created": "2026-01-01T12:00:00Z",
+      "updated": "2026-01-02T12:00:00Z"
+    }
+  }
+]
 ```
-retrieveContext(query)        → contextually relevant knowledge across all zones
-findDecisions(topic)          → architecture and product decisions (ADRs)
-findProjects(criteria)        → active or past projects and initiatives
-findPeople(name)              → known individuals with professional context
-findConcepts(topic)           → technical and professional concepts and insights
-findRelatedKnowledge(query)   → semantically connected knowledge via graph traversal
-findReadings(topic)           → source materials: articles, transcripts, book notes
-findDebriefs(topic)           → incident retrospectives and learning reviews
-```
 
-**Capabilities that will never be exposed:**
+Example fixture: [`specs/002-mcp-transport-adapter/contracts/evidence-response-schema-expected.json`](specs/002-mcp-transport-adapter/contracts/evidence-response-schema-expected.json). Entries may omit body `content` when over size limits; provenance still describes the entry (`contentAvailability` in the domain model).
 
-```
-grep()
-readFile()
-vectorSearch()
-bm25Search()
-graphSearch()
-```
-
-Consumers interact with knowledge concepts.
-They never see retrieval technology.
+**Retrieval today:** all tools use the **lexical** strategy with a default cap of **20** results per call. Type- and zone-aware capabilities filter to the relevant `KnowledgeType` where applicable.
 
 ---
 
-## What Archivist Is Not
+## Corpus requirements
 
-- Not a filesystem wrapper
-- Not a Markdown search tool
-- Not a RAG pipeline
-- Not an AI agent
-- Not a summariser
-- Not a reasoning engine
+Archivist does **not** ship a knowledge base. You point `ARCHIVIST_SECOND_BRAIN_PATH` at an **existing directory** on disk.
+
+### Format (current implementation)
+
+- **Markdown** files under the corpus root (read-only scan)
+- **YAML frontmatter** for metadata (`type`, optional `zone`, tags, dates, `sources`, etc.)
+- Entries without a recognised `type` (and no configured alias) are skipped
+
+The domain model is defined in [`docs/second-brain-domain.md`](docs/second-brain-domain.md). Many users keep this corpus in an **Obsidian vault** with a familiar folder layout; Archivist’s **public contract** does not depend on Obsidian — only the infrastructure adapter maps files to domain types and zones.
+
+### Default zone mapping (path prefixes)
+
+Relative to the corpus root, longest matching prefix wins (case-insensitive):
+
+| Prefix | Domain zone |
+| ------ | ----------- |
+| `raw/` | `SOURCE` |
+| `wiki/` | `SYNTHESIZED` |
+| `dev/` | `TECHNICAL` |
+| `identity/` | `IDENTITY` |
+| `runtime/` | `COMPILED` |
+| `observability/` | `SIGNAL` |
+
+Frontmatter `zone` overrides path inference when valid. Details and type aliases (e.g. `meeting-person` → `PERSON`): [`specs/003-second-brain-integration/contracts/mapping-defaults.md`](specs/003-second-brain-integration/contracts/mapping-defaults.md).
+
+Override mappings via Spring configuration (`archivist.second-brain.mapping.*`) — see [Configuration](#configuration).
+
+### Privacy
+
+The server reads only the path you configure. Keep MCP config and env vars off public repos if they contain personal paths. Archivist does not upload your corpus.
 
 ---
 
-## Separation of Responsibilities
+## Getting started
 
-**Archivist is responsible for:**
+### Prerequisites
 
-- query planning
-- retrieval strategy selection
-- evidence retrieval
-- ranking
-- deduplication
-- context expansion
-- provenance tracking
+- Java 21+
+- An **existing** directory for the corpus root
 
-**Consuming agents are responsible for:**
+### Build
 
-- reasoning
-- synthesis
-- interpretation
-- writing
-- answering questions
+```bash
+./gradlew build
+```
 
-Archivist retrieves evidence. Consuming agents reason about it.
-This boundary is absolute.
+MCP fat jar (stable path — version bumps do not rename the file):
+
+```text
+transport/build/libs/transport.jar
+```
+
+Build only the jar:
+
+```bash
+./gradlew :transport:bootJar
+```
+
+### Run (STDIO MCP server)
+
+```bash
+export ARCHIVIST_SECOND_BRAIN_PATH=/path/to/existing/directory
+./gradlew :transport:bootRun
+```
+
+Or run the jar directly (after `bootJar`):
+
+```bash
+export ARCHIVIST_SECOND_BRAIN_PATH=/path/to/existing/directory
+java -jar transport/build/libs/transport.jar
+```
+
+If the variable is missing, blank, or not an existing directory, the process **fails at startup** with a message naming `archivist.second-brain.path` and `ARCHIVIST_SECOND_BRAIN_PATH`.
+
+### Agent MCP configuration
+
+Point harnesses at the stable jar path. Rebuild after pulling changes.
+
+```json
+{
+  "mcpServers": {
+    "archivist": {
+      "command": "java",
+      "args": ["-jar", "/absolute/path/to/archivist/transport/build/libs/transport.jar"],
+      "env": {
+        "ARCHIVIST_SECOND_BRAIN_PATH": "/absolute/path/to/corpus"
+      }
+    }
+  }
+}
+```
+
+Works with Cursor, Claude Desktop, and other MCP STDIO clients — adjust the config file location for your tool.
+
+---
+
+## Configuration
+
+Environment-specific values use **environment variables** and Spring Boot external configuration. Defaults live in [`transport/src/main/resources/application.properties`](transport/src/main/resources/application.properties).
+
+| Variable | Required | Description |
+| -------- | -------- | ----------- |
+| `ARCHIVIST_SECOND_BRAIN_PATH` | **Yes** | Absolute path to an existing corpus root directory |
+| `ARCHIVIST_RETRIEVAL_ACTIVE_STRATEGY` | No | Active retrieval strategy (default: `lexical`) |
+| `ARCHIVIST_RETRIEVAL_MAX_RESULTS` | No | Max evidence items per capability call (default: `20`) |
+
+Additional corpus tuning (optional, Spring property names):
+
+| Property | Default | Purpose |
+| -------- | ------- | ------- |
+| `archivist.second-brain.max-entry-bytes` | `1048576` | Skip loading oversized bodies; provenance retained |
+| `archivist.second-brain.ignore-globs` | `**/templates/**`, `**/.trash/**` | Paths excluded from discovery |
+
+Zone/type mapping: `archivist.second-brain.mapping.zone-prefixes`, `archivist.second-brain.mapping.type-aliases`. See [`SecondBrainMappingProperties`](infrastructure/src/main/java/io/archivist/infrastructure/secondbrain/SecondBrainMappingProperties.java) for defaults.
 
 ---
 
@@ -115,184 +250,95 @@ This boundary is absolute.
                       │                │
           ┌───────────▼──────┐  ┌──────▼──────────────────┐
           │   Domain Layer   │  │   Infrastructure Layer   │
-          │                  │  │                          │
           │  · Entities      │  │  · Retrieval strategies  │
-          │  · Ports In      │  │  · Second Brain adapters │
-          │  · Ports Out     │  │  · Embedding providers   │
-          │  · Domain rules  │  │  · Vector stores         │
+          │  · Ports In/Out  │  │  · Second Brain adapters │
           └──────────────────┘  └──────────────────────────┘
 ```
 
-**Dependency rule:** all arrows point inward.
+**Dependency rule:** dependencies point inward. The domain runs without Spring Boot, Spring AI, or the MCP SDK. Full invariants and layer rules: [`AGENTS.md`](AGENTS.md).
 
-The domain knows nothing about Spring, MCP, Spring AI, or any storage technology. Infrastructure implements interfaces defined by the domain. The domain does not reference infrastructure.
-
----
-
-## Architectural Invariants
-
-These rules are non-negotiable. Every implementation must preserve them.
-
-| #   | Invariant                                | Rule                                                                                      |
-| --- | ---------------------------------------- | ----------------------------------------------------------------------------------------- |
-| 1   | **Clean Architecture**                   | The domain must be executable and testable without Spring Boot, Spring AI, or the MCP SDK |
-| 2   | **Domain before implementation**         | Public capabilities represent domain concepts, never retrieval technologies               |
-| 3   | **Retrieval, never reasoning**           | Archivist returns evidence; consuming agents reason                                       |
-| 4   | **Retrieval strategies are replaceable** | The retrieval implementation is private and may change without notice                     |
-| 5   | **MCP is an adapter**                    | MCP is one transport; the domain must be reusable from CLI, REST, and tests               |
-| 6   | **Frameworks are plugins**               | Spring Boot, Spring AI, MCP SDK, vector stores are implementation details                 |
-| 7   | **Evidence must remain traceable**       | All retrieved content preserves provenance (source, location, timestamp)                  |
-| 8   | **Stable public contract**               | The domain capability interface must remain stable as retrieval evolves                   |
-
----
-
-## Technology Stack
-
-| Concern                    | Technology                   |
-| -------------------------- | ---------------------------- |
-| Language                   | Java 21+                     |
-| Framework                  | Spring Boot 4.1.0            |
-| AI / Retrieval integration | Spring AI 2.0.0              |
-| Build system               | Gradle (Kotlin DSL)          |
-| MCP transport              | Spring AI MCP Server (STDIO) |
-| Testing                    | JUnit 5, Mockito             |
-
----
-
-## Package Organisation
+### Package layout
 
 ```
 io.archivist
-├── domain
-│   ├── model               # Evidence, Provenance, Query, KnowledgeType, KnowledgeZone
-│   ├── port
-│   │   ├── in              # Domain capability interfaces (input ports)
-│   │   └── out             # Retrieval gateway interfaces (output ports)
-│   └── service             # Domain services (pure logic, no framework dependencies)
-├── application
-│   └── usecase             # Use case interactors implementing input ports
-├── infrastructure
-│   ├── retrieval           # Retrieval strategy implementations (lexical, BM25, hybrid…)
-│   └── secondbrain         # Second Brain adapters (decoupled from Obsidian internals)
-└── transport
-    ├── mcp                 # MCP server adapter
-    └── rest                # REST adapter (future)
+├── domain/model, domain/port/in, domain/port/out
+├── application/usecase
+├── infrastructure/retrieval, infrastructure/secondbrain
+└── transport/mcp
 ```
+
+### Technology stack
+
+| Concern | Technology |
+| ------- | ---------- |
+| Language | Java 21+ |
+| Framework | Spring Boot 4.1.0 |
+| AI / MCP | Spring AI 2.0.0 (MCP server, STDIO) |
+| Build | Gradle (Kotlin DSL) |
+| Tests | JUnit 5, Mockito |
 
 ---
 
-## Development Workflow
+## Development
 
-Archivist follows **Specification-Driven Development**.
-
-Every significant capability begins with a specification before any implementation.
-
-```
-1. Propose    → Open a GitHub issue describing the capability and motivation
-2. Specify    → Write a spec in docs/specs/ defining contract and acceptance criteria
-3. Review     → Specification is reviewed and approved
-4. Implement  → Implementation strictly follows the approved specification
-5. Verify     → Implementation is validated against all acceptance criteria
-6. Merge      → Code is merged only when all criteria are met
-```
-
-Code never becomes the source of architectural truth.
-Specifications are the primary design artifact.
-
-See `docs/specs/SPEC_TEMPLATE.md` for the specification format.
-
----
-
-## Getting Started
-
-### Prerequisites
-
-- Java 21+
-- An existing directory for your Second Brain knowledge root
-
-### Build
+### Verify locally
 
 ```bash
 ./gradlew build
 ```
 
-The MCP fat jar is always written to a **stable path** (version bumps do not rename it):
+Runs domain, application, infrastructure, and transport tests (including MCP contract regression with fixture contracts).
 
-```text
-transport/build/libs/transport.jar
-```
+### Specification-driven workflow
 
-Build just the jar with:
+Significant capabilities start with a spec before implementation:
 
-```bash
-./gradlew :transport:bootJar
-```
+1. Propose — GitHub issue  
+2. Specify — [`docs/specs/SPEC_TEMPLATE.md`](docs/specs/SPEC_TEMPLATE.md) or `specs/<NNN-feature>/`  
+3. Review and approve spec  
+4. Implement on feature branch `NNN-feature-slug`  
+5. Merge via PR  
 
-### Environment Variables
-
-| Variable                      | Description                                                  | Example                 | Required |
-| ----------------------------- | ------------------------------------------------------------ | ----------------------- | -------- |
-| `ARCHIVIST_SECOND_BRAIN_PATH` | Absolute path to an **existing** Second Brain root directory | `/path/to/second-brain` | Yes      |
-
-All environment-specific values are supplied via environment variables. They are bound in `transport/src/main/resources/application.properties` using `${ENV_VAR_NAME}` placeholder syntax — no literals in source or properties files.
-
-### Run (STDIO MCP server)
-
-```bash
-export ARCHIVIST_SECOND_BRAIN_PATH=/path/to/existing/directory
-./gradlew :transport:bootRun
-```
-
-Startup confirmation is written to **stderr**; stdout is reserved for the MCP STDIO protocol.
-
-### Agent MCP (STDIO) config
-
-Point harnesses at the stable jar path so configs survive version bumps. Rebuild after pull to refresh the jar contents.
-
-```json
-{
-  "mcpServers": {
-    "archivist": {
-      "command": "java",
-      "args": ["-jar", "/absolute/path/to/archivist/transport/build/libs/transport.jar"],
-      "env": {
-        "ARCHIVIST_SECOND_BRAIN_PATH": "/absolute/path/to/second-brain"
-      }
-    }
-  }
-}
-```
+Contributors: read [`AGENTS.md`](AGENTS.md) and use [`.github/pull_request_template.md`](.github/pull_request_template.md). PR titles follow [Conventional Commits](https://www.conventionalcommits.org/) (enforced in CI).
 
 ---
 
 ## Roadmap
 
-### Phase 1 — Foundation
+### Phase 1 — Foundation (largely complete)
 
-- [x] Clean Architecture skeleton with domain model
-- [x] Domain capability interfaces (input ports)
-- [x] Lexical retrieval strategy
-- [x] MCP transport adapter
-- [x] Second Brain integration (initial)
+- [x] Clean Architecture skeleton and domain model  
+- [x] Eight domain capability interfaces and MCP tools  
+- [x] Lexical retrieval strategy  
+- [x] Second Brain integration (Markdown corpus, mapping, provenance)  
 
-### Phase 2 — Retrieval Evolution
+### Phase 2 — Retrieval evolution
 
-- [ ] BM25 retrieval strategy
-- [ ] Embedding-based retrieval
-- [ ] Hybrid retrieval (BM25 + embeddings)
-- [ ] Re-ranking
+- [ ] BM25 retrieval  
+- [ ] Embedding-based retrieval  
+- [ ] Hybrid retrieval and re-ranking  
 
-### Phase 3 — Advanced Retrieval
+### Phase 3 — Advanced retrieval
 
-- [ ] Knowledge graph traversal
-- [ ] Temporal retrieval
-- [ ] Learned query planning
-- [ ] GraphRAG
+- [ ] Knowledge graph traversal (`findRelatedKnowledge` today uses lexical retrieval over the full corpus, not graph walks)  
+- [ ] Temporal retrieval, learned query planning, GraphRAG  
 
-The public MCP contract must not change across these phases.
+The **MCP tool names and signatures** should remain stable across these phases; behaviour and ranking improve behind the same contract.
+
+---
+
+## Documentation
+
+| Document | Contents |
+| -------- | -------- |
+| [`AGENTS.md`](AGENTS.md) | Project constitution, invariants, capabilities |
+| [`docs/second-brain-domain.md`](docs/second-brain-domain.md) | Knowledge zones, types, provenance |
+| [`docs/adr/`](docs/adr/) | Architecture decision records |
+| [`specs/`](specs/) | Feature specifications and contracts |
+| [`docs/specs/SPEC_TEMPLATE.md`](docs/specs/SPEC_TEMPLATE.md) | Spec template for new work |
 
 ---
 
 ## License
 
-TBD
+No `LICENSE` file is published yet. Until one is added, standard copyright applies; copying or distributing the code beyond GitHub’s display terms may require permission from the copyright holder. If you intend to adopt this project commercially or redistribute it, open an issue to clarify licensing intent.
