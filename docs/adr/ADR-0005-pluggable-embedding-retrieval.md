@@ -53,7 +53,7 @@ Long notes need **chunked** embedding for recall, but the public contract remain
 
 - CI must use `embedder=stub` (no ONNX download / no network).
 - Future `pgvector` / `chromadb` adapters implement `VectorStore` + config id only.
-- Hybrid fusion remains a later Phase 2 item composing strategies behind the registry.
+- Hybrid fusion is specified in [ADR-0006](./ADR-0006-hybrid-consensus-retrieval.md) and [spec 007](../../specs/007-hybrid-retrieval/spec.md).
 
 ---
 

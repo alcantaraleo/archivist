@@ -26,6 +26,10 @@ public class RetrievalProperties {
     @NestedConfigurationProperty
     private EmbeddingProperties embedding = new EmbeddingProperties();
 
+    @Valid
+    @NestedConfigurationProperty
+    private HybridProperties hybrid = new HybridProperties();
+
     public String getActiveStrategy() {
         return activeStrategy;
     }
@@ -56,5 +60,13 @@ public class RetrievalProperties {
 
     public void setEmbedding(EmbeddingProperties embedding) {
         this.embedding = embedding;
+    }
+
+    public HybridProperties getHybrid() {
+        return hybrid;
+    }
+
+    public void setHybrid(HybridProperties hybrid) {
+        this.hybrid = hybrid;
     }
 }

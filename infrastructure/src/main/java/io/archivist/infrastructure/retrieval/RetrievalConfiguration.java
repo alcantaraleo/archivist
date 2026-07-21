@@ -20,6 +20,7 @@ import io.archivist.domain.port.out.KnowledgeCorpus;
 import io.archivist.domain.port.out.KnowledgeGateway;
 import io.archivist.infrastructure.retrieval.embedding.EmbeddingConfiguration;
 import java.util.List;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -47,6 +48,19 @@ class RetrievalConfiguration {
     RetrievalStrategy bm25RetrievalStrategy(
             KnowledgeCorpus knowledgeCorpus, Bm25IndexCache bm25IndexCache, RetrievalProperties properties) {
         return new Bm25RetrievalStrategy(knowledgeCorpus, bm25IndexCache, properties.getBm25());
+    }
+
+    @Bean
+    RetrievalStrategy hybridRetrievalStrategy(
+            @Qualifier("lexicalRetrievalStrategy") RetrievalStrategy lexicalRetrievalStrategy,
+            @Qualifier("bm25RetrievalStrategy") RetrievalStrategy bm25RetrievalStrategy,
+            @Qualifier("embeddingRetrievalStrategy") RetrievalStrategy embeddingRetrievalStrategy,
+            RetrievalProperties properties) {
+        return new HybridRetrievalStrategy(
+                lexicalRetrievalStrategy,
+                bm25RetrievalStrategy,
+                embeddingRetrievalStrategy,
+                properties.getHybrid());
     }
 
     @Bean

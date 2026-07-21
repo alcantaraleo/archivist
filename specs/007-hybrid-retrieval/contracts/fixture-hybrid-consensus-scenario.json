@@ -1,0 +1,76 @@
+{
+  "id": "hybrid-consensus-triple-agreement",
+  "description": "AC-12: isolated three-entry corpus; hybrid orders by consensus score 3 then 2 then 1.",
+  "activeStrategy": "hybrid",
+  "embedder": "stub",
+  "store": "memory",
+  "embeddingDimensions": 32,
+  "query": {
+    "text": "archivist consensus ranking fixture",
+    "types": [],
+    "zones": [],
+    "maxResults": 10
+  },
+  "testCorpus": {
+    "mode": "isolated",
+    "copyFromClasspath": [
+      "fixture-corpus/wiki/concepts/hybrid-consensus-universal.md",
+      "fixture-corpus/wiki/concepts/hybrid-consensus-lexical-bm25-only.md",
+      "fixture-corpus/wiki/concepts/hybrid-consensus-embedding-only.md"
+    ]
+  },
+  "fixtureEntries": [
+    {
+      "relativePath": "wiki/concepts/hybrid-consensus-universal.md",
+      "sourceId": "concept:hybrid-consensus-universal",
+      "role": "triple-target",
+      "expectedLegMembership": {
+        "lexical": true,
+        "bm25": true,
+        "embedding": true
+      },
+      "containsMarker": "HYBRID_UNIVERSAL_MARKER"
+    },
+    {
+      "relativePath": "wiki/concepts/hybrid-consensus-lexical-bm25-only.md",
+      "sourceId": "concept:hybrid-consensus-two-leg",
+      "role": "two-leg",
+      "expectedLegMembership": {
+        "lexical": true,
+        "bm25": true,
+        "embedding": false
+      },
+      "containsMarker": "HYBRID_TWO_LEG_MARKER"
+    },
+    {
+      "relativePath": "wiki/concepts/hybrid-consensus-embedding-only.md",
+      "sourceId": "concept:hybrid-consensus-one-leg",
+      "role": "one-leg",
+      "expectedLegMembership": {
+        "lexical": false,
+        "bm25": false,
+        "embedding": true
+      },
+      "containsMarker": "HYBRID_ONE_LEG_MARKER"
+    }
+  ],
+  "stubVectors": {
+    "exactOverrides": {
+      "archivist consensus ranking fixture": "unit(0)"
+    },
+    "containsOverrides": {
+      "hybrid_universal_marker": "unit(0)",
+      "hybrid_one_leg_marker": "unit(1)",
+      "hybrid_two_leg_marker": "unit(2)"
+    },
+    "notes": "Integration test builds StubTextEmbedder with exactOverrides on normalised query text and containsOverrides on normalised marker substrings (see StubTextEmbedder). unit(n) is axis unit vector length embeddingDimensions."
+  },
+  "expected": {
+    "hybridTopSourceId": "concept:hybrid-consensus-universal",
+    "orderingByConsensusScore": [
+      "concept:hybrid-consensus-universal",
+      "concept:hybrid-consensus-two-leg",
+      "concept:hybrid-consensus-one-leg"
+    ]
+  }
+}

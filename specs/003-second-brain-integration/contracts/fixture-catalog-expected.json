@@ -1,6 +1,6 @@
 {
   "description": "Expected KnowledgeCorpus outcomes for infrastructure/src/test/resources/fixture-corpus/",
-  "catalogSize": 10,
+  "catalogSize": 13,
   "entries": [
     {
       "sourceId": "raw/readings/sample-reading",
@@ -156,6 +156,33 @@
       ],
       "sources": [],
       "bodyEquals": "Paragraph one about alpha topic for chunking.\n\nParagraph two about beta topic for chunking.\n\nParagraph three UNIQUE_CHUNK_TOKEN_OMEGA for a single-chunk match probe.\n\nParagraph four continues with padding text to encourage multiple chunks when size is small in unit tests."
+    },
+    {
+      "sourceId": "concept:hybrid-consensus-universal",
+      "title": "Archivist consensus ranking fixture",
+      "type": "CONCEPT",
+      "zone": "SYNTHESIZED",
+      "tags": [],
+      "sources": [],
+      "bodyEquals": "HYBRID_UNIVERSAL_MARKER\n\narchivist consensus ranking fixture archivist consensus ranking fixture\nAll three retrieval legs should include this entry in the top list for the AC-12 query."
+    },
+    {
+      "sourceId": "concept:hybrid-consensus-two-leg",
+      "title": "archivist consensus ranking fixture notes",
+      "type": "CONCEPT",
+      "zone": "SYNTHESIZED",
+      "tags": [],
+      "sources": [],
+      "bodyEquals": "HYBRID_TWO_LEG_MARKER\n\narchivist consensus ranking fixture supplemental terms for lexical and BM25 recall.\nEmbedding stub maps this marker far from the query vector so this id stays out of the embedding top list."
+    },
+    {
+      "sourceId": "concept:hybrid-consensus-one-leg",
+      "title": "Multi-strategy vote tie-break",
+      "type": "CONCEPT",
+      "zone": "SYNTHESIZED",
+      "tags": [],
+      "sources": [],
+      "bodyEquals": "HYBRID_ONE_LEG_MARKER\n\nSemantic-only body about orchestration and vote aggregation without the AC-12 query tokens.\nLexical and BM25 should not rank this entry in the top list; embedding stub ranks it second-nearest to the query."
     }
   ],
   "excludedSourceIds": [

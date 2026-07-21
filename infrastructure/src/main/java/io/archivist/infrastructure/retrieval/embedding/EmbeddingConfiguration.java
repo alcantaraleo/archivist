@@ -54,8 +54,9 @@ public class EmbeddingConfiguration {
         EmbeddingProperties embedding = properties.getEmbedding();
         TextEmbedder activeEmbedder = textEmbedderRegistry.require(embedding.getEmbedder());
         VectorStore activeStore = vectorStoreRegistry.require(embedding.getStore());
+        String activeStrategy = properties.getActiveStrategy();
         if (activeEmbedder instanceof OpenAiCompatibleTextEmbedder openAi
-                && "embedding".equals(properties.getActiveStrategy())) {
+                && ("embedding".equals(activeStrategy) || "hybrid".equals(activeStrategy))) {
             openAi.requireConfigured();
         }
         return new EmbeddingIndexCache(activeEmbedder, activeStore, entryChunker, embedding);
