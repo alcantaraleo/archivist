@@ -112,6 +112,14 @@ archivist.retrieval.embedding.openai.model=<model-id>
 
 Vector DB services in the Compose file remain **placeholders** until a future store adapter ships — do not expect Archivist to connect to them in 006.
 
+**Direct OpenAI API (no Compose):** with `OPENAI_API_KEY` set:
+
+```bash
+./gradlew :infrastructure:test --tests 'io.archivist.infrastructure.retrieval.embedding.OpenAiEmbeddingLiveSmokeTest'
+```
+
+Uses `https://api.openai.com`, `text-embedding-3-small`, and `dimensions=1536`. For MCP/`bootRun`, map the key to `ARCHIVIST_RETRIEVAL_EMBEDDING_OPENAI_API_KEY` (Spring does not read `OPENAI_API_KEY` automatically).
+
 ---
 
 ## 7. Isolation sanity
