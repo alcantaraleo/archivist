@@ -3,18 +3,54 @@ set -euo pipefail
 
 REPO="${REPO:?REPO is required}"
 
+# Retry transient GitHub API failures (e.g. HTTP 503) so a mid-loop blip
+# does not leave the rest of pending-release issues open forever.
+gh_retry() {
+  local attempt=1
+  local max_attempts=5
+  local delay=2
+  local output
+  local status
+
+  while true; do
+    set +e
+    output=$(gh "$@" 2>&1)
+    status=$?
+    set -e
+    if [ "$status" -eq 0 ]; then
+      if [ -n "$output" ]; then
+        printf '%s\n' "$output"
+      fi
+      return 0
+    fi
+    if [ "$attempt" -ge "$max_attempts" ]; then
+      printf '%s\n' "$output" >&2
+      return "$status"
+    fi
+    if ! printf '%s' "$output" | grep -Eqi 'HTTP 5[0-9]{2}|timed out|timeout|connection reset|Server Error|Something went wrong'; then
+      printf '%s\n' "$output" >&2
+      return "$status"
+    fi
+    echo "gh failed (attempt ${attempt}/${max_attempts}): ${output}" >&2
+    echo "retrying in ${delay}s..." >&2
+    sleep "$delay"
+    attempt=$((attempt + 1))
+    delay=$((delay * 2))
+  done
+}
+
 ensure_labels() {
-  gh label create "under-review" \
+  gh_retry label create "under-review" \
     --description "Implementation PR is open" \
     --color "FBCA04" \
     --force \
     --repo "$REPO"
-  gh label create "pending-release" \
+  gh_retry label create "pending-release" \
     --description "Merged to main; awaiting release" \
     --color "F9D0C4" \
     --force \
     --repo "$REPO"
-  gh label create "released" \
+  gh_retry label create "released" \
     --description "Shipped in a tagged release" \
     --color "0E8A16" \
     --force \
@@ -50,11 +86,11 @@ add_under_review() {
   local pr_url="$2"
   local add_comment="${3:-true}"
 
-  gh issue edit "$issue" \
+  gh_retry issue edit "$issue" \
     --add-label "under-review" \
     --repo "$REPO"
   if [ "$add_comment" = "true" ]; then
-    gh issue comment "$issue" \
+    gh_retry issue comment "$issue" \
       --body "Implementation PR opened: ${pr_url}" \
       --repo "$REPO"
   fi
@@ -63,7 +99,7 @@ add_under_review() {
 remove_under_review() {
   local issue="$1"
 
-  gh issue edit "$issue" \
+  gh_retry issue edit "$issue" \
     --remove-label "under-review" \
     --repo "$REPO" || true
 }
@@ -72,11 +108,11 @@ move_to_pending_release() {
   local issue="$1"
   local pr_url="$2"
 
-  gh issue edit "$issue" \
+  gh_retry issue edit "$issue" \
     --remove-label "under-review" \
     --add-label "pending-release" \
     --repo "$REPO"
-  gh issue comment "$issue" \
+  gh_retry issue comment "$issue" \
     --body "PR merged (${pr_url}). Issue is pending the next release." \
     --repo "$REPO"
 }
@@ -84,23 +120,41 @@ move_to_pending_release() {
 close_released_issues() {
   local release_tag="$1"
   local issue
+  local failures=0
 
   while IFS= read -r issue; do
     [ -z "$issue" ] && continue
-    gh issue edit "$issue" \
+    if ! gh_retry issue edit "$issue" \
       --remove-label "pending-release" \
       --add-label "released" \
-      --repo "$REPO"
-    gh issue close "$issue" --repo "$REPO"
-    gh issue comment "$issue" \
+      --repo "$REPO"; then
+      echo "Failed to relabel issue #${issue}" >&2
+      failures=$((failures + 1))
+      continue
+    fi
+    if ! gh_retry issue close "$issue" --repo "$REPO"; then
+      echo "Failed to close issue #${issue}" >&2
+      failures=$((failures + 1))
+      continue
+    fi
+    if ! gh_retry issue comment "$issue" \
       --body "Released in ${release_tag}." \
-      --repo "$REPO"
-  done < <(gh issue list \
+      --repo "$REPO"; then
+      echo "Failed to comment on issue #${issue}" >&2
+      failures=$((failures + 1))
+      continue
+    fi
+  done < <(gh_retry issue list \
     --label "pending-release" \
     --state open \
     --json number \
     --jq '.[].number' \
     --repo "$REPO")
+
+  if [ "$failures" -gt 0 ]; then
+    echo "close_released_issues finished with ${failures} failure(s)" >&2
+    return 1
+  fi
 }
 
 process_pr_issues() {
