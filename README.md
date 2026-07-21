@@ -258,8 +258,67 @@ Environment-specific values use **environment variables** and Spring Boot extern
 | Variable | Required | Description |
 | -------- | -------- | ----------- |
 | `ARCHIVIST_SECOND_BRAIN_PATH` | **Yes** | Absolute path to an existing corpus root directory |
-| `ARCHIVIST_RETRIEVAL_ACTIVE_STRATEGY` | No | Active retrieval strategy (default: `lexical`) |
+| `ARCHIVIST_RETRIEVAL_ACTIVE_STRATEGY` | No | Active retrieval strategy: `lexical` (default), `bm25`, or `embedding` |
 | `ARCHIVIST_RETRIEVAL_MAX_RESULTS` | No | Max evidence items per capability call (default: `20`) |
+
+Full embedding and BM25 property lists: [`specs/006-embedding-retrieval/contracts/embedding-configuration.md`](specs/006-embedding-retrieval/contracts/embedding-configuration.md) and [`specs/005-bm25-retrieval/contracts/bm25-configuration.md`](specs/005-bm25-retrieval/contracts/bm25-configuration.md). Validation walkthrough: [`specs/006-embedding-retrieval/quickstart.md`](specs/006-embedding-retrieval/quickstart.md).
+
+### Embedding retrieval (optional)
+
+Enable semantic ranking with **`ARCHIVIST_RETRIEVAL_ACTIVE_STRATEGY=embedding`**. Vector index uses in-memory store only in the current release (`ARCHIVIST_RETRIEVAL_EMBEDDING_STORE=memory`).
+
+| Embedder id | What it is |
+| ------------- | ---------- |
+| `local` | ONNX model in the Archivist JVM (default when strategy is `embedding`; first run may download weights). Use with `dimensions=384` unless you override the model. |
+| `openai-compatible` | HTTP **`POST {base-url}/v1/embeddings`** (OpenAI JSON shape). **Same adapter** for [OpenAI](https://platform.openai.com/) and for a **local proxy** (Text Embeddings Inference, Ollama OpenAI shim, etc.) — only `base-url`, `model`, `api-key`, and **`dimensions`** change. |
+| `stub` | Deterministic offline vectors for tests; not for production. |
+
+**OpenAI-compatible: two operator paths (one embedder id)**
+
+| Target | `ARCHIVIST_RETRIEVAL_EMBEDDING_OPENAI_BASE_URL` | Typical `…_OPENAI_MODEL` | Typical `ARCHIVIST_RETRIEVAL_EMBEDDING_DIMENSIONS` |
+| ------ | ------------------------------------------------- | -------------------------- | -------------------------------------------------- |
+| OpenAI API | `https://api.openai.com` | `text-embedding-3-small` | `1536` |
+| Local OpenAI-shaped server | `http://localhost:<port>` (e.g. Compose example on `8080`) | Server’s model id (e.g. `sentence-transformers/all-MiniLM-L6-v2`) | Must match that model (often `384`) |
+
+Spring Boot does **not** read `OPENAI_API_KEY` automatically. For MCP/`bootRun`, set **`ARCHIVIST_RETRIEVAL_EMBEDDING_OPENAI_API_KEY`** (e.g. `export ARCHIVIST_RETRIEVAL_EMBEDDING_OPENAI_API_KEY="$OPENAI_API_KEY"`).
+
+Example — **OpenAI** (after `export ARCHIVIST_SECOND_BRAIN_PATH=…`):
+
+```bash
+export ARCHIVIST_RETRIEVAL_ACTIVE_STRATEGY=embedding
+export ARCHIVIST_RETRIEVAL_EMBEDDING_EMBEDDER=openai-compatible
+export ARCHIVIST_RETRIEVAL_EMBEDDING_STORE=memory
+export ARCHIVIST_RETRIEVAL_EMBEDDING_DIMENSIONS=1536
+export ARCHIVIST_RETRIEVAL_EMBEDDING_OPENAI_BASE_URL=https://api.openai.com
+export ARCHIVIST_RETRIEVAL_EMBEDDING_OPENAI_API_KEY="$OPENAI_API_KEY"
+export ARCHIVIST_RETRIEVAL_EMBEDDING_OPENAI_MODEL=text-embedding-3-small
+./gradlew :transport:bootRun
+```
+
+Example — **local OpenAI-compatible endpoint** (TEI or similar; see [`deploy/docker-compose.embedding.example.yml`](deploy/docker-compose.embedding.example.yml)):
+
+```bash
+export ARCHIVIST_RETRIEVAL_ACTIVE_STRATEGY=embedding
+export ARCHIVIST_RETRIEVAL_EMBEDDING_EMBEDDER=openai-compatible
+export ARCHIVIST_RETRIEVAL_EMBEDDING_STORE=memory
+export ARCHIVIST_RETRIEVAL_EMBEDDING_DIMENSIONS=384
+export ARCHIVIST_RETRIEVAL_EMBEDDING_OPENAI_BASE_URL=http://localhost:8080
+export ARCHIVIST_RETRIEVAL_EMBEDDING_OPENAI_MODEL=sentence-transformers/all-MiniLM-L6-v2
+# api-key often unset for local proxies
+./gradlew :transport:bootRun
+```
+
+Example — **in-process local ONNX** (no HTTP embedding server):
+
+```bash
+export ARCHIVIST_RETRIEVAL_ACTIVE_STRATEGY=embedding
+export ARCHIVIST_RETRIEVAL_EMBEDDING_EMBEDDER=local
+export ARCHIVIST_RETRIEVAL_EMBEDDING_STORE=memory
+export ARCHIVIST_RETRIEVAL_EMBEDDING_DIMENSIONS=384
+./gradlew :transport:bootRun
+```
+
+Mis-matched **`dimensions`** (property vs vectors returned by the model) fail at startup or index build with an explicit error.
 
 Additional corpus tuning (optional, Spring property names):
 
@@ -334,6 +393,8 @@ io.archivist
 
 Runs domain, application, infrastructure, and transport tests (including MCP contract regression with fixture contracts).
 
+Pull requests and pushes to `main` run the same `./gradlew build` in [`.github/workflows/ci.yml`](.github/workflows/ci.yml) (Java 21).
+
 ### Specification-driven workflow
 
 Significant capabilities start with a spec before implementation:
@@ -359,8 +420,8 @@ Contributors: read [`AGENTS.md`](AGENTS.md) and use [`.github/pull_request_templ
 
 ### Phase 2 — Retrieval evolution
 
-- [ ] BM25 retrieval  
-- [ ] Embedding-based retrieval  
+- [x] BM25 retrieval — [`specs/005-bm25-retrieval/`](specs/005-bm25-retrieval/); [`ADR-0004`](docs/adr/ADR-0004-bm25-index-cache-invalidation.md)  
+- [x] Embedding-based retrieval — [`specs/006-embedding-retrieval/`](specs/006-embedding-retrieval/) (quickstart, contracts); [`ADR-0005`](docs/adr/ADR-0005-pluggable-embedding-retrieval.md); Compose example [`deploy/docker-compose.embedding.example.yml`](deploy/docker-compose.embedding.example.yml)  
 - [ ] Hybrid retrieval and re-ranking  
 
 ### Phase 3 — Advanced retrieval

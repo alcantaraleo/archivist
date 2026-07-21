@@ -46,8 +46,19 @@ class RetrievalStrategyRegistryTest {
     void springRegistersRealBm25StrategyBean() {
         assertTrue(strategies.stream().anyMatch(strategy -> "lexical".equals(strategy.name())));
         assertTrue(strategies.stream().anyMatch(strategy -> "bm25".equals(strategy.name())));
+        assertTrue(strategies.stream().anyMatch(strategy -> "embedding".equals(strategy.name())));
         assertInstanceOf(Bm25RetrievalStrategy.class, registry.getActive());
         assertEquals("bm25", registry.getActive().name());
+    }
+
+    @Test
+    void resolvesEmbeddingWhenRegistered() {
+        RetrievalStrategy lexical = named("lexical");
+        RetrievalStrategy embedding = named("embedding");
+        RetrievalStrategyRegistry unitRegistry =
+                new RetrievalStrategyRegistry(List.of(lexical, embedding), "embedding");
+
+        assertSame(embedding, unitRegistry.getActive());
     }
 
     @Test

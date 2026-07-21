@@ -1,6 +1,6 @@
 {
   "description": "Expected KnowledgeCorpus outcomes for infrastructure/src/test/resources/fixture-corpus/",
-  "catalogSize": 7,
+  "catalogSize": 10,
   "entries": [
     {
       "sourceId": "raw/readings/sample-reading",
@@ -127,6 +127,35 @@
       ],
       "sources": [],
       "bodyEquals": "retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval retrieval ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking ranking probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe probe"
+    },
+    {
+      "sourceId": "concept:ranking-embedding-semantic-target",
+      "title": "Service reliability proofs",
+      "type": "CONCEPT",
+      "zone": "SYNTHESIZED",
+      "tags": [],
+      "sources": [],
+      "bodyEquals": "RANKING_SEMANTIC_MARKER\n\nDiscusses how organisations establish that services remain trustworthy through verification\npractices, reliability reviews, and evidence of correct behaviour under load — without repeating\nthe paraphrase query wording used in the ranking scenario."
+    },
+    {
+      "sourceId": "concept:ranking-embedding-term-bait",
+      "title": "how we prove services are trustworthy",
+      "type": "CONCEPT",
+      "zone": "SYNTHESIZED",
+      "tags": [],
+      "sources": [],
+      "bodyEquals": "RANKING_TERM_BAIT_MARKER\n\nhow we prove services are trustworthy how we prove services are trustworthy\nUnrelated topic about cafeteria menus; lexical/BM25 should prefer this title collision."
+    },
+    {
+      "sourceId": "concept:embedding-chunk-long-entry",
+      "title": "Long embedding chunk fixture",
+      "type": "CONCEPT",
+      "zone": "SYNTHESIZED",
+      "tags": [
+        "embedding-chunk-probe"
+      ],
+      "sources": [],
+      "bodyEquals": "Paragraph one about alpha topic for chunking.\n\nParagraph two about beta topic for chunking.\n\nParagraph three UNIQUE_CHUNK_TOKEN_OMEGA for a single-chunk match probe.\n\nParagraph four continues with padding text to encourage multiple chunks when size is small in unit tests."
     }
   ],
   "excludedSourceIds": [

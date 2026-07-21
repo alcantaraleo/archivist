@@ -1,0 +1,37 @@
+{
+  "id": "embedding-paraphrase-vs-term-collision",
+  "description": "AC-11: paraphrase query prefers semantically matching entry under embedding+stub; lexical and/or bm25 prefer a different term-collision entry.",
+  "activeStrategy": "embedding",
+  "embedder": "stub",
+  "store": "memory",
+  "query": {
+    "text": "how we prove services are trustworthy",
+    "types": [],
+    "zones": [],
+    "maxResults": 10
+  },
+  "fixtureEntries": [
+    {
+      "relativePath": "wiki/concepts/ranking-embedding-semantic-target.md",
+      "sourceId": "concept:ranking-embedding-semantic-target",
+      "role": "semantic-target",
+      "notes": "Body discusses trustworthiness / reliability proofs without sharing the query's exact wording."
+    },
+    {
+      "relativePath": "wiki/concepts/ranking-embedding-term-bait.md",
+      "sourceId": "concept:ranking-embedding-term-bait",
+      "role": "term-bait",
+      "notes": "Repeats query tokens for lexical/BM25 advantage but is about an unrelated topic."
+    }
+  ],
+  "expected": {
+    "embeddingTopSourceId": "concept:ranking-embedding-semantic-target",
+    "lexicalTopSourceId": "concept:ranking-embedding-term-bait",
+    "requireLexicalOrBm25DiffersFromEmbedding": true
+  },
+  "stubVectors": {
+    "notes": "Implementation may inject a FixtureEmbeddingTable for stub: map chunk texts / query string to fixed 384-d (or test dims) vectors so semantic-target is nearest to the query.",
+    "queryKey": "how we prove services are trustworthy",
+    "nearNeighbourEntrySourceId": "concept:ranking-embedding-semantic-target"
+  }
+}

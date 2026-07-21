@@ -18,11 +18,14 @@ import io.archivist.domain.port.in.FindRelatedKnowledge;
 import io.archivist.domain.port.in.RetrieveContext;
 import io.archivist.domain.port.out.KnowledgeCorpus;
 import io.archivist.domain.port.out.KnowledgeGateway;
+import io.archivist.infrastructure.retrieval.embedding.EmbeddingConfiguration;
 import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 @Configuration
+@Import(EmbeddingConfiguration.class)
 class RetrievalConfiguration {
 
     @Bean
