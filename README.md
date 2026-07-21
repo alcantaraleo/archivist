@@ -393,6 +393,8 @@ io.archivist
 
 Runs domain, application, infrastructure, and transport tests (including MCP contract regression with fixture contracts).
 
+Pull requests and pushes to `main` run the same `./gradlew build` in [`.github/workflows/ci.yml`](.github/workflows/ci.yml) (Java 21).
+
 ### Specification-driven workflow
 
 Significant capabilities start with a spec before implementation:
