@@ -77,12 +77,15 @@ Manual checklist:
 
 ---
 
-## 5. Optional: local ONNX smoke (not CI-gated)
+## 5. Optional: in-process local ONNX (`embedder=local`)
+
+Not the same as a **local OpenAI-compatible HTTP server** — use `embedder=local` only when the ONNX model runs inside the Archivist JVM.
 
 ```properties
 archivist.retrieval.active-strategy=embedding
 archivist.retrieval.embedding.embedder=local
 archivist.retrieval.embedding.store=memory
+archivist.retrieval.embedding.dimensions=384
 ARCHIVIST_SECOND_BRAIN_PATH=/path/to/vault
 ```
 
@@ -92,33 +95,58 @@ Start MCP as documented in root README. First embed may download ONNX weights in
 
 ---
 
-## 6. Optional: OpenAI-compatible via Compose template
+## 6. Optional: OpenAI-compatible HTTP embedder (`embedder=openai-compatible`)
 
-```bash
-# Review and adapt:
-# deploy/docker-compose.embedding.example.yml
-docker compose -f deploy/docker-compose.embedding.example.yml up -d
-```
+**One adapter** for both **OpenAI’s API** and **any local server** that implements `POST {base-url}/v1/embeddings` with OpenAI’s JSON shape. Set `embedder=openai-compatible` and point `archivist.retrieval.embedding.openai.base-url` at either `https://api.openai.com` or `http://localhost:<port>`.
 
-Point Archivist at the published base URL:
+| Target | `openai.base-url` | Typical `openai.model` | Set `embedding.dimensions` to |
+| ------ | ------------------- | ---------------------- | ------------------------------ |
+| OpenAI | `https://api.openai.com` | `text-embedding-3-small` | `1536` |
+| Local proxy (e.g. TEI) | `http://localhost:8080` | Model id the server expects | Output size of that model (often `384` for MiniLM) |
+
+Shared properties:
 
 ```properties
 archivist.retrieval.active-strategy=embedding
 archivist.retrieval.embedding.embedder=openai-compatible
-archivist.retrieval.embedding.openai.base-url=http://localhost:<port>
+archivist.retrieval.embedding.store=memory
 archivist.retrieval.embedding.openai.api-key=<if-needed>
-archivist.retrieval.embedding.openai.model=<model-id>
+```
+
+For MCP/`bootRun`, use env vars (see root README **Embedding retrieval**): `ARCHIVIST_RETRIEVAL_EMBEDDING_OPENAI_*` and `ARCHIVIST_RETRIEVAL_EMBEDDING_DIMENSIONS`. Spring does **not** bind `OPENAI_API_KEY` unless you copy it to `ARCHIVIST_RETRIEVAL_EMBEDDING_OPENAI_API_KEY`.
+
+### 6a. Local proxy via Compose (example)
+
+```bash
+# Review and adapt — on Apple Silicon you may need platform: linux/amd64 for the image
+# deploy/docker-compose.embedding.example.yml
+docker compose -f deploy/docker-compose.embedding.example.yml up -d
+```
+
+Then aim Archivist at the published URL (example service maps host `8080`):
+
+```properties
+archivist.retrieval.embedding.openai.base-url=http://localhost:8080
+archivist.retrieval.embedding.openai.model=sentence-transformers/all-MiniLM-L6-v2
+archivist.retrieval.embedding.dimensions=384
 ```
 
 Vector DB services in the Compose file remain **placeholders** until a future store adapter ships — do not expect Archivist to connect to them in 006.
 
-**Direct OpenAI API (no Compose):** with `OPENAI_API_KEY` set:
+### 6b. OpenAI API (no Compose)
+
+```properties
+archivist.retrieval.embedding.openai.base-url=https://api.openai.com
+archivist.retrieval.embedding.openai.model=text-embedding-3-small
+archivist.retrieval.embedding.dimensions=1536
+archivist.retrieval.embedding.openai.api-key=<from-env>
+```
+
+Automated smoke (requires `OPENAI_API_KEY`; maps key inside the test only):
 
 ```bash
 ./gradlew :infrastructure:test --tests 'io.archivist.infrastructure.retrieval.embedding.OpenAiEmbeddingLiveSmokeTest'
 ```
-
-Uses `https://api.openai.com`, `text-embedding-3-small`, and `dimensions=1536`. For MCP/`bootRun`, map the key to `ARCHIVIST_RETRIEVAL_EMBEDDING_OPENAI_API_KEY` (Spring does not read `OPENAI_API_KEY` automatically).
 
 ---
 

@@ -1,10 +1,13 @@
 # Example Compose stack for Archivist embedding experiments
 #
 # NOT required for default Archivist (lexical / BM25 / in-memory embedding + stub CI).
-# Copy and adapt. Point Archivist at the published embeddings URL with:
+# See specs/006-embedding-retrieval/quickstart.md and README "Embedding retrieval".
+# Same embedder id (openai-compatible) for OpenAI API or a local /v1/embeddings proxy.
 #   archivist.retrieval.active-strategy=embedding
 #   archivist.retrieval.embedding.embedder=openai-compatible
-#   archivist.retrieval.embedding.openai.base-url=http://localhost:8080
+# OpenAI:  base-url=https://api.openai.com  dimensions=1536  model=text-embedding-3-small
+# Local:   base-url=http://localhost:8080     dimensions=<model size>  model=<server model id>
+#   archivist.retrieval.embedding.openai.base-url=...
 #   archivist.retrieval.embedding.store=memory
 #
 # See specs/006-embedding-retrieval/quickstart.md and docs/adr/ADR-0005-pluggable-embedding-retrieval.md

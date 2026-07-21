@@ -40,7 +40,7 @@ MCP contract fixtures (spec 002) and transport handlers stay **unchanged**.
 | `docs/adr/ADR-0005-pluggable-embedding-retrieval.md` | Architectural decision: SPIs + chunking/dedupe |
 | `deploy/docker-compose.embedding.example.yml` | Compose template (embeddings example + placeholder DBs) |
 | `README.md` Phase 2 | Roadmap checkbox + pointer to quickstart/ADR |
-| [../quickstart.md](../quickstart.md) | How to validate and wire adapters |
+| [../quickstart.md](../quickstart.md) | How to validate; **`local` vs `openai-compatible`** (OpenAI API vs local HTTP proxy) |
 
 ---
 
