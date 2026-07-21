@@ -10,6 +10,7 @@ dependencies {
     implementation(platform(libs.spring.ai.bom))
     implementation(libs.spring.boot.starter)
     implementation(libs.spring.ai.commons)
+    implementation(libs.spring.ai.transformers)
     implementation(libs.spring.boot.starter.validation)
     implementation(libs.snakeyaml)
     implementation(libs.lucene.core)

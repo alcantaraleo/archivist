@@ -10,9 +10,9 @@ import java.util.HexFormat;
 import java.util.List;
 import java.util.Objects;
 
-final class CorpusFingerprint {
+public final class CorpusFingerprint {
 
-    String compute(KnowledgeCorpus corpus) {
+    public String compute(KnowledgeCorpus corpus) {
         Objects.requireNonNull(corpus, "corpus");
         List<Provenance> catalog = corpus.catalog();
         List<Provenance> sorted = catalog.stream()

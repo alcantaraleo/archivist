@@ -1,0 +1,40 @@
+# Example Compose stack for Archivist embedding experiments
+#
+# NOT required for default Archivist (lexical / BM25 / in-memory embedding + stub CI).
+# Copy and adapt. Point Archivist at the published embeddings URL with:
+#   archivist.retrieval.active-strategy=embedding
+#   archivist.retrieval.embedding.embedder=openai-compatible
+#   archivist.retrieval.embedding.openai.base-url=http://localhost:8080
+#   archivist.retrieval.embedding.store=memory
+#
+# See specs/006-embedding-retrieval/quickstart.md and docs/adr/ADR-0005-pluggable-embedding-retrieval.md
+
+services:
+  # Example OpenAI-compatible embeddings HTTP endpoint (illustrative image — swap as needed).
+  # tei = Text Embeddings Inference; any OpenAI-shaped /v1/embeddings proxy works.
+  embeddings:
+    image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.5
+    ports:
+      - "8080:80"
+    command: ["--model-id", "sentence-transformers/all-MiniLM-L6-v2"]
+
+  # ---------------------------------------------------------------------------
+  # FUTURE ADAPTERS — not wired in Archivist 006 (SPI + memory store only).
+  # Uncomment when a future spec ships pgvector / chromadb VectorStore adapters.
+  # ---------------------------------------------------------------------------
+
+  # pgvector:
+  #   # future adapter — not wired in Archivist 006
+  #   image: pgvector/pgvector:pg16
+  #   environment:
+  #     POSTGRES_PASSWORD: archivist
+  #     POSTGRES_USER: archivist
+  #     POSTGRES_DB: archivist
+  #   ports:
+  #     - "5432:5432"
+
+  # chromadb:
+  #   # future adapter — not wired in Archivist 006
+  #   image: chromadb/chroma:latest
+  #   ports:
+  #     - "8000:8000"

@@ -1,5 +1,6 @@
 package io.archivist.infrastructure.retrieval;
 
+import io.archivist.infrastructure.retrieval.embedding.EmbeddingProperties;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -9,7 +10,7 @@ import org.springframework.validation.annotation.Validated;
 
 @Validated
 @ConfigurationProperties(prefix = "archivist.retrieval")
-class RetrievalProperties {
+public class RetrievalProperties {
 
     @NotBlank
     private String activeStrategy = "lexical";
@@ -20,6 +21,10 @@ class RetrievalProperties {
     @Valid
     @NestedConfigurationProperty
     private Bm25Properties bm25 = new Bm25Properties();
+
+    @Valid
+    @NestedConfigurationProperty
+    private EmbeddingProperties embedding = new EmbeddingProperties();
 
     public String getActiveStrategy() {
         return activeStrategy;
@@ -43,5 +48,13 @@ class RetrievalProperties {
 
     public void setBm25(Bm25Properties bm25) {
         this.bm25 = bm25;
+    }
+
+    public EmbeddingProperties getEmbedding() {
+        return embedding;
+    }
+
+    public void setEmbedding(EmbeddingProperties embedding) {
+        this.embedding = embedding;
     }
 }

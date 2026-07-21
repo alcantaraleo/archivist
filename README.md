@@ -359,8 +359,8 @@ Contributors: read [`AGENTS.md`](AGENTS.md) and use [`.github/pull_request_templ
 
 ### Phase 2 — Retrieval evolution
 
-- [ ] BM25 retrieval  
-- [ ] Embedding-based retrieval  
+- [x] BM25 retrieval — [`specs/005-bm25-retrieval/`](specs/005-bm25-retrieval/); [`ADR-0004`](docs/adr/ADR-0004-bm25-index-cache-invalidation.md)  
+- [x] Embedding-based retrieval — [`specs/006-embedding-retrieval/`](specs/006-embedding-retrieval/) (quickstart, contracts); [`ADR-0005`](docs/adr/ADR-0005-pluggable-embedding-retrieval.md); Compose example [`deploy/docker-compose.embedding.example.yml`](deploy/docker-compose.embedding.example.yml)  
 - [ ] Hybrid retrieval and re-ranking  
 
 ### Phase 3 — Advanced retrieval

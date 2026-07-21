@@ -4,7 +4,7 @@
 **Feature Branch**: `006-embedding-retrieval`
 **Created:** 2026-07-20
 **Author:** Leonardo Alcantara
-**Issue:** TBD — feat(retrieval): Embedding-Based Retrieval Strategy
+**Issue:** [#112](https://github.com/alcantaraleo/archivist/issues/112) — feat(retrieval): Embedding-Based Retrieval Strategy
 
 ---
 

@@ -1,7 +1,7 @@
 # Implementation Plan: Embedding-Based Retrieval Strategy
 
 **Branch**: `006-embedding-retrieval` | **Date**: 2026-07-20 | **Spec**: [spec.md](spec.md)  
-**Status**: Plan complete (Phase 0–1) — ready for `/speckit-tasks`  
+**Status**: Plan complete (Phase 0–1) — `tasks.md` generated; ready for `/speckit-implement`  
 **Input**: Feature specification from `specs/006-embedding-retrieval/spec.md`
 
 ---
@@ -102,7 +102,7 @@ specs/006-embedding-retrieval/
 │   └── fixture-embedding-ranking-scenario.json
 ├── checklists/
 │   └── requirements.md
-└── tasks.md                             # /speckit-tasks (not yet)
+└── tasks.md                             # /speckit-tasks ✅
 ```
 
 ### Source Code (repository root — planned changes)
