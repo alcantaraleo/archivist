@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.3.0](https://github.com/alcantaraleo/archivist/compare/v0.2.2...v0.3.0) (2026-07-21)
+
+
+### Features
+
+* **retrieval:** add hybrid consensus strategy ([#135](https://github.com/alcantaraleo/archivist/issues/135)) ([626513a](https://github.com/alcantaraleo/archivist/commit/626513a3566316dc384a01db6555eb446b06d161))
+* **retrieval:** add opt-in Lucene BM25 strategy ([#111](https://github.com/alcantaraleo/archivist/issues/111)) ([899b66c](https://github.com/alcantaraleo/archivist/commit/899b66c849b1804e9a8d693a59fa8b420f409a54))
+* **retrieval:** embedding-based retrieval strategy (spec 006) ([#126](https://github.com/alcantaraleo/archivist/issues/126)) ([7e99110](https://github.com/alcantaraleo/archivist/commit/7e99110e59b1ddb31b42a347041d7eb46a5051bc))
+
+
+### Documentation
+
+* **readme:** link second-brain-public as reference corpus ([fc8d92a](https://github.com/alcantaraleo/archivist/commit/fc8d92ac117f54247315e143b20b2262c5ac20b1))
+* **readme:** public launch onboarding ([#97](https://github.com/alcantaraleo/archivist/issues/97)) ([3f6ce27](https://github.com/alcantaraleo/archivist/commit/3f6ce27fc89a45907caa93eabbda71516ec5b310))
+
 ## [0.2.2](https://github.com/alcantaraleo/archivist/compare/v0.2.1...v0.2.2) (2026-07-15)
 
 
