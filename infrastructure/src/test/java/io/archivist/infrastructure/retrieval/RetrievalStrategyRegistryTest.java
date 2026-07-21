@@ -47,8 +47,21 @@ class RetrievalStrategyRegistryTest {
         assertTrue(strategies.stream().anyMatch(strategy -> "lexical".equals(strategy.name())));
         assertTrue(strategies.stream().anyMatch(strategy -> "bm25".equals(strategy.name())));
         assertTrue(strategies.stream().anyMatch(strategy -> "embedding".equals(strategy.name())));
+        assertTrue(strategies.stream().anyMatch(strategy -> "hybrid".equals(strategy.name())));
         assertInstanceOf(Bm25RetrievalStrategy.class, registry.getActive());
         assertEquals("bm25", registry.getActive().name());
+    }
+
+    @Test
+    void resolvesHybridWhenRegistered() {
+        RetrievalStrategy lexical = named("lexical");
+        RetrievalStrategy bm25 = named("bm25");
+        RetrievalStrategy embedding = named("embedding");
+        RetrievalStrategy hybrid = named("hybrid");
+        RetrievalStrategyRegistry unitRegistry =
+                new RetrievalStrategyRegistry(List.of(lexical, bm25, embedding, hybrid), "hybrid");
+
+        assertSame(hybrid, unitRegistry.getActive());
     }
 
     @Test

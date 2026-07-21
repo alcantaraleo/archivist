@@ -54,7 +54,7 @@ Wire your agent to the jar — see [Agent MCP configuration](#agent-mcp-configur
 
 ## Overview
 
-Archivist is a **retrieval layer** between LLM agents and a knowledge corpus. The public contract speaks in **domain terms** (`findDecisions`, `findPeople`, …). Storage, indexing, and ranking strategies stay **private** and can evolve (lexical today; hybrid and graph on the roadmap) without breaking MCP clients.
+Archivist is a **retrieval layer** between LLM agents and a knowledge corpus. The public contract speaks in **domain terms** (`findDecisions`, `findPeople`, …). Storage, indexing, and ranking strategies stay **private** and can evolve (lexical, BM25, embedding, and hybrid consensus today; graph on the roadmap) without breaking MCP clients.
 
 It sits between external LLM agents and a personal knowledge system, exposing domain-specific capabilities so agents retrieve knowledge without knowing how it is stored, indexed, or organised.
 
@@ -422,7 +422,7 @@ Contributors: read [`AGENTS.md`](AGENTS.md) and use [`.github/pull_request_templ
 
 - [x] BM25 retrieval — [`specs/005-bm25-retrieval/`](specs/005-bm25-retrieval/); [`ADR-0004`](docs/adr/ADR-0004-bm25-index-cache-invalidation.md)  
 - [x] Embedding-based retrieval — [`specs/006-embedding-retrieval/`](specs/006-embedding-retrieval/) (quickstart, contracts); [`ADR-0005`](docs/adr/ADR-0005-pluggable-embedding-retrieval.md); Compose example [`deploy/docker-compose.embedding.example.yml`](deploy/docker-compose.embedding.example.yml)  
-- [ ] Hybrid retrieval and re-ranking  
+- [x] Hybrid retrieval and re-ranking — [`specs/007-hybrid-retrieval/`](specs/007-hybrid-retrieval/) (quickstart); [`ADR-0006`](docs/adr/ADR-0006-hybrid-consensus-retrieval.md)  
 
 ### Phase 3 — Advanced retrieval
 
