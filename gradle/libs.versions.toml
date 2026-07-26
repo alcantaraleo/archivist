@@ -1,7 +1,7 @@
 [versions]
 spring-boot = "4.1.0"
 spring-ai = "2.0.0"
-lucene = "9.12.1"
+lucene = "10.5.0"
 
 [libraries]
 spring-boot-bom = { module = "org.springframework.boot:spring-boot-dependencies", version.ref = "spring-boot" }
